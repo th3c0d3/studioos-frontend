@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>StudioOS — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & VARS ─────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#111113;--bg2:#1a1a1e;--bg3:#222228;--bg4:#2a2a32;
+  --border:#333340;--border2:#444458;
+  --text:#e8e8f0;--text2:#9898b0;--text3:#5a5a70;
+  --green:#39ff7a;--green2:#1a8c3a;--green3:#0d3d1a;
+  --yellow:#ffe135;--yellow2:#8c7a10;--yellow3:#2a2200;
+  --orange:#ff7c1a;--red:#ff2d55;
+  --blue:#00cfff;--blue2:#0050a0;--blue3:#001a3a;
+  --purple:#b060ff;
+  --gold:#ffd700;--gold2:#b8960c;--gold3:#2a1f00;
+  --accent:#39ff7a;
+  --font:'Rajdhani',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden}
+button{font-family:var(--font)}
+input,select{font-family:var(--font)}
+
+/* ── LOGIN SCREEN ─────────────────────────────────────────── */
+#login-screen{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+#login-screen.hidden{display:none}
+.login-box{width:100%;max-width:400px}
+.login-logo{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--green);letter-spacing:4px;text-align:center;margin-bottom:8px}
+.login-logo span{color:var(--text3);font-weight:300}
+.login-tagline{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);text-align:center;margin-bottom:40px}
+.login-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:28px}
+.login-tab{flex:1;padding:10px;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);background:none;border-top:none;border-left:none;border-right:none;transition:all .2s}
+.login-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.login-field{margin-bottom:16px}
+.login-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:6px}
+.login-input{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:12px 14px;font-family:var(--font);font-size:14px;border-radius:3px;outline:none;transition:border-color .2s}
+.login-input:focus{border-color:var(--accent)}
+.login-btn{width:100%;background:var(--green);color:#000;border:none;padding:13px;font-family:var(--font);font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:3px;cursor:pointer;margin-top:8px;transition:all .2s}
+.login-btn:hover{background:#4fff8f}
+.login-btn:disabled{opacity:.4;cursor:not-allowed}
+.login-error{color:var(--red);font-size:12px;letter-spacing:1px;margin-top:10px;text-align:center;min-height:18px}
+.login-guest{text-align:center;margin-top:20px}
+.login-guest a{color:var(--text3);font-size:12px;letter-spacing:1px;cursor:pointer;transition:color .2s;text-decoration:none}
+.login-guest a:hover{color:var(--text2)}
+.login-meter{display:flex;gap:3px;justify-content:center;margin-top:32px}
+.lm-seg{width:24px;height:5px;border-radius:1px}
+
+/* ── TOP BAR ──────────────────────────────────────────────── */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:16px;font-weight:700;letter-spacing:3px;color:var(--green);font-family:var(--mono)}
+.logo span{color:var(--text2);font-weight:400}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.clock{font-family:var(--mono);font-size:12px;color:var(--text2);letter-spacing:2px}
+.user-badge{font-size:10px;letter-spacing:1px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:3px 8px;border-radius:2px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:11px;letter-spacing:1px;cursor:pointer;border-radius:3px;transition:all .2s}
+.topbar-btn:hover{border-color:var(--accent);color:var(--accent)}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);display:inline-block;margin-right:4px;transition:background .3s}
+.sync-dot.synced{background:var(--green)}
+.sync-dot.syncing{background:var(--yellow);animation:pulse-seg 1s infinite}
+.sync-dot.error{background:var(--red)}
+
+/* ── MONTH BANNER ─────────────────────────────────────────── */
+.month-banner{background:linear-gradient(90deg,rgba(57,255,122,.08),rgba(57,255,122,.03),transparent);border-bottom:1px solid rgba(57,255,122,.15);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.month-label{font-family:var(--mono);font-size:12px;color:var(--green);letter-spacing:3px;font-weight:500}
+.month-actions{display:flex;gap:8px;align-items:center}
+.new-month-btn{background:linear-gradient(135deg,var(--gold3),#1a1500);border:1px solid var(--gold2);color:var(--gold);padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s}
+.new-month-btn:hover{background:var(--gold2);color:#000}
+.history-btn{background:transparent;border:1px solid var(--border);color:var(--text3);padding:5px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s}
+.history-btn:hover{border-color:var(--text2);color:var(--text2)}
+
+/* ── TAB NAV ──────────────────────────────────────────────── */
+.tabnav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 12px;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabnav::-webkit-scrollbar{display:none}
+.tab{padding:10px 14px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:all .2s;white-space:nowrap;position:relative;background:none;border-top:none;border-left:none;border-right:none}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab.archive-tab{color:var(--gold2)}
+.tab.archive-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab .badge{position:absolute;top:6px;right:4px;background:var(--accent);color:#000;font-size:8px;font-weight:700;width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.tab.archive-tab .badge{background:var(--gold)}
+
+/* ── MAIN ─────────────────────────────────────────────────── */
+.main{padding:16px;display:none}
+.main.visible{display:block}
+
+/* ── STATS ROW ────────────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:10px;text-align:center}
+.stat-val{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);line-height:1}
+.stat-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:3px}
+
+/* ── SEC HEADER ───────────────────────────────────────────── */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);display:flex;align-items:center;gap:6px}
+.sec-title::before{content:'';width:2px;height:12px;background:var(--accent);display:block}
+
+/* ── TRACK CARD ───────────────────────────────────────────── */
+.track-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.track-card:hover{border-color:var(--border2)}
+.track-card.mastering-mode{border-left:3px solid var(--green)}
+.track-card.logic-mode{border-left:3px solid var(--blue)}
+.track-card.complete-glow{animation:complete-pulse 2s ease-in-out 3}
+@keyframes complete-pulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 20px var(--green),0 0 40px rgba(57,255,122,.3)}}
+.track-header{display:flex;align-items:center;padding:9px 12px;gap:8px;cursor:pointer;user-select:none}
+.track-drag{color:var(--text3);font-size:14px;cursor:grab;line-height:1}
+.track-num{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:20px}
+.track-title{flex:1;font-size:14px;font-weight:600;letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track-cat{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:2px;font-weight:600;flex-shrink:0}
+.cat-music{background:var(--green3);color:var(--green);border:1px solid var(--green2)}
+.cat-appdev{background:var(--blue3);color:var(--blue);border:1px solid var(--blue2)}
+.track-pct{font-family:var(--mono);font-size:11px;color:var(--text2);min-width:32px;text-align:right;flex-shrink:0}
+.track-toggle{color:var(--text3);font-size:11px;transition:transform .2s;flex-shrink:0}
+.track-toggle.open{transform:rotate(180deg)}
+.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:2px 5px;border-radius:3px;transition:all .2s;flex-shrink:0}
+.del-btn:hover{color:var(--red)}
+.archive-btn{background:linear-gradient(135deg,var(--gold3),#1a1500);border:1px solid var(--gold2);color:var(--gold);padding:3px 10px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s;animation:gold-pulse 1.5s infinite;flex-shrink:0}
+@keyframes gold-pulse{0%,100%{box-shadow:0 0 4px rgba(255,215,0,.3)}50%{box-shadow:0 0 12px rgba(255,215,0,.6)}}
+.archive-btn:hover{background:var(--gold2);color:#000}
+
+/* ── METER ────────────────────────────────────────────────── */
+.meter-wrap{padding:6px 12px 12px;border-top:1px solid var(--border)}
+.meter-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.seg-bar{display:flex;gap:2px}
+.seg{flex:1;height:18px;border-radius:2px;cursor:pointer;transition:all .2s;border:1px solid rgba(0,0,0,.3)}
+.seg.active{animation:pulse-seg 1s infinite}
+.seg.pending{opacity:.2}
+.seg.s-green{background:var(--green)}
+.seg.s-yellow{background:var(--yellow)}
+.seg.s-orange{background:var(--orange)}
+.seg.s-red{background:var(--red)}
+.seg.active.s-green{box-shadow:0 0 6px var(--green)}
+.seg.active.s-yellow{box-shadow:0 0 6px var(--yellow)}
+.seg.active.s-orange{box-shadow:0 0 6px var(--orange)}
+.seg.active.s-red{box-shadow:0 0 6px var(--red)}
+@keyframes pulse-seg{0%,100%{opacity:1}50%{opacity:.5}}
+.seg-names{display:flex;gap:2px;margin-top:3px}
+.seg-name{flex:1;font-size:7px;color:var(--text3);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono)}
+
+/* ── ADD FORM ─────────────────────────────────────────────── */
+.add-form{background:var(--bg3);border:1px dashed var(--border2);border-radius:4px;padding:12px;margin-bottom:10px}
+.add-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:110px}
+.field-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
+.daw-input{background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:7px 9px;font-size:13px;border-radius:3px;outline:none;transition:border-color .2s;width:100%}
+.daw-input:focus{border-color:var(--accent)}
+.daw-select{background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:7px 9px;font-size:13px;border-radius:3px;outline:none;cursor:pointer;width:100%}
+.btn-green{background:var(--green3);border:1px solid var(--green2);color:var(--green);padding:7px 14px;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-green:hover{background:var(--green2)}
+.btn-blue{background:var(--blue3);border:1px solid var(--blue2);color:var(--blue);padding:7px 14px;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:7px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── FITNESS ──────────────────────────────────────────────── */
+.fit-grid{display:flex;gap:6px;margin-bottom:12px}
+.fit-day{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s;flex:1}
+.fit-day.done{border-color:var(--green);background:var(--green3)}
+.fit-day .day-icon{font-size:18px;margin-bottom:3px}
+.fit-day .day-name{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);font-weight:600}
+.fit-day.done .day-name{color:var(--green)}
+.fit-target-row{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:12px}
+
+/* ── READING ──────────────────────────────────────────────── */
+.book-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:14px;margin-bottom:10px}
+.book-bar{background:var(--bg4);border-radius:2px;height:7px;margin:8px 0;overflow:hidden}
+.book-fill{height:100%;background:linear-gradient(90deg,var(--blue2),var(--blue));border-radius:2px;transition:width .4s}
+.book-info{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);font-family:var(--mono)}
+
+/* ── APPDEV ───────────────────────────────────────────────── */
+.appdev-card{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:4px;margin-bottom:10px;overflow:hidden}
+.sprint-seg{flex:1;height:15px;border-radius:2px;cursor:pointer;transition:all .2s}
+.sprint-seg.done{background:var(--blue);box-shadow:0 0 5px rgba(0,207,255,.3)}
+.sprint-seg.active{background:var(--purple);animation:pulse-seg 1s infinite;box-shadow:0 0 6px var(--purple)}
+.sprint-seg.pending{background:var(--bg4);border:1px solid var(--border2);opacity:.5}
+
+/* ── HOLOGRAPHIC ARCHIVE ──────────────────────────────────── */
+.holo-card{position:relative;border-radius:5px;margin-bottom:12px;overflow:hidden;background:linear-gradient(135deg,#0d0d0f,#1a1508 50%,#0d0d0f);border:1px solid var(--gold2)}
+.holo-card::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,215,0,.05),transparent);animation:holo-sweep 4s linear infinite;pointer-events:none}
+@keyframes holo-sweep{0%{left:-60%}100%{left:160%}}
+.holo-inner{position:relative;z-index:1;padding:12px}
+.holo-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer}
+.holo-title{font-size:14px;font-weight:700;letter-spacing:.5px;color:var(--gold);flex:1}
+.released-badge{font-size:8px;letter-spacing:2px;background:var(--gold3);color:var(--gold);border:1px solid var(--gold2);padding:2px 6px;border-radius:2px;font-weight:700;text-transform:uppercase}
+.holo-ts{font-family:var(--mono);font-size:9px;color:var(--gold2)}
+.locked-bar{display:flex;gap:2px;margin:4px 0}
+.locked-seg{flex:1;height:12px;border-radius:2px;cursor:not-allowed}
+.ls-green{background:var(--green);opacity:.7}
+.ls-yellow{background:var(--yellow);opacity:.7}
+.ls-orange{background:var(--orange);opacity:.7}
+.ls-red{background:var(--red);opacity:.7}
+.ls-blue{background:var(--blue);opacity:.7}
+.ls-purple{background:var(--purple);opacity:.7}
+.liner-notes{background:rgba(255,215,0,.03);border:1px solid rgba(255,215,0,.1);border-radius:3px;padding:8px 10px;margin-top:6px}
+.liner-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,215,0,.06);font-size:11px}
+.liner-row:last-child{border-bottom:none}
+.liner-key{letter-spacing:1px;color:var(--gold2);text-transform:uppercase;font-size:9px;font-weight:600}
+.liner-val{font-family:var(--mono);color:var(--text2)}
+.reopen-btn{background:transparent;border:1px solid var(--border);color:var(--text3);font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.reopen-btn:hover{border-color:var(--orange);color:var(--orange)}
+
+/* ── MONTH HISTORY PANEL ──────────────────────────────────── */
+.history-panel{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:16px}
+.history-months{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.month-chip{background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:6px 12px;cursor:pointer;transition:all .2s;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2)}
+.month-chip:hover{border-color:var(--gold);color:var(--gold)}
+.month-chip.active-chip{border-color:var(--gold);color:var(--gold);background:var(--gold3)}
+
+/* ── NEW MONTH CONFIRM MODAL ──────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.hidden{display:none}
+.modal-box{background:var(--bg2);border-radius:6px;width:100%;max-width:460px;overflow:hidden}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.modal-body{padding:20px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+
+/* ── PREFLIGHT MODAL ──────────────────────────────────────── */
+.preflight-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+.preflight-overlay.hidden{display:none}
+.preflight-box{background:var(--bg2);border:2px solid var(--yellow2);border-radius:6px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
+.preflight-header{background:linear-gradient(135deg,var(--yellow3),#1a1400);padding:14px 18px;border-bottom:1px solid var(--yellow2);display:flex;align-items:center;gap:10px}
+.preflight-warn-icon{width:28px;height:28px;background:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#000;flex-shrink:0}
+.preflight-title{font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--yellow)}
+.preflight-body{padding:16px}
+.cl-section{margin-bottom:16px}
+.cl-section-title{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--yellow);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.cl-section-title::before{content:'';width:2px;height:10px;background:var(--yellow);display:block}
+.cl-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.cl-item:last-child{border-bottom:none}
+.cl-item:hover{background:rgba(255,225,53,.04);border-radius:2px}
+.cl-box{width:14px;height:14px;border:1px solid var(--yellow2);border-radius:2px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.cl-box.checked{background:var(--yellow);border-color:var(--yellow)}
+.cl-box.checked::after{content:'✓';font-size:9px;color:#000;font-weight:900}
+.cl-text{font-size:12px;color:var(--text2);flex:1;line-height:1.4}
+.cl-item.cl-done .cl-text{color:var(--text3);text-decoration:line-through}
+.preflight-footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pf-progress{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.final-btn{background:linear-gradient(135deg,var(--gold3),#1a1500);border:2px solid var(--gold2);color:var(--gold);padding:9px 20px;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .2s}
+.final-btn:disabled{opacity:.3;cursor:not-allowed;border-color:var(--border);color:var(--text3)}
+.final-btn:not(:disabled):hover{background:var(--gold2);color:#000}
+
+/* ── LIGHT MODE ───────────────────────────────────────────── */
+body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0e0;--border2:#b0b0c8;--text:#1a1a2e;--text2:#555570;--text3:#9090a8;--green:#0a7a30;--green2:#0f9a40;--green3:#d0f0de;--blue:#0050a0;--blue2:#0070d0;--blue3:#d0e8ff;--gold3:#fff8d0;--gold2:#8c6800}
+
+/* ── TOAST ────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 20px;border-radius:4px;font-size:13px;letter-spacing:1px;z-index:500;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:var(--green2);color:var(--green)}
+.toast.error{border-color:var(--red);color:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ──────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Studio<span>OS</span></div>
+    <div class="login-tagline">Creative Command Center</div>
+    <div class="login-tabs">
+      <button class="login-tab active" id="tab-signin">Sign In</button>
+      <button class="login-tab" id="tab-signup">Create Account</button>
+    </div>
+    <div id="signin-form">
+      <div class="login-field"><label class="login-label">Email</label><input class="login-input" id="si-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="login-field"><label class="login-label">Password</label><input class="login-input" id="si-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="login-btn" id="signinBtn">ENTER STUDIO</button>
+      <div class="login-error" id="signin-error"></div>
+    </div>
+    <div id="signup-form" style="display:none">
+      <div class="login-field"><label class="login-label">Email</label><input class="login-input" id="su-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="login-field"><label class="login-label">Password (min 6 chars)</label><input class="login-input" id="su-pass" type="password" placeholder="••••••••" autocomplete="new-password"></div>
+      <button class="login-btn" id="signupBtn">CREATE ACCOUNT</button>
+      <div class="login-error" id="signup-error"></div>
+    </div>
+    <div class="login-guest"><a id="guestBtn">Continue without account (local only)</a></div>
+    <div class="login-meter">
+      <div class="lm-seg" style="background:#39ff7a"></div>
+      <div class="lm-seg" style="background:#39ff7a"></div>
+      <div class="lm-seg" style="background:#39ff7a"></div>
+      <div class="lm-seg" style="background:#39ff7a"></div>
+      <div class="lm-seg" style="background:#39ff7a"></div>
+      <div class="lm-seg" style="background:#39ff7a"></div>
+      <div class="lm-seg" style="background:#39ff7a"></div>
+      <div class="lm-seg" style="background:#39ff7a"></div>
+      <div class="lm-seg" style="background:#ffe135"></div>
+      <div class="lm-seg" style="background:#ff7c1a"></div>
+      <div class="lm-seg" style="background:#ff2d55"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ─────────────────────────────────────────── -->
+<div id="dashboard" style="display:none">
+  <div class="topbar">
+    <div class="logo">Studio<span>OS</span></div>
+    <div class="topbar-right">
+      <div class="clock" id="clock">00:00:00</div>
+      <span class="user-badge" id="user-badge">guest</span>
+      <span><span class="sync-dot" id="sync-dot"></span></span>
+      <button class="topbar-btn" id="themeBtn">◐</button>
+      <button class="topbar-btn" id="logoutBtn">EXIT</button>
+    </div>
+  </div>
+
+  <div class="month-banner">
+    <div class="month-label" id="month-label">LOADING...</div>
+    <div class="month-actions">
+      <button class="history-btn" id="historyBtn">📅 HISTORY</button>
+      <button class="new-month-btn" id="newMonthBtn">↺ NEW MONTH</button>
+    </div>
+  </div>
+
+  <div class="tabnav">
+    <button class="tab active" data-tab="music">Music <div class="badge" id="music-badge">0</div></button>
+    <button class="tab" data-tab="appdev">App Dev <div class="badge" id="appdev-badge">0</div></button>
+    <button class="tab" data-tab="fitness">Fitness</button>
+    <button class="tab" data-tab="reading">Reading</button>
+    <button class="tab archive-tab" data-tab="archive">Hall of Fame <div class="badge" id="archive-badge">0</div></button>
+  </div>
+
+  <div class="main visible" id="tab-music">
+    <div class="stats-row" id="music-stats"></div>
+    <div class="sec-header"><div class="sec-title">Track Sessions</div><button class="btn-ghost" id="addTrackBtn">+ NEW TRACK</button></div>
+    <div id="add-track-form" style="display:none">
+      <div class="add-form"><div class="add-row">
+        <div class="field"><div class="field-lbl">Title</div><input class="daw-input" id="newTitle" placeholder="Track Name..."></div>
+        <div class="field" style="max-width:120px"><div class="field-lbl">Category</div><select class="daw-select" id="newCat"><option value="Music">Music</option><option value="AppDev">AppDev</option></select></div>
+        <div class="field" style="max-width:90px"><div class="field-lbl">Segments</div><input class="daw-input" id="newSegs" type="number" min="1" max="20" value="11"></div>
+        <button class="btn-green" id="confirmAdd">ADD</button>
+        <button class="btn-ghost" id="cancelAdd">✕</button>
+      </div></div>
+    </div>
+    <div id="tracks-list"></div>
+  </div>
+
+  <div class="main" id="tab-appdev">
+    <div class="stats-row" id="appdev-stats"></div>
+    <div class="sec-header"><div class="sec-title">App Projects</div><button class="btn-ghost" id="addAppBtn">+ NEW PROJECT</button></div>
+    <div id="add-app-form" style="display:none">
+      <div class="add-form"><div class="add-row">
+        <div class="field"><div class="field-lbl">Project Name</div><input class="daw-input" id="newAppTitle" placeholder="Project Name..."></div>
+        <div class="field" style="max-width:90px"><div class="field-lbl">Tasks</div><input class="daw-input" id="newAppSegs" type="number" min="1" max="20" value="8"></div>
+        <button class="btn-blue" id="confirmAddApp">ADD</button>
+        <button class="btn-ghost" id="cancelAddApp">✕</button>
+      </div></div>
+    </div>
+    <div id="appdev-list"></div>
+  </div>
+
+  <div class="main" id="tab-fitness">
+    <div class="stats-row" id="fitness-stats"></div>
+    <div class="sec-header"><div class="sec-title">Weekly Workout Tracker</div><button class="btn-ghost" id="resetWeekBtn">↺ RESET</button></div>
+    <div id="fitness-days"></div>
+    <div class="fit-target-row" style="margin-top:10px">
+      <div style="flex:1"><div class="field-lbl" style="margin-bottom:5px">WEEKLY TARGET</div><input type="range" min="1" max="7" id="fitTarget" style="width:100%"></div>
+      <div style="font-family:var(--mono);font-size:20px;color:var(--accent);min-width:54px;text-align:center" id="fitTargetVal">3</div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="add-form"><div class="add-row">
+        <div class="field"><div class="field-lbl">Workout Note</div><input class="daw-input" id="fitNote" placeholder="e.g. Chest + Triceps..."></div>
+        <button class="btn-green" id="addFitNote">LOG</button>
+      </div>
+      <div id="fit-notes" style="margin-top:8px;display:flex;flex-direction:column;gap:5px"></div></div>
+    </div>
+  </div>
+
+  <div class="main" id="tab-reading">
+    <div class="stats-row" id="reading-stats"></div>
+    <div class="sec-header"><div class="sec-title">Reading List</div><button class="btn-ghost" id="addBookBtn">+ ADD BOOK</button></div>
+    <div id="add-book-form" style="display:none">
+      <div class="add-form"><div class="add-row">
+        <div class="field"><div class="field-lbl">Title</div><input class="daw-input" id="newBookTitle" placeholder="Book Title..."></div>
+        <div class="field" style="max-width:110px"><div class="field-lbl">Total Pages</div><input class="daw-input" id="newBookPages" type="number" min="10" value="300"></div>
+        <button class="btn-blue" id="confirmAddBook">ADD</button>
+        <button class="btn-ghost" id="cancelAddBook">✕</button>
+      </div></div>
+    </div>
+    <div id="books-list"></div>
+  </div>
+
+  <div class="main" id="tab-archive">
+    <div class="stats-row" id="archive-stats"></div>
+    <div id="archive-list"></div>
+  </div>
+</div>
+
+<!-- ── NEW MONTH MODAL ───────────────────────────────────── -->
+<div class="modal-overlay hidden" id="newMonthModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span style="font-size:20px">📅</span>
+      <div>
+        <div style="font-size:14px;font-weight:700;letter-spacing:2px;color:var(--gold)">START NEW MONTH</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Current month will be archived as a snapshot</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--text2);line-height:1.7">This will <span style="color:var(--gold)">save a snapshot</span> of your current workspace under <span id="snapshot-label" style="color:var(--gold);font-family:var(--mono)"></span>, then <span style="color:var(--red)">clear all songs, apps, books</span> and reset fitness for the new month. Your Hall of Fame and monthly history are never deleted.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancelNewMonth">CANCEL</button>
+      <button class="new-month-btn" id="confirmNewMonth">ARCHIVE & RESET</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── HISTORY MODAL ─────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="historyModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span style="font-size:20px">📖</span>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700;letter-spacing:2px;color:var(--blue)">MONTHLY HISTORY</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Browse past month snapshots</div>
+      </div>
+      <button class="btn-ghost" id="closeHistory">✕</button>
+    </div>
+    <div class="modal-body" id="history-body" style="max-height:60vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- ── PREFLIGHT MODAL ───────────────────────────────────── -->
+<div class="preflight-overlay hidden" id="preflightModal">
+  <div class="preflight-box">
+    <div class="preflight-header">
+      <div class="preflight-warn-icon">!</div>
+      <div>
+        <div class="preflight-title" id="pf-title">PRE-FLIGHT CHECKLIST</div>
+        <div style="font-size:10px;color:var(--yellow2);margin-top:2px" id="pf-subtitle">Complete all items before archiving</div>
+      </div>
+      <button class="btn-ghost" id="closePreflight" style="margin-left:auto">✕</button>
+    </div>
+    <div class="preflight-body" id="pf-body"></div>
+    <div class="preflight-footer">
+      <div class="pf-progress" id="pf-progress">0 / 0 checked</div>
+      <button class="final-btn" id="finalArchiveBtn" disabled>⬛ ARCHIVE PROJECT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ─────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+// IMPORTANT: Replace with your Railway backend URL after deploying
+const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:3001'
+  : 'https://YOUR-RAILWAY-APP.up.railway.app'; // <-- UPDATE THIS AFTER RAILWAY DEPLOY
+
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+const MUSIC_STEPS = ['Pre-Prod','Tracking GT','Tracking Bass','Drum Edit','Guitar Edit','Vocal Track','Comping','Mixing','Master Prep','Mastering','QC/Delivery'];
+const APP_STEPS   = ['Backlog','Planning','Design','Frontend','Backend','Integration','Testing','Deploy'];
+
+const MUSIC_CHECKLIST = [
+  {section:'Digital Distribution',items:['Upload to Distributor — all 5 WAV files 24-bit','Metadata Audit: Song Titles, Artist Name, Featured Artists','ISRC Codes: unique code for each song','Release Date & Time: 12:00 AM local or Global Friday','Lyric Sync: .lrc files for Spotify / Apple Music']},
+  {section:'Visual & Social Assets',items:['Cover Art: 3000×3000px RGB, no blurred text','Canvas / Looping Video: 8-second vertical loops for Spotify','Social Kit: 15-second teaser clip (Guitar focus)','Social Kit: 30-second Studio Process clip (Vocal/Mixing)','Linktree / SmartLink updated with Pre-Save or Listen Now']},
+  {section:'Platform Tasks',items:['Spotify for Artists: submit Lead Single to playlist editors','Bandcamp: FLAC/ALAC + digital booklet uploaded','YouTube: Official Audio / Lyric Video set to Premiere']}
+];
+const APP_CHECKLIST = [
+  {section:'Environment & Config',items:['All API keys set to Production mode','Analytics & error logging verified active','README.md and Version History updated']},
+  {section:'Deploy & QA',items:['Database backup completed before live migration','Smoke test: critical user flows on production URL','Rollback plan confirmed and documented']}
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let token = localStorage.getItem('studioos_token') || null;
+let userEmail = localStorage.getItem('studioos_email') || null;
+let isGuest = localStorage.getItem('studioos_guest') === 'true';
+let syncTimeout = null;
+
+function currentMonthLabel() {
+  const d = new Date();
+  return d.toLocaleString('en-US', {month:'long', year:'numeric'});
+}
+
+const DEFAULT_STATE = () => ({
+  month: currentMonthLabel(),
+  songs: [],
+  apps: [],
+  archived: [],
+  fitness: {
+    target: 3,
+    days: [{name:'Mon',done:false},{name:'Tue',done:false},{name:'Wed',done:false},{name:'Thu',done:false},{name:'Fri',done:false},{name:'Sat',done:false},{name:'Sun',done:false}],
+    notes: [],
+    lastReset: new Date().toISOString()
+  },
+  books: [],
+  nextId: 1,
+  darkMode: true,
+  checklistState: {}
+});
+
+let state = DEFAULT_STATE();
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg, type='', dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', dur);
+}
+
+// ── SYNC INDICATOR ─────────────────────────────────────────────────────────────
+function setSyncState(s) {
+  const dot = document.getElementById('sync-dot');
+  if (dot) dot.className = 'sync-dot ' + s;
+}
+
+// ── API ───────────────────────────────────────────────────────────────────────
+async function apiReq(path, method='GET', body=null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API_URL + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+async function saveToServer() {
+  if (isGuest || !token) { localStorage.setItem('studioos_state', JSON.stringify(state)); return; }
+  setSyncState('syncing');
+  try {
+    await apiReq('/state', 'POST', { state });
+    setSyncState('synced');
+  } catch (e) {
+    setSyncState('error');
+    localStorage.setItem('studioos_state', JSON.stringify(state)); // fallback
+  }
+}
+
+async function loadFromServer() {
+  if (isGuest || !token) {
+    const s = localStorage.getItem('studioos_state');
+    if (s) { try { state = JSON.parse(s); } catch(e) {} }
+    return;
+  }
+  setSyncState('syncing');
+  try {
+    const { state: serverState } = await apiReq('/state');
+    if (serverState) state = serverState;
+    setSyncState('synced');
+  } catch (e) {
+    setSyncState('error');
+    const s = localStorage.getItem('studioos_state');
+    if (s) { try { state = JSON.parse(s); } catch(err) {} }
+  }
+}
+
+function scheduleSave() {
+  clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(saveToServer, 800);
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+async function doAuth(type) {
+  const email = document.getElementById(type==='signin'?'si-email':'su-email').value.trim();
+  const pass  = document.getElementById(type==='signin'?'si-pass':'su-pass').value;
+  const errEl = document.getElementById(type==='signin'?'signin-error':'signup-error');
+  const btn   = document.getElementById(type==='signin'?'signinBtn':'signupBtn');
+  errEl.textContent = '';
+  if (!email || !pass) { errEl.textContent = 'Email and password required.'; return; }
+  btn.disabled = true; btn.textContent = 'CONNECTING...';
+  try {
+    const data = await apiReq('/auth/'+type, 'POST', { email, password: pass });
+    token = data.token; userEmail = data.email;
+    localStorage.setItem('studioos_token', token);
+    localStorage.setItem('studioos_email', userEmail);
+    localStorage.removeItem('studioos_guest');
+    isGuest = false;
+    await enterDashboard();
+  } catch (e) {
+    errEl.textContent = e.message;
+    btn.disabled = false;
+    btn.textContent = type==='signin' ? 'ENTER STUDIO' : 'CREATE ACCOUNT';
+  }
+}
+
+function doGuest() {
+  isGuest = true;
+  localStorage.setItem('studioos_guest', 'true');
+  token = null; userEmail = null;
+  enterDashboard();
+}
+
+async function enterDashboard() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('user-badge').textContent = userEmail || 'guest';
+  await loadFromServer();
+  checkMonthRollover();
+  checkWeeklyReset();
+  applyTheme();
+  renderAll();
+}
+
+function doLogout() {
+  token = null; userEmail = null; isGuest = false;
+  localStorage.removeItem('studioos_token');
+  localStorage.removeItem('studioos_email');
+  localStorage.removeItem('studioos_guest');
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('si-pass').value = '';
+  document.getElementById('su-pass').value = '';
+  state = DEFAULT_STATE();
+}
+
+// ── MONTH LOGIC ───────────────────────────────────────────────────────────────
+function checkMonthRollover() {
+  const current = currentMonthLabel();
+  if (!state.month) state.month = current;
+  if (state.month !== current) {
+    // Auto-prompt new month
+    document.getElementById('snapshot-label').textContent = state.month;
+    document.getElementById('newMonthModal').classList.remove('hidden');
+  }
+  document.getElementById('month-label').textContent = '◈ ' + (state.month || current).toUpperCase();
+}
+
+function checkWeeklyReset() {
+  const now = new Date(), day = now.getDay();
+  if (day === 1) {
+    const last = new Date(state.fitness.lastReset || 0);
+    if (Math.floor((now - last) / 86400000) >= 7) {
+      state.fitness.days.forEach(d => d.done = false);
+      state.fitness.lastReset = now.toISOString();
+      scheduleSave();
+    }
+  }
+}
+
+async function doNewMonth() {
+  const label = state.month || currentMonthLabel();
+  const snapshot = {
+    month: label,
+    songs: state.songs,
+    apps: state.apps,
+    books: state.books,
+    fitness: state.fitness,
+    archived: state.archived,
+    createdAt: new Date().toISOString()
+  };
+  // Save snapshot to server if logged in
+  if (!isGuest && token) {
+    try { await apiReq('/snapshots', 'POST', { monthLabel: label, snapshot }); }
+    catch(e) { console.warn('Snapshot save failed:', e); }
+  }
+  // Also save in localStorage as backup
+  const allSnaps = JSON.parse(localStorage.getItem('studioos_snapshots') || '{}');
+  allSnaps[label] = snapshot;
+  localStorage.setItem('studioos_snapshots', JSON.stringify(allSnaps));
+
+  // Reset workspace
+  const fresh = DEFAULT_STATE();
+  fresh.archived = state.archived; // keep hall of fame
+  fresh.checklistState = {};
+  fresh.darkMode = state.darkMode;
+  fresh.month = currentMonthLabel();
+  state = fresh;
+  scheduleSave();
+  document.getElementById('month-label').textContent = '◈ ' + state.month.toUpperCase();
+  document.getElementById('newMonthModal').classList.add('hidden');
+  renderAll();
+  showToast('New month started! ' + state.month, 'success');
+}
+
+// ── RENDER HELPERS ────────────────────────────────────────────────────────────
+function calcPct(steps) { return Math.round(steps.filter(s => s.status === 'done').length / steps.length * 100); }
+function daysDiff(ts) { return ts ? Math.max(1, Math.round((Date.now() - ts) / 86400000)) : 1; }
+function fmtDate(ts) { return ts ? new Date(ts).toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'}) : '—'; }
+function segCol(i, total) { const p = (i+1)/total; return p<=8/11?'s-green':p<=9/11?'s-yellow':p<=10/11?'s-orange':'s-red'; }
+
+function goldDisc() {
+  return `<svg width="26" height="26" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" fill="#2a1f00" stroke="#b8960c" stroke-width="1.5"/><circle cx="14" cy="14" r="9" fill="#1a1200" stroke="#ffd700" stroke-width="1"/><circle cx="14" cy="14" r="5" fill="#2a1f00" stroke="#b8960c" stroke-width="1"/><circle cx="14" cy="14" r="2" fill="#ffd700"/></svg>`;
+}
+
+// ── RENDER MUSIC ──────────────────────────────────────────────────────────────
+function renderTracks() {
+  const active = state.songs.filter(s => !s.is_archived);
+  document.getElementById('tracks-list').innerHTML = active.map((song, idx) => {
+    const pct = calcPct(song.steps), is100 = pct === 100;
+    const modeClass = song.category === 'Music' ? 'mastering-mode' : 'logic-mode';
+    const catClass = song.category === 'Music' ? 'cat-music' : 'cat-appdev';
+    const segs = song.steps.map((s,i) => `<div class="seg ${segCol(i,song.steps.length)} ${s.status}" data-idx="${i}" data-id="${song.id}" data-type="song" title="${s.name}"></div>`).join('');
+    const names = song.steps.map(s => `<div class="seg-name">${s.name}</div>`).join('');
+    return `<div class="track-card ${modeClass} ${is100?'complete-glow':''}" draggable="true" data-drag-idx="${idx}">
+      <div class="track-header" data-id="${song.id}" data-action="toggle">
+        <div class="track-drag">⠿</div>
+        <div class="track-num">${String(idx+1).padStart(2,'0')}</div>
+        <div class="track-title">${song.title}</div>
+        <span class="track-cat ${catClass}">${song.category}</span>
+        <div class="track-pct" style="${is100?'color:var(--green);font-weight:700':''}">${pct}%</div>
+        ${is100 ? `<button class="archive-btn" data-id="${song.id}" data-action="open-pf">ARCHIVE</button>` : ''}
+        <button class="del-btn" data-id="${song.id}" data-action="del-song">✕</button>
+        <div class="track-toggle ${song.expanded?'open':''}">▼</div>
+      </div>
+      ${song.expanded ? `<div class="meter-wrap"><div class="meter-label">STEP SEQUENCER — ${pct}% COMPLETE</div><div class="seg-bar">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
+    </div>`;
+  }).join('');
+  renderMusicStats(); setupDrag();
+}
+
+function renderApps() {
+  const active = state.apps.filter(a => !a.is_archived);
+  document.getElementById('appdev-list').innerHTML = active.map((app, idx) => {
+    const pct = calcPct(app.steps), is100 = pct === 100;
+    const segs = app.steps.map((s,i) => `<div class="sprint-seg ${s.status}" data-idx="${i}" data-id="${app.id}" data-type="app" title="${s.name}"></div>`).join('');
+    const names = app.steps.map(s => `<div class="seg-name">${s.name}</div>`).join('');
+    return `<div class="appdev-card ${is100?'complete-glow':''}">
+      <div class="track-header" data-id="${app.id}" data-action="toggle-app">
+        <div class="track-drag">⠿</div>
+        <div class="track-num">${String(idx+1).padStart(2,'0')}</div>
+        <div class="track-title">${app.title}</div>
+        <span class="track-cat cat-appdev">AppDev</span>
+        <div class="track-pct" style="${is100?'color:var(--blue);font-weight:700':''}">${pct}%</div>
+        ${is100 ? `<button class="archive-btn" style="border-color:var(--blue2);color:var(--blue);background:var(--blue3);animation:none" data-id="${app.id}" data-action="open-pf-app">ARCHIVE</button>` : ''}
+        <button class="del-btn" data-id="${app.id}" data-action="del-app">✕</button>
+        <div class="track-toggle ${app.expanded?'open':''}">▼</div>
+      </div>
+      ${app.expanded ? `<div class="meter-wrap" style="border-top:1px solid var(--border)"><div class="meter-label">SPRINT BOARD — ${pct}% SHIPPED</div><div class="seg-bar" style="gap:2px">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
+    </div>`;
+  }).join('');
+  renderAppStats();
+}
+
+function renderFitness() {
+  const icons = ['💪','🏋','🧘','🏃','🚴','🤸','🏊'];
+  document.getElementById('fitness-days').innerHTML = `<div class="fit-grid">${state.fitness.days.map((d,i) =>
+    `<div class="fit-day ${d.done?'done':''}" data-day="${i}"><div class="day-icon">${icons[i]}</div><div class="day-name">${d.name}</div></div>`
+  ).join('')}</div>`;
+  document.getElementById('fitTarget').value = state.fitness.target;
+  document.getElementById('fitTargetVal').textContent = state.fitness.target;
+  const notesEl = document.getElementById('fit-notes');
+  if (notesEl) notesEl.innerHTML = state.fitness.notes.map((n,i) =>
+    `<div style="display:flex;align-items:center;gap:8px;background:var(--bg4);border-radius:3px;padding:5px 9px;font-size:12px"><span style="color:var(--accent);font-family:var(--mono);font-size:9px">${String(i+1).padStart(2,'0')}</span><span style="flex:1;color:var(--text2)">${n}</span><button class="del-btn" data-note="${i}">✕</button></div>`
+  ).join('');
+  renderFitnessStats();
+}
+
+function renderBooks() {
+  document.getElementById('books-list').innerHTML = state.books.map(b => {
+    const pct = Math.min(100, Math.round(b.currentPage / b.totalPages * 100));
+    const done = b.currentPage >= b.totalPages;
+    return `<div class="book-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:14px;font-weight:600;letter-spacing:.5px">${b.title}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          ${done?'<span style="font-size:8px;letter-spacing:2px;color:var(--green);background:var(--green3);padding:2px 7px;border-radius:2px;border:1px solid var(--green2)">DONE</span>':''}
+          <button class="del-btn" data-bookid="${b.id}">✕</button>
+        </div>
+      </div>
+      <div class="book-bar"><div class="book-fill" style="width:${pct}%"></div></div>
+      <div class="book-info"><span>Page ${b.currentPage} / ${b.totalPages}</span><span style="color:var(--accent)">${pct}%</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <input type="range" min="0" max="${b.totalPages}" value="${b.currentPage}" data-bookslider="${b.id}" style="flex:1">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text2);min-width:36px;text-align:right" id="sv-${b.id}">${b.currentPage}</span>
+      </div>
+    </div>`;
+  }).join('');
+  renderReadingStats();
+}
+
+function renderArchive() {
+  const a = state.archived || [];
+  const list = document.getElementById('archive-list');
+  if (!a.length) {
+    list.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--text3);font-size:12px;letter-spacing:2px">NO ARCHIVED PROJECTS YET<br><span style="font-size:10px;margin-top:6px;display:block">Complete a project to see it here</span></div>`;
+    renderArchiveStats(); return;
+  }
+  list.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:10px 0 14px;border-bottom:1px solid rgba(255,215,0,.15);margin-bottom:14px"><span style="font-size:16px">✦</span><span style="font-size:11px;font-weight:700;letter-spacing:4px;color:var(--gold)">HALL OF FAME</span><span style="font-family:var(--mono);font-size:10px;color:var(--gold2)">${a.length} project${a.length!==1?'s':''}</span></div>` +
+  a.map((p, idx) => {
+    const isApp = p.type === 'app';
+    const days = daysDiff(p.startDate);
+    const lockedBar = p.steps.map((s,i) => {
+      const col = isApp ? (i < p.steps.length*0.6 ? 'ls-blue' : 'ls-purple') : ['ls-green','ls-green','ls-green','ls-green','ls-green','ls-green','ls-green','ls-green','ls-yellow','ls-orange','ls-red'][Math.min(i,10)];
+      return `<div class="locked-seg ${col}" title="${s.name}"></div>`;
+    }).join('');
+    const liner = isApp
+      ? `<div class="liner-notes"><div class="liner-row"><span class="liner-key">Version</span><span class="liner-val">${p.meta?.version||'v1.0'}</span></div><div class="liner-row"><span class="liner-key">Commits</span><span class="liner-val">${p.meta?.commits||Math.floor(Math.random()*180+40)}</span></div><div class="liner-row"><span class="liner-key">Deploy URL</span><span class="liner-val">${p.title.toLowerCase().replace(/\s/g,'-')}.vercel.app</span></div><div class="liner-row"><span class="liner-key">Days to ship</span><span class="liner-val">${days} days</span></div></div>`
+      : `<div class="liner-notes"><div class="liner-row"><span class="liner-key">Final LUFS</span><span class="liner-val">${p.meta?.lufs||'-14.0 LUFS'}</span></div><div class="liner-row"><span class="liner-key">Sample Rate</span><span class="liner-val">44.1 kHz / 24-bit</span></div><div class="liner-row"><span class="liner-key">Days to master</span><span class="liner-val">${days} days</span></div></div>`;
+    return `<div class="holo-card"><div class="holo-inner">
+      <div class="holo-header" data-archive-idx="${idx}">
+        ${isApp?'<div style="width:26px;height:26px;background:var(--blue3);border:1px solid var(--blue2);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">⚡</div>':goldDisc()}
+        <div style="flex:1"><div class="holo-title">${p.title}</div><div style="display:flex;gap:8px;align-items:center;margin-top:2px"><div class="holo-ts">RELEASED ${fmtDate(p.archivedAt)}</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3)">${days}d</div></div></div>
+        <span class="released-badge">RELEASED</span>
+        <button class="reopen-btn" data-reopen="${p.id}">↩ RE-OPEN</button>
+      </div>
+      <div class="locked-bar">${lockedBar}</div>
+      ${p.expanded ? liner : '<div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:2px">▼ tap to expand liner notes</div>'}
+    </div></div>`;
+  }).join('');
+  renderArchiveStats();
+  document.getElementById('archive-badge').textContent = a.length;
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderMusicStats() {
+  const active = state.songs.filter(s => !s.is_archived);
+  const done = active.filter(s => s.steps.every(x => x.status === 'done')).length;
+  const inProg = active.filter(s => s.steps.some(x => x.status === 'done' || x.status === 'active') && !s.steps.every(x => x.status === 'done')).length;
+  const avg = active.length ? Math.round(active.reduce((a,s) => a + calcPct(s.steps), 0) / active.length) : 0;
+  document.getElementById('music-stats').innerHTML = `<div class="stat-card"><div class="stat-val">${active.length}</div><div class="stat-lbl">Tracks</div></div><div class="stat-card"><div class="stat-val" style="color:var(--yellow)">${inProg}</div><div class="stat-lbl">Active</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">${done}</div><div class="stat-lbl">100%</div></div><div class="stat-card"><div class="stat-val" style="color:var(--blue)">${avg}%</div><div class="stat-lbl">Avg</div></div>`;
+  document.getElementById('music-badge').textContent = active.length;
+}
+function renderAppStats() {
+  const active = state.apps.filter(a => !a.is_archived);
+  const done = active.filter(a => a.steps.every(x => x.status === 'done')).length;
+  const avg = active.length ? Math.round(active.reduce((a,s) => a + calcPct(s.steps), 0) / active.length) : 0;
+  document.getElementById('appdev-stats').innerHTML = `<div class="stat-card"><div class="stat-val" style="color:var(--blue)">${active.length}</div><div class="stat-lbl">Projects</div></div><div class="stat-card"><div class="stat-val" style="color:var(--purple)">${active.length-done}</div><div class="stat-lbl">Active</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">${done}</div><div class="stat-lbl">Shipped</div></div><div class="stat-card"><div class="stat-val" style="color:var(--accent)">${avg}%</div><div class="stat-lbl">Avg</div></div>`;
+  document.getElementById('appdev-badge').textContent = active.length;
+}
+function renderFitnessStats() {
+  const done = state.fitness.days.filter(d => d.done).length;
+  const tgt = state.fitness.target;
+  document.getElementById('fitness-stats').innerHTML = `<div class="stat-card"><div class="stat-val" style="color:var(--accent)">${done}</div><div class="stat-lbl">Done</div></div><div class="stat-card"><div class="stat-val" style="color:var(--yellow)">${tgt}</div><div class="stat-lbl">Target</div></div><div class="stat-card"><div class="stat-val" style="color:${done>=tgt?'var(--green)':'var(--orange)'}">${done>=tgt?'✓':'✗'}</div><div class="stat-lbl">Track</div></div><div class="stat-card"><div class="stat-val" style="color:var(--blue)">${Math.round(done/7*100)}%</div><div class="stat-lbl">Week</div></div>`;
+}
+function renderReadingStats() {
+  const total = state.books.length;
+  const done = state.books.filter(b => b.currentPage >= b.totalPages).length;
+  const avg = total ? Math.round(state.books.reduce((a,b) => a + Math.min(100, Math.round(b.currentPage/b.totalPages*100)), 0) / total) : 0;
+  document.getElementById('reading-stats').innerHTML = `<div class="stat-card"><div class="stat-val" style="color:var(--blue)">${total}</div><div class="stat-lbl">Books</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">${done}</div><div class="stat-lbl">Done</div></div><div class="stat-card"><div class="stat-val" style="color:var(--yellow)">${total-done}</div><div class="stat-lbl">Reading</div></div><div class="stat-card"><div class="stat-val" style="color:var(--accent)">${avg}%</div><div class="stat-lbl">Avg</div></div>`;
+}
+function renderArchiveStats() {
+  const a = state.archived || [];
+  const music = a.filter(p => p.type === 'music').length;
+  const apps = a.filter(p => p.type === 'app').length;
+  document.getElementById('archive-stats').innerHTML = `<div class="stat-card"><div class="stat-val" style="color:var(--gold)">${a.length}</div><div class="stat-lbl">Total</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">${music}</div><div class="stat-lbl">Music</div></div><div class="stat-card"><div class="stat-val" style="color:var(--blue)">${apps}</div><div class="stat-lbl">Apps</div></div><div class="stat-card"><div class="stat-val" style="color:var(--yellow)">${a.length?Math.round(a.reduce((s,p)=>s+daysDiff(p.startDate),0)/a.length):0}</div><div class="stat-lbl">Avg Days</div></div>`;
+  document.getElementById('archive-badge').textContent = a.length;
+}
+
+function renderAll() {
+  renderTracks(); renderApps(); renderFitness(); renderBooks(); renderArchive();
+}
+
+function applyTheme() {
+  document.body.classList.toggle('light', !state.darkMode);
+  const btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = state.darkMode ? '◐' : '◑';
+}
+
+// ── PREFLIGHT ─────────────────────────────────────────────────────────────────
+let pfId = null, pfType = null;
+
+function openPreflight(id, type) {
+  pfId = id; pfType = type;
+  const checklist = type === 'music' ? MUSIC_CHECKLIST : APP_CHECKLIST;
+  const proj = type === 'music' ? state.songs.find(s => s.id === id) : state.apps.find(a => a.id === id);
+  if (!proj) return;
+  if (!state.checklistState[id]) state.checklistState[id] = {};
+  document.getElementById('pf-title').textContent = 'PRE-FLIGHT: ' + proj.title.toUpperCase().slice(0,24);
+  let html = '';
+  checklist.forEach((sec, si) => {
+    html += `<div class="cl-section"><div class="cl-section-title">${sec.section}</div>`;
+    sec.items.forEach((item, ii) => {
+      const key = `${si}-${ii}`, checked = state.checklistState[id][key] || false;
+      html += `<div class="cl-item ${checked?'cl-done':''}" data-check="${key}"><div class="cl-box ${checked?'checked':''}"></div><div class="cl-text">${item}</div></div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('pf-body').innerHTML = html;
+  document.getElementById('preflightModal').classList.remove('hidden');
+  updatePfProgress(id, checklist);
+}
+
+function updatePfProgress(id, checklist) {
+  const total = checklist.reduce((a,s) => a + s.items.length, 0);
+  const checked = Object.values(state.checklistState[id] || {}).filter(Boolean).length;
+  document.getElementById('pf-progress').textContent = checked + ' / ' + total + ' checked';
+  document.getElementById('finalArchiveBtn').disabled = checked < total;
+}
+
+function doArchive() {
+  const id = pfId, type = pfType;
+  let proj;
+  if (type === 'music') {
+    proj = state.songs.find(s => s.id === id);
+    if (proj) { state.songs = state.songs.filter(s => s.id !== id); state.archived.push({...proj, type:'music', archivedAt:Date.now(), expanded:false}); }
+  } else {
+    proj = state.apps.find(a => a.id === id);
+    if (proj) { state.apps = state.apps.filter(a => a.id !== id); state.archived.push({...proj, type:'app', archivedAt:Date.now(), expanded:false}); }
+  }
+  delete state.checklistState[id];
+  document.getElementById('preflightModal').classList.add('hidden');
+  scheduleSave(); renderTracks(); renderApps(); renderArchive();
+  // Switch to archive tab
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'archive'));
+  document.querySelectorAll('.main').forEach(m => m.classList.toggle('visible', m.id === 'tab-archive'));
+  showToast('Archived to Hall of Fame!', 'success');
+}
+
+// ── HISTORY PANEL ─────────────────────────────────────────────────────────────
+async function openHistory() {
+  const modal = document.getElementById('historyModal');
+  const body = document.getElementById('history-body');
+  body.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:10px;letter-spacing:1px">Loading...</div>';
+  modal.classList.remove('hidden');
+
+  let snapshots = {};
+  // Load from localStorage first
+  const local = JSON.parse(localStorage.getItem('studioos_snapshots') || '{}');
+  snapshots = { ...local };
+  // Try server
+  if (!isGuest && token) {
+    try {
+      const { snapshots: serverSnaps } = await apiReq('/snapshots');
+      serverSnaps.forEach(s => { if (!snapshots[s.month_label]) snapshots[s.month_label] = s; });
+    } catch(e) {}
+  }
+
+  const labels = Object.keys(snapshots);
+  if (!labels.length) {
+    body.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:20px;text-align:center;letter-spacing:2px">NO MONTHLY SNAPSHOTS YET<br><span style="font-size:10px;margin-top:6px;display:block">Use "New Month" at month end to save a snapshot</span></div>';
+    return;
+  }
+  body.innerHTML = labels.map(label => {
+    const snap = snapshots[label];
+    const songCount = (snap.songs || snap.snapshot_json?.songs || []).length;
+    const appCount = (snap.apps || snap.snapshot_json?.apps || []).length;
+    const bookCount = (snap.books || snap.snapshot_json?.books || []).length;
+    return `<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:12px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:2px;color:var(--blue);margin-bottom:6px">${label.toUpperCase()}</div>
+      <div style="display:flex;gap:12px;font-size:11px;color:var(--text3);font-family:var(--mono)">
+        <span style="color:var(--green)">${songCount} tracks</span>
+        <span style="color:var(--blue)">${appCount} apps</span>
+        <span style="color:var(--purple)">${bookCount} books</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── DRAG & DROP ───────────────────────────────────────────────────────────────
+let dragIdx = null;
+function setupDrag() {
+  document.querySelectorAll('#tracks-list .track-card').forEach(el => {
+    el.addEventListener('dragstart', e => { dragIdx = +el.dataset.dragIdx; e.dataTransfer.effectAllowed = 'move'; });
+    el.addEventListener('dragover', e => { e.preventDefault(); el.style.opacity = '.6'; });
+    el.addEventListener('dragleave', () => el.style.opacity = '');
+    el.addEventListener('drop', e => {
+      el.style.opacity = '';
+      const toIdx = +el.dataset.dragIdx;
+      if (dragIdx !== null && dragIdx !== toIdx) {
+        const active = state.songs.filter(s => !s.is_archived);
+        const [moved] = active.splice(dragIdx, 1); active.splice(toIdx, 0, moved);
+        state.songs = active; scheduleSave(); renderTracks();
+      }
+    });
+    el.addEventListener('dragend', () => { dragIdx = null; document.querySelectorAll('.track-card').forEach(x => x.style.opacity = ''); });
+  });
+}
+
+// ── MAIN EVENT HANDLER ────────────────────────────────────────────────────────
+document.addEventListener('click', e => {
+  const t = e.target;
+
+  // LOGIN
+  if (t.id === 'signinBtn') { doAuth('signin'); return; }
+  if (t.id === 'signupBtn') { doAuth('signup'); return; }
+  if (t.id === 'guestBtn') { doGuest(); return; }
+  if (t.id === 'tab-signin') { document.getElementById('tab-signin').classList.add('active'); document.getElementById('tab-signup').classList.remove('active'); document.getElementById('signin-form').style.display=''; document.getElementById('signup-form').style.display='none'; return; }
+  if (t.id === 'tab-signup') { document.getElementById('tab-signup').classList.add('active'); document.getElementById('tab-signin').classList.remove('active'); document.getElementById('signup-form').style.display=''; document.getElementById('signin-form').style.display='none'; return; }
+
+  // LOGOUT
+  if (t.id === 'logoutBtn') { doLogout(); return; }
+
+  // THEME
+  if (t.id === 'themeBtn') { state.darkMode = !state.darkMode; applyTheme(); scheduleSave(); return; }
+
+  // MONTH
+  if (t.id === 'newMonthBtn') {
+    document.getElementById('snapshot-label').textContent = state.month || currentMonthLabel();
+    document.getElementById('newMonthModal').classList.remove('hidden'); return;
+  }
+  if (t.id === 'cancelNewMonth') { document.getElementById('newMonthModal').classList.add('hidden'); return; }
+  if (t.id === 'confirmNewMonth') { doNewMonth(); return; }
+  if (t.id === 'historyBtn') { openHistory(); return; }
+  if (t.id === 'closeHistory') { document.getElementById('historyModal').classList.add('hidden'); return; }
+
+  // TABS
+  if (t.closest('.tab') && t.closest('.tabnav')) {
+    const tab = t.closest('.tab').dataset.tab;
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === tab));
+    document.querySelectorAll('.main').forEach(x => x.classList.toggle('visible', x.id === 'tab-' + tab));
+    return;
+  }
+
+  // TRACK TOGGLE
+  if (t.closest('[data-action="toggle"]') && !t.dataset.action) {
+    const id = +t.closest('[data-action="toggle"]').dataset.id;
+    const s = state.songs.find(x => x.id === id); if (s) { s.expanded = !s.expanded; scheduleSave(); renderTracks(); } return;
+  }
+  // DELETE SONG
+  if (t.dataset.action === 'del-song') { state.songs = state.songs.filter(x => x.id !== +t.dataset.id); scheduleSave(); renderTracks(); return; }
+  // OPEN PREFLIGHT
+  if (t.dataset.action === 'open-pf') { openPreflight(+t.dataset.id, 'music'); return; }
+  if (t.dataset.action === 'open-pf-app') { openPreflight(+t.dataset.id, 'app'); return; }
+
+  // APP TOGGLE
+  if (t.closest('[data-action="toggle-app"]') && !t.dataset.action) {
+    const id = +t.closest('[data-action="toggle-app"]').dataset.id;
+    const s = state.apps.find(x => x.id === id); if (s) { s.expanded = !s.expanded; scheduleSave(); renderApps(); } return;
+  }
+  if (t.dataset.action === 'del-app') { state.apps = state.apps.filter(x => x.id !== +t.dataset.id); scheduleSave(); renderApps(); return; }
+
+  // SEG CLICK (music)
+  if (t.classList.contains('seg') && t.dataset.type === 'song') {
+    const id = +t.dataset.id, idx = +t.dataset.idx;
+    const song = state.songs.find(s => s.id === id); if (!song) return;
+    const steps = song.steps, cur = steps[idx].status;
+    if (cur === 'done') {
+      steps[idx].status = 'pending';
+      const last = steps.map((s,i) => s.status==='done'?i:-1).filter(i=>i>=0).pop();
+      if (last !== undefined && last+1 < steps.length) steps[last+1].status = 'active';
+      else if (last === undefined) steps[0].status = 'active';
+    } else {
+      for (let i = 0; i <= idx; i++) steps[i].status = 'done';
+      steps.forEach((s,i) => { if (i > idx && s.status === 'active') s.status = 'pending'; });
+      if (idx+1 < steps.length) steps[idx+1].status = 'active';
+    }
+    scheduleSave(); renderTracks(); return;
+  }
+
+  // SPRINT SEG (app)
+  if (t.classList.contains('sprint-seg') && t.dataset.type === 'app') {
+    const id = +t.dataset.id, idx = +t.dataset.idx;
+    const app = state.apps.find(a => a.id === id); if (!app) return;
+    const steps = app.steps, cur = steps[idx].status;
+    if (cur === 'done') {
+      steps[idx].status = 'pending';
+      const last = steps.map((s,i) => s.status==='done'?i:-1).filter(i=>i>=0).pop();
+      if (last !== undefined && last+1 < steps.length) steps[last+1].status = 'active';
+    } else {
+      for (let i = 0; i <= idx; i++) steps[i].status = 'done';
+      if (idx+1 < steps.length) steps[idx+1].status = 'active';
+    }
+    scheduleSave(); renderApps(); return;
+  }
+
+  // FITNESS DAY
+  if (t.closest('.fit-day')) { const i = +t.closest('.fit-day').dataset.day; state.fitness.days[i].done = !state.fitness.days[i].done; scheduleSave(); renderFitness(); return; }
+
+  // FITNESS RESET
+  if (t.id === 'resetWeekBtn') { state.fitness.days.forEach(d => d.done = false); state.fitness.lastReset = new Date().toISOString(); scheduleSave(); renderFitness(); return; }
+
+  // FIT NOTE
+  if (t.id === 'addFitNote') { const n = document.getElementById('fitNote').value.trim(); if (n) { state.fitness.notes.push(n); document.getElementById('fitNote').value = ''; scheduleSave(); renderFitness(); } return; }
+  if (t.dataset.note !== undefined) { state.fitness.notes.splice(+t.dataset.note, 1); scheduleSave(); renderFitness(); return; }
+
+  // BOOK DELETE
+  if (t.dataset.bookid) { state.books = state.books.filter(b => b.id !== +t.dataset.bookid); scheduleSave(); renderBooks(); return; }
+
+  // ADD TRACK
+  if (t.id === 'addTrackBtn') { document.getElementById('add-track-form').style.display = 'block'; t.style.display = 'none'; return; }
+  if (t.id === 'cancelAdd') { document.getElementById('add-track-form').style.display = 'none'; document.getElementById('addTrackBtn').style.display = ''; return; }
+  if (t.id === 'confirmAdd') {
+    const title = document.getElementById('newTitle').value.trim() || 'New Track';
+    const cat = document.getElementById('newCat').value;
+    const segs = Math.max(1, Math.min(20, +document.getElementById('newSegs').value || 11));
+    const names = cat === 'Music' ? MUSIC_STEPS.slice(0, segs) : APP_STEPS.slice(0, segs);
+    state.songs.push({ id: state.nextId++, title, category: cat, expanded: true, startDate: Date.now(), steps: Array.from({length:segs}, (_,i) => ({name:names[i]||'Step '+(i+1), status:i===0?'active':'pending'})) });
+    document.getElementById('newTitle').value = '';
+    document.getElementById('add-track-form').style.display = 'none';
+    document.getElementById('addTrackBtn').style.display = '';
+    scheduleSave(); renderTracks(); return;
+  }
+
+  // ADD APP
+  if (t.id === 'addAppBtn') { document.getElementById('add-app-form').style.display = 'block'; t.style.display = 'none'; return; }
+  if (t.id === 'cancelAddApp') { document.getElementById('add-app-form').style.display = 'none'; document.getElementById('addAppBtn').style.display = ''; return; }
+  if (t.id === 'confirmAddApp') {
+    const title = document.getElementById('newAppTitle').value.trim() || 'New Project';
+    const segs = Math.max(1, Math.min(20, +document.getElementById('newAppSegs').value || 8));
+    state.apps.push({ id: state.nextId++, title, expanded: true, startDate: Date.now(), steps: APP_STEPS.slice(0, segs).map((n,i) => ({name:n, status:i===0?'active':'pending'})) });
+    document.getElementById('newAppTitle').value = '';
+    document.getElementById('add-app-form').style.display = 'none';
+    document.getElementById('addAppBtn').style.display = '';
+    scheduleSave(); renderApps(); return;
+  }
+
+  // ADD BOOK
+  if (t.id === 'addBookBtn') { document.getElementById('add-book-form').style.display = 'block'; t.style.display = 'none'; return; }
+  if (t.id === 'cancelAddBook') { document.getElementById('add-book-form').style.display = 'none'; document.getElementById('addBookBtn').style.display = ''; return; }
+  if (t.id === 'confirmAddBook') {
+    const title = document.getElementById('newBookTitle').value.trim() || 'New Book';
+    const pages = Math.max(10, +document.getElementById('newBookPages').value || 300);
+    state.books.push({ id: state.nextId++, title, currentPage: 0, totalPages: pages });
+    document.getElementById('newBookTitle').value = '';
+    document.getElementById('add-book-form').style.display = 'none';
+    document.getElementById('addBookBtn').style.display = '';
+    scheduleSave(); renderBooks(); return;
+  }
+
+  // ARCHIVE EXPAND
+  const archHdr = t.closest('[data-archive-idx]');
+  if (archHdr && !t.dataset.reopen) {
+    state.archived[+archHdr.dataset.archiveIdx].expanded = !state.archived[+archHdr.dataset.archiveIdx].expanded;
+    scheduleSave(); renderArchive(); return;
+  }
+
+  // RE-OPEN
+  if (t.dataset.reopen !== undefined) {
+    const id = +t.dataset.reopen;
+    const proj = state.archived.find(p => p.id === id);
+    if (proj) {
+      state.archived = state.archived.filter(p => p.id !== id);
+      proj.archivedAt = null; proj.is_archived = false; proj.expanded = true;
+      if (proj.type === 'app') state.apps.push(proj); else state.songs.push(proj);
+      scheduleSave(); renderArchive(); renderTracks(); renderApps();
+      showToast('Project re-opened', 'success');
+    } return;
+  }
+
+  // PREFLIGHT ITEMS
+  if (t.closest('.cl-item') && !document.getElementById('preflightModal').classList.contains('hidden')) {
+    const key = t.closest('.cl-item').dataset.check;
+    if (key !== undefined) {
+      if (!state.checklistState[pfId]) state.checklistState[pfId] = {};
+      state.checklistState[pfId][key] = !state.checklistState[pfId][key];
+      const checklist = pfType === 'music' ? MUSIC_CHECKLIST : APP_CHECKLIST;
+      openPreflight(pfId, pfType);
+    } return;
+  }
+  if (t.id === 'closePreflight') { document.getElementById('preflightModal').classList.add('hidden'); return; }
+  if (t.id === 'finalArchiveBtn' && !t.disabled) { doArchive(); return; }
+});
+
+// INPUT HANDLERS
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.bookslider) {
+    const id = +t.dataset.bookslider;
+    const book = state.books.find(b => b.id === id);
+    if (book) { book.currentPage = +t.value; document.getElementById('sv-' + id).textContent = t.value; scheduleSave(); renderReadingStats(); }
+  }
+  if (t.id === 'fitTarget') { state.fitness.target = +t.value; document.getElementById('fitTargetVal').textContent = t.value; scheduleSave(); renderFitnessStats(); }
+});
+
+// ENTER KEY on login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const ls = document.getElementById('login-screen');
+    if (!ls.classList.contains('hidden')) {
+      const activeTab = document.querySelector('.login-tab.active');
+      if (activeTab?.id === 'tab-signin') doAuth('signin');
+      else doAuth('signup');
+    }
+  }
+});
+
+// CLOCK
+function updateClock() {
+  const n = new Date();
+  const el = document.getElementById('clock');
+  if (el) el.textContent = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0') + ':' + String(n.getSeconds()).padStart(2,'0');
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+// Auto-login if token exists
+(async function init() {
+  if (token || isGuest) {
+    try { await enterDashboard(); }
+    catch(e) { doLogout(); }
+  }
+})();
+</script>
+</body>
+</html>
