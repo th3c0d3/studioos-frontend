@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudioOS — Your Creative Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0c;--bg2:#111115;--bg3:#18181e;
+  --green:#39ff7a;--green2:#1a8c3a;--green3:#0a2414;
+  --blue:#00cfff;--gold:#ffd700;--gold2:#b8960c;
+  --text:#e8e8f2;--text2:#8888a8;--text3:#444460;
+  --font:'Rajdhani',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;cursor:default}
+
+/* NOISE TEXTURE OVERLAY */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
+
+/* GRID LINES */
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(57,255,122,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(57,255,122,.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+/* GLOW ORBS */
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.orb-1{width:600px;height:600px;background:rgba(57,255,122,.06);top:-200px;left:-200px}
+.orb-2{width:500px;height:500px;background:rgba(0,207,255,.04);bottom:-100px;right:-100px}
+.orb-3{width:400px;height:400px;background:rgba(255,215,0,.03);top:40%;left:50%;transform:translate(-50%,-50%)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,10,12,.8);backdrop-filter:blur(20px);border-bottom:1px solid rgba(57,255,122,.08)}
+.nav-logo{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--green);letter-spacing:3px}
+.nav-logo span{color:var(--text2);font-weight:300}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--green)}
+.nav-cta{background:var(--green3);border:1px solid var(--green2);color:var(--green);padding:8px 22px;font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s;text-decoration:none}
+.nav-cta:hover{background:var(--green2);color:#000}
+
+/* HERO */
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px}
+.hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:5px;color:var(--green);text-transform:uppercase;margin-bottom:24px;opacity:0;animation:fade-up .8s .2s forwards}
+.hero-title{font-size:clamp(48px,8vw,96px);font-weight:700;line-height:1;letter-spacing:-1px;margin-bottom:24px;opacity:0;animation:fade-up .8s .4s forwards}
+.hero-title span{color:var(--green);position:relative}
+.hero-title span::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--green);opacity:.4}
+.hero-sub{font-size:clamp(16px,2vw,20px);color:var(--text2);max-width:540px;line-height:1.6;margin-bottom:48px;opacity:0;animation:fade-up .8s .6s forwards;font-weight:400}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;opacity:0;animation:fade-up .8s .8s forwards}
+.btn-primary{background:var(--green);color:#000;padding:14px 36px;font-family:var(--font);font-size:15px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border:none;border-radius:3px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-primary:hover{background:#4fff8f;transform:translateY(-2px);box-shadow:0 8px 32px rgba(57,255,122,.25)}
+.btn-secondary{background:transparent;color:var(--text);padding:14px 36px;font-family:var(--font);font-size:15px;font-weight:600;letter-spacing:3px;text-transform:uppercase;border:1px solid rgba(255,255,255,.15);border-radius:3px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-secondary:hover{border-color:var(--green);color:var(--green)}
+
+/* METER DECORATION */
+.hero-meter{display:flex;gap:4px;margin-top:64px;opacity:0;animation:fade-up .8s 1s forwards}
+.hm-seg{width:32px;height:8px;border-radius:1px}
+@keyframes fade-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* FEATURES */
+.features{position:relative;z-index:1;padding:100px 24px;max-width:1100px;margin:0 auto}
+.section-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:5px;color:var(--green);text-transform:uppercase;margin-bottom:16px}
+.section-title{font-size:clamp(32px,4vw,52px);font-weight:700;line-height:1.1;margin-bottom:60px}
+.section-title span{color:var(--green)}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2px}
+.feat-card{background:var(--bg2);padding:36px 32px;position:relative;overflow:hidden;transition:background .3s}
+.feat-card:hover{background:var(--bg3)}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:0;transition:opacity .3s}
+.feat-card:hover::before{opacity:1}
+.feat-icon{width:48px;height:48px;background:var(--green3);border:1px solid var(--green2);border-radius:4px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:22px}
+.feat-title{font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:10px}
+.feat-desc{font-size:14px;color:var(--text2);line-height:1.7;font-weight:400}
+
+/* MODULES SECTION */
+.modules{position:relative;z-index:1;padding:100px 24px;background:var(--bg2);border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05)}
+.modules-inner{max-width:1100px;margin:0 auto}
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:60px}
+.module-card{border-radius:4px;padding:28px 24px;border:1px solid;position:relative;overflow:hidden}
+.module-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.mod-music{background:rgba(57,255,122,.04);border-color:rgba(57,255,122,.2)}
+.mod-music::after{background:var(--green)}
+.mod-app{background:rgba(0,207,255,.04);border-color:rgba(0,207,255,.2)}
+.mod-app::after{background:var(--blue)}
+.mod-fitness{background:rgba(255,124,26,.04);border-color:rgba(255,124,26,.2)}
+.mod-fitness::after{background:#ff7c1a}
+.mod-reading{background:rgba(176,96,255,.04);border-color:rgba(176,96,255,.2)}
+.mod-reading::after{background:#b060ff}
+.module-num{font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--text3);margin-bottom:12px}
+.module-title{font-size:22px;font-weight:700;letter-spacing:1px;margin-bottom:8px}
+.module-desc{font-size:13px;color:var(--text2);line-height:1.6}
+.module-tag{display:inline-block;margin-top:14px;font-size:9px;letter-spacing:2px;padding:3px 10px;border-radius:2px;font-weight:700;text-transform:uppercase}
+.tag-green{background:var(--green3);color:var(--green);border:1px solid var(--green2)}
+.tag-blue{background:rgba(0,207,255,.1);color:var(--blue);border:1px solid rgba(0,207,255,.3)}
+.tag-orange{background:rgba(255,124,26,.1);color:#ff7c1a;border:1px solid rgba(255,124,26,.3)}
+.tag-purple{background:rgba(176,96,255,.1);color:#b060ff;border:1px solid rgba(176,96,255,.3)}
+
+/* PRICING */
+.pricing{position:relative;z-index:1;padding:100px 24px;max-width:900px;margin:0 auto;text-align:center}
+.price-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:60px;text-align:left}
+.price-card{background:var(--bg2);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:36px;position:relative}
+.price-card.featured{border-color:var(--green);background:linear-gradient(135deg,rgba(57,255,122,.06),var(--bg2))}
+.price-card.featured::before{content:'RECOMMENDED';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;font-size:9px;letter-spacing:3px;font-weight:700;padding:4px 16px;border-radius:0 0 4px 4px}
+.price-name{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:16px;font-weight:600}
+.price-amount{font-family:var(--mono);font-size:42px;font-weight:500;color:var(--text);line-height:1;margin-bottom:6px}
+.price-amount span{font-size:16px;color:var(--text2)}
+.price-note{font-size:12px;color:var(--text3);margin-bottom:28px}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+.price-features li{font-size:14px;color:var(--text2);display:flex;align-items:center;gap:8px}
+.price-features li::before{content:'✓';color:var(--green);font-weight:700;font-size:12px;flex-shrink:0}
+.price-btn{display:block;text-align:center;padding:12px;border-radius:3px;font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;text-decoration:none}
+.price-btn-outline{border:1px solid rgba(255,255,255,.2);color:var(--text2)}
+.price-btn-outline:hover{border-color:var(--green);color:var(--green)}
+.price-btn-filled{background:var(--green);color:#000;border:none}
+.price-btn-filled:hover{background:#4fff8f}
+
+/* FOOTER */
+footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.06);padding:40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:var(--mono);font-size:14px;color:var(--green);letter-spacing:3px}
+.footer-logo span{color:var(--text3)}
+.footer-note{font-size:12px;color:var(--text3);letter-spacing:1px}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  nav{padding:0 20px}
+  .nav-links{display:none}
+  .hero{padding:100px 20px 60px}
+  .features,.modules-inner,.pricing{padding:60px 20px}
+  footer{padding:24px 20px;flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<nav>
+  <div class="nav-logo">Studio<span>OS</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#modules">Modules</a>
+    <a href="#pricing">Pricing</a>
+  </div>
+  <a class="nav-cta" href="./app/index.html">LAUNCH APP</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">Monthly Creative Planner</div>
+  <h1 class="hero-title">Your Studio.<br><span>Engineered.</span></h1>
+  <p class="hero-sub">A DAW-inspired command center for musicians, developers, and creators. Track every project, every rep, every page — with the precision of a professional mixing board.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="./app/index.html">Open Dashboard</a>
+    <a class="btn-secondary" href="#features">See How It Works</a>
+  </div>
+  <div class="hero-meter">
+    <div class="hm-seg" style="background:#39ff7a"></div>
+    <div class="hm-seg" style="background:#39ff7a"></div>
+    <div class="hm-seg" style="background:#39ff7a"></div>
+    <div class="hm-seg" style="background:#39ff7a"></div>
+    <div class="hm-seg" style="background:#39ff7a"></div>
+    <div class="hm-seg" style="background:#39ff7a"></div>
+    <div class="hm-seg" style="background:#39ff7a"></div>
+    <div class="hm-seg" style="background:#39ff7a"></div>
+    <div class="hm-seg" style="background:#ffe135"></div>
+    <div class="hm-seg" style="background:#ff7c1a"></div>
+    <div class="hm-seg" style="background:#ff2d55"></div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="section-eyebrow">Why StudioOS</div>
+  <h2 class="section-title">Built for the way<br><span>creators actually work</span></h2>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon">⚡</div>
+      <div class="feat-title">11-Step Mastering Meter</div>
+      <div class="feat-desc">Segmented progress bar maps your entire music production workflow from Pre-Production to QC Delivery. Click any segment to advance. Active steps pulse.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📅</div>
+      <div class="feat-title">Monthly Snapshots</div>
+      <div class="feat-desc">At the turn of every month, archive your entire workspace automatically. Browse back through March, February, January — every session preserved.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔒</div>
+      <div class="feat-title">Private & Synced</div>
+      <div class="feat-desc">Login once. Your data syncs across your desktop and Android device in real time. No more losing progress between devices.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🏆</div>
+      <div class="feat-title">Hall of Fame Archive</div>
+      <div class="feat-desc">Completed projects get a holographic gold treatment. Liner notes, release timestamps, days-to-master — a permanent record of your output.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">✈️</div>
+      <div class="feat-title">Pre-Flight Checklist</div>
+      <div class="feat-desc">13-item release day checklist that locks your Archive button until every distribution, social, and platform task is confirmed. No forgotten steps.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🌓</div>
+      <div class="feat-title">Dark & Light Modes</div>
+      <div class="feat-desc">Deep charcoal DAW aesthetic by default. Flip to light mode for studio sessions in bright environments. Both are equally refined.</div>
+    </div>
+  </div>
+</section>
+
+<section class="modules" id="modules">
+  <div class="modules-inner">
+    <div class="section-eyebrow">Four Modules</div>
+    <h2 class="section-title">Every dimension of your<br><span>creative life, tracked</span></h2>
+    <div class="modules-grid">
+      <div class="module-card mod-music">
+        <div class="module-num">01</div>
+        <div class="module-title" style="color:#39ff7a">Music</div>
+        <div class="module-desc">11-step mastering workflow. Drag to reorder tracks. Pre-Flight release checklist. Monthly EP snapshots.</div>
+        <span class="module-tag tag-green">Mastering Mode</span>
+      </div>
+      <div class="module-card mod-app">
+        <div class="module-num">02</div>
+        <div class="module-title" style="color:#00cfff">App Dev</div>
+        <div class="module-desc">8-step sprint board. Backlog to Deploy. Version tracking, commit count, deployment URL in liner notes.</div>
+        <span class="module-tag tag-blue">Logic Mode</span>
+      </div>
+      <div class="module-card mod-fitness">
+        <div class="module-num">03</div>
+        <div class="module-title" style="color:#ff7c1a">Fitness</div>
+        <div class="module-desc">7-day weekly grid. Adjustable target. Auto-reset every Monday. Workout notes log. Stay on track.</div>
+        <span class="module-tag tag-orange">Weekly Reset</span>
+      </div>
+      <div class="module-card mod-reading">
+        <div class="module-num">04</div>
+        <div class="module-title" style="color:#b060ff">Reading</div>
+        <div class="module-desc">Page progress slider for every book. Completion detection. Monthly reading snapshot. Build the habit.</div>
+        <span class="module-tag tag-purple">Page Tracker</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="section-eyebrow">Simple Pricing</div>
+  <h2 class="section-title">One person.<br><span>One flat rate.</span></h2>
+  <div class="price-cards">
+    <div class="price-card">
+      <div class="price-name">Free Preview</div>
+      <div class="price-amount">$0<span>/mo</span></div>
+      <div class="price-note">No account needed</div>
+      <ul class="price-features">
+        <li>Full dashboard UI</li>
+        <li>Local browser storage</li>
+        <li>All 4 modules</li>
+        <li>Archive & Hall of Fame</li>
+        <li style="opacity:.4;color:#555">No cross-device sync</li>
+        <li style="opacity:.4;color:#555">No monthly history</li>
+      </ul>
+      <a class="price-btn price-btn-outline" href="./app/index.html">Try Without Account</a>
+    </div>
+    <div class="price-card featured">
+      <div class="price-name">Personal</div>
+      <div class="price-amount">$5<span>/mo</span></div>
+      <div class="price-note">Everything, forever</div>
+      <ul class="price-features">
+        <li>Everything in Free</li>
+        <li>Secure login</li>
+        <li>Cross-device sync</li>
+        <li>Monthly snapshots history</li>
+        <li>Works on Android & desktop</li>
+        <li>Data never lost</li>
+      </ul>
+      <a class="price-btn price-btn-filled" href="./app/index.html">Get Started</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Studio<span>OS</span></div>
+  <div class="footer-note">Built for creators. Runs on Railway + Vercel.</div>
+  <div class="footer-note">© 2026 StudioOS</div>
+</footer>
+</body>
+</html>
