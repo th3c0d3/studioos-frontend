@@ -252,6 +252,40 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.success{border-color:var(--green2);color:var(--green)}
 .toast.error{border-color:var(--red);color:var(--red)}
+
+/* ── CALENDAR PANEL ───────────────────────────────────────── */
+.cal-toggle{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:11px;letter-spacing:1px;cursor:pointer;border-radius:3px;transition:all .2s;position:relative}
+.cal-toggle:hover{border-color:#4285f4;color:#4285f4}
+.cal-toggle.connected{border-color:rgba(66,133,244,.4);color:#4285f4}
+.cal-toggle .cal-dot{width:5px;height:5px;border-radius:50%;background:#4285f4;display:inline-block;margin-right:4px;animation:pulse-seg 2s infinite}
+.app-wrapper{display:flex;height:calc(100vh - 48px);overflow:hidden;position:relative}
+.app-content{flex:1;overflow-y:auto;min-width:0}
+.cal-panel{width:300px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;transition:width .3s,opacity .3s;overflow:hidden}
+.cal-panel.hidden{width:0;opacity:0;pointer-events:none}
+.cal-panel-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.cal-panel-title{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#4285f4}
+.cal-panel-actions{display:flex;gap:6px;align-items:center}
+.cal-connect-btn{background:rgba(66,133,244,.1);border:1px solid rgba(66,133,244,.3);color:#4285f4;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s}
+.cal-connect-btn:hover{background:rgba(66,133,244,.2)}
+.cal-disconnect-btn{background:transparent;border:1px solid var(--border);color:var(--text3);padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s}
+.cal-disconnect-btn:hover{border-color:var(--red);color:var(--red)}
+.cal-body{flex:1;overflow-y:auto;padding:10px}
+.cal-body::-webkit-scrollbar{width:3px}
+.cal-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.cal-day-group{margin-bottom:14px}
+.cal-day-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cal-day-label.today{color:#4285f4}
+.cal-day-label .day-date{font-family:var(--mono);font-size:8px;color:var(--text3)}
+.cal-event{background:var(--bg3);border-radius:3px;padding:7px 9px;margin-bottom:5px;border-left:3px solid #4285f4;transition:background .2s;cursor:default}
+.cal-event:hover{background:var(--bg4)}
+.cal-event-title{font-size:12px;font-weight:600;letter-spacing:.3px;color:var(--text);line-height:1.3;margin-bottom:3px}
+.cal-event-time{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px}
+.cal-event-cal{font-size:8px;letter-spacing:1px;color:var(--text3);margin-top:2px;text-transform:uppercase}
+.cal-event-location{font-size:10px;color:var(--text3);margin-top:2px}
+.cal-empty{text-align:center;padding:30px 10px;color:var(--text3);font-size:11px;letter-spacing:2px;text-transform:uppercase;line-height:1.8}
+.cal-loading{text-align:center;padding:20px;color:var(--text3);font-size:11px;letter-spacing:2px}
+.cal-status-bar{padding:6px 10px;font-size:9px;font-family:var(--mono);color:var(--text3);border-top:1px solid var(--border);flex-shrink:0;letter-spacing:1px}
+@media(max-width:640px){.cal-panel{position:fixed;right:0;top:48px;bottom:0;z-index:150;width:280px!important;box-shadow:-4px 0 20px rgba(0,0,0,.4)}.cal-panel.hidden{width:0!important}}
 </style>
 </head>
 <body>
@@ -263,7 +297,7 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
     <div class="login-tagline">Creative Command Center</div>
     <div class="login-tabs">
       <button class="login-tab active" id="tab-signin">Sign In</button>
-     
+      <button class="login-tab" id="tab-signup">Create Account</button>
     </div>
     <div id="signin-form">
       <div class="login-field"><label class="login-label">Email</label><input class="login-input" id="si-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
@@ -271,8 +305,13 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
       <button class="login-btn" id="signinBtn">ENTER STUDIO</button>
       <div class="login-error" id="signin-error"></div>
     </div>
-
-   
+    <div id="signup-form" style="display:none">
+      <div class="login-field"><label class="login-label">Email</label><input class="login-input" id="su-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="login-field"><label class="login-label">Password (min 6 chars)</label><input class="login-input" id="su-pass" type="password" placeholder="••••••••" autocomplete="new-password"></div>
+      <button class="login-btn" id="signupBtn">CREATE ACCOUNT</button>
+      <div class="login-error" id="signup-error"></div>
+    </div>
+    <div class="login-guest"><a id="guestBtn">Continue without account (local only)</a></div>
     <div class="login-meter">
       <div class="lm-seg" style="background:#39ff7a"></div>
       <div class="lm-seg" style="background:#39ff7a"></div>
@@ -297,6 +336,7 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
       <div class="clock" id="clock">00:00:00</div>
       <span class="user-badge" id="user-badge">guest</span>
       <span><span class="sync-dot" id="sync-dot"></span></span>
+      <button class="topbar-btn cal-toggle" id="calToggleBtn">📅 CAL</button>
       <button class="topbar-btn" id="themeBtn">◐</button>
       <button class="topbar-btn" id="logoutBtn">EXIT</button>
     </div>
@@ -310,6 +350,8 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
     </div>
   </div>
 
+  <div class="app-wrapper">
+  <div class="app-content">
   <div class="tabnav">
     <button class="tab active" data-tab="music">Music <div class="badge" id="music-badge">0</div></button>
     <button class="tab" data-tab="appdev">App Dev <div class="badge" id="appdev-badge">0</div></button>
@@ -438,6 +480,27 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
   </div>
 </div>
 
+  </div><!-- end app-content -->
+
+  <!-- ── CALENDAR PANEL ─────────────────────────────────── -->
+  <div class="cal-panel hidden" id="calPanel">
+    <div class="cal-panel-header">
+      <div class="cal-panel-title">📅 Google Calendar</div>
+      <div class="cal-panel-actions">
+        <button class="cal-connect-btn" id="calConnectBtn" style="display:none">CONNECT</button>
+        <button class="cal-disconnect-btn" id="calDisconnectBtn" style="display:none">✕</button>
+        <button class="cal-connect-btn" id="calRefreshBtn" style="display:none">↺ SYNC</button>
+      </div>
+    </div>
+    <div class="cal-body" id="calBody">
+      <div class="cal-loading">Loading...</div>
+    </div>
+    <div class="cal-status-bar" id="calStatusBar">Not connected</div>
+  </div>
+
+  </div><!-- end app-wrapper -->
+</div><!-- end dashboard -->
+
 <!-- ── TOAST ─────────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
 
@@ -446,7 +509,7 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
 // IMPORTANT: Replace with your Railway backend URL after deploying
 const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://localhost:3001'
-  : 'https://studioos-backend-production.up.railway.app';  // <-- UPDATE THIS AFTER RAILWAY DEPLOY
+  : 'https://YOUR-RAILWAY-APP.up.railway.app'; // <-- UPDATE THIS AFTER RAILWAY DEPLOY
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 const MUSIC_STEPS = ['Pre-Prod','Tracking GT','Tracking Bass','Drum Edit','Guitar Edit','Vocal Track','Comping','Mixing','Master Prep','Mastering','QC/Delivery'];
@@ -561,7 +624,7 @@ async function doAuth(type) {
   if (!email || !pass) { errEl.textContent = 'Email and password required.'; return; }
   btn.disabled = true; btn.textContent = 'CONNECTING...';
   try {
-    const data = await apiReq(type === 'signin' ? '/auth/login' : '/auth/register', 'POST', { email, password: pass }); 
+    const data = await apiReq('/auth/'+type, 'POST', { email, password: pass });
     token = data.token; userEmail = data.email;
     localStorage.setItem('studioos_token', token);
     localStorage.setItem('studioos_email', userEmail);
@@ -1154,12 +1217,193 @@ function updateClock() {
 }
 setInterval(updateClock, 1000); updateClock();
 
+// ── CALENDAR ──────────────────────────────────────────────────────────────────
+let calPanelOpen = false;
+let calConnected = false;
+
+function toggleCalPanel() {
+  calPanelOpen = !calPanelOpen;
+  const panel = document.getElementById('calPanel');
+  const btn   = document.getElementById('calToggleBtn');
+  panel.classList.toggle('hidden', !calPanelOpen);
+  btn.classList.toggle('connected', calConnected);
+  if (calPanelOpen && calConnected) loadCalendarEvents();
+}
+
+async function initCalendar() {
+  if (isGuest || !token) {
+    document.getElementById('calStatusBar').textContent = 'Sign in to use Google Calendar';
+    document.getElementById('calConnectBtn').style.display = 'inline-block';
+    document.getElementById('calBody').innerHTML = '<div class="cal-empty">Connect Google Calendar<br>to see your events here</div>';
+    return;
+  }
+  // Check if connected via URL param (after OAuth redirect)
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('cal') === 'connected') {
+    showToast('Google Calendar connected!', 'success');
+    window.history.replaceState({}, '', window.location.pathname);
+    calPanelOpen = true;
+    document.getElementById('calPanel').classList.remove('hidden');
+    document.getElementById('calToggleBtn').classList.add('connected');
+  }
+  if (params.get('cal') === 'error') {
+    showToast('Google Calendar connection failed', 'error');
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+  // Check status
+  try {
+    const status = await apiReq('/calendar/status');
+    calConnected = status.connected;
+    updateCalUI();
+    if (calConnected && calPanelOpen) loadCalendarEvents();
+  } catch(e) {
+    document.getElementById('calStatusBar').textContent = 'Calendar unavailable';
+  }
+}
+
+function updateCalUI() {
+  const connectBtn    = document.getElementById('calConnectBtn');
+  const disconnectBtn = document.getElementById('calDisconnectBtn');
+  const refreshBtn    = document.getElementById('calRefreshBtn');
+  const statusBar     = document.getElementById('calStatusBar');
+  const toggleBtn     = document.getElementById('calToggleBtn');
+  if (calConnected) {
+    connectBtn.style.display    = 'none';
+    disconnectBtn.style.display = 'inline-block';
+    refreshBtn.style.display    = 'inline-block';
+    toggleBtn.classList.add('connected');
+    toggleBtn.innerHTML = '<span class="cal-dot"></span>CAL';
+    statusBar.textContent = 'Synced from Google Calendar';
+  } else {
+    connectBtn.style.display    = 'inline-block';
+    disconnectBtn.style.display = 'none';
+    refreshBtn.style.display    = 'none';
+    toggleBtn.classList.remove('connected');
+    toggleBtn.textContent = '📅 CAL';
+    document.getElementById('calBody').innerHTML = '<div class="cal-empty">📅<br><br>Connect Google Calendar<br>to see your events here</div>';
+    statusBar.textContent = 'Not connected';
+  }
+}
+
+async function connectGoogleCalendar() {
+  try {
+    document.getElementById('calConnectBtn').textContent = 'OPENING...';
+    const { url } = await apiReq('/calendar/auth-url');
+    window.location.href = url;
+  } catch(e) {
+    showToast('Could not connect to Google: ' + e.message, 'error');
+    document.getElementById('calConnectBtn').textContent = 'CONNECT';
+  }
+}
+
+async function disconnectGoogleCalendar() {
+  try {
+    await apiReq('/calendar/disconnect', 'DELETE');
+    calConnected = false;
+    updateCalUI();
+    showToast('Google Calendar disconnected', '');
+  } catch(e) {
+    showToast('Error disconnecting', 'error');
+  }
+}
+
+async function loadCalendarEvents() {
+  const body      = document.getElementById('calBody');
+  const statusBar = document.getElementById('calStatusBar');
+  body.innerHTML  = '<div class="cal-loading">⟳ Syncing from Google...</div>';
+  try {
+    const data = await apiReq('/calendar/events');
+    if (!data.connected) {
+      calConnected = false;
+      updateCalUI();
+      return;
+    }
+    renderCalendarEvents(data.events, data.cached, data.fetchedAt);
+    const ts = data.fetchedAt ? new Date(data.fetchedAt).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'}) : '';
+    statusBar.textContent = (data.cached ? 'Cached · ' : 'Synced · ') + ts;
+  } catch(e) {
+    body.innerHTML = '<div class="cal-empty">Failed to load events</div>';
+    statusBar.textContent = 'Sync error';
+  }
+}
+
+function renderCalendarEvents(events, cached) {
+  const body = document.getElementById('calBody');
+  if (!events || !events.length) {
+    body.innerHTML = '<div class="cal-empty">🎉<br><br>No events in<br>the next 7 days</div>';
+    return;
+  }
+
+  // Group by day
+  const groups = {};
+  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  events.forEach(ev => {
+    const d = new Date(ev.start);
+    d.setHours(0,0,0,0);
+    const key = d.toDateString();
+    if (!groups[key]) groups[key] = { date: d, events: [] };
+    groups[key].events.push(ev);
+  });
+
+  let html = '';
+  Object.values(groups).forEach(group => {
+    const d        = group.date;
+    const isToday  = d.getTime() === today.getTime();
+    const isTomorrow = d.getTime() === today.getTime() + 86400000;
+    const dayLabel = isToday ? 'Today' : isTomorrow ? 'Tomorrow' : dayNames[d.getDay()];
+    const dateStr  = monthNames[d.getMonth()] + ' ' + d.getDate();
+
+    html += `<div class="cal-day-group">
+      <div class="cal-day-label ${isToday?'today':''}">
+        <span>${dayLabel}</span>
+        <span class="day-date">${dateStr}</span>
+      </div>`;
+
+    group.events.forEach(ev => {
+      const timeStr = ev.allDay ? 'All day' : formatEventTime(ev.start, ev.end);
+      const color   = ev.calendarColor || '#4285f4';
+      html += `<div class="cal-event" style="border-left-color:${color}">
+        <div class="cal-event-title">${escHtml(ev.title)}</div>
+        <div class="cal-event-time">${timeStr}</div>
+        <div class="cal-event-cal" style="color:${color}88">${escHtml(ev.calendarName)}</div>
+        ${ev.location ? `<div class="cal-event-location">📍 ${escHtml(ev.location)}</div>` : ''}
+      </div>`;
+    });
+    html += '</div>';
+  });
+
+  body.innerHTML = html;
+}
+
+function formatEventTime(start, end) {
+  const s = new Date(start);
+  const e = new Date(end);
+  const fmt = t => t.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true});
+  return fmt(s) + (end ? ' – ' + fmt(e) : '');
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Calendar button clicks
+document.addEventListener('click', e => {
+  if (e.target.id === 'calToggleBtn' || e.target.closest('#calToggleBtn')) { toggleCalPanel(); return; }
+  if (e.target.id === 'calConnectBtn')    { connectGoogleCalendar(); return; }
+  if (e.target.id === 'calDisconnectBtn') { disconnectGoogleCalendar(); return; }
+  if (e.target.id === 'calRefreshBtn')    { loadCalendarEvents(); return; }
+});
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
-// Auto-login if token exists
 (async function init() {
   if (token || isGuest) {
-    try { await enterDashboard(); }
-    catch(e) { doLogout(); }
+    try {
+      await enterDashboard();
+      await initCalendar();
+    } catch(e) { doLogout(); }
   }
 })();
 </script>
