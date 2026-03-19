@@ -882,7 +882,7 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
 </div><!-- end dashboard -->
 
 <!-- ── FOCUS MODE ─────────────────────────────────────────── -->
-<div id="focusMode" style="display:none;position:fixed;inset:0;background:#0a0a0c;z-index:200;display:none;flex-direction:column">
+<div id="focusMode" style="display:none;position:fixed;inset:0;background:#0a0a0c;z-index:200;flex-direction:column">
   <div style="background:#111113;border-bottom:1px solid #333340;padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
     <div style="display:flex;align-items:center;gap:12px">
       <svg width="80" height="24" viewBox="0 0 220 64" fill="none">
@@ -2532,6 +2532,7 @@ function renderFocusMain() {
   const deadlineBadge = item.deadline ? deadlineBadgeHTML(item.deadline) : '';
 
   const songTypeVal = item.songType || 'With Lyrics';
+  const hasLyrics = isSong && !!(item.lyrics && item.lyrics.trim().length > 0);
   const metaRow = isSong ? `<div class="meta-row" style="padding:5px 24px 7px;border-bottom:1px solid var(--border)">
       <div class="meta-pill ${item.bpm?'mp-set':''}" data-editbpm="${item.id}"><span class="meta-lbl">BPM</span><span class="meta-val">${item.bpm||'—'}</span></div>
       <div class="meta-sep"></div>
@@ -2617,6 +2618,7 @@ document.addEventListener('click', e => {
   const items = getFocusItems();
   if (!items.length) return;
   const item = items[focusIdx];
+  const isSong = focusType === 'song';
 
   // Seg click
   const seg = e.target.closest('[data-fidx]');
