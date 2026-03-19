@@ -219,6 +219,47 @@ input,select{font-family:var(--font)}
 .modal-body{padding:20px}
 .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
 
+/* ── CARRY-OVER MODAL ─────────────────────────────────────── */
+.carryover-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:310;display:flex;align-items:center;justify-content:center;padding:16px}
+.carryover-overlay.hidden{display:none}
+.carryover-box{background:var(--bg2);border:1px solid var(--gold2);border-radius:6px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto}
+.carryover-header{background:linear-gradient(135deg,var(--gold3),#1a1500);padding:14px 18px;border-bottom:1px solid var(--gold2);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:1}
+.carryover-title{font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.carryover-sub{font-size:10px;color:var(--gold2);margin-top:2px;letter-spacing:1px}
+.carryover-body{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.co-section-title{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.co-section-title::before{content:'';width:2px;height:10px;display:block}
+.co-music::before{background:var(--green)}
+.co-appdev::before{background:var(--blue)}
+.co-reading::before{background:var(--purple)}
+.co-item{border-radius:4px;padding:10px 12px;margin-bottom:7px}
+.co-item-music{background:rgba(57,255,122,.04);border:1px solid rgba(57,255,122,.12)}
+.co-item-app{background:rgba(0,207,255,.04);border:1px solid rgba(0,207,255,.12)}
+.co-item-book{background:rgba(176,96,255,.04);border:1px solid rgba(176,96,255,.12)}
+.co-item-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.co-item-name{flex:1;font-size:12px;font-weight:600;letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.co-item-pct{font-family:var(--mono);font-size:10px;color:var(--text2);flex-shrink:0}
+.co-mini-bar{height:4px;border-radius:2px;background:var(--bg4);margin-bottom:8px;overflow:hidden}
+.co-mini-fill{height:100%;border-radius:2px;transition:width .3s}
+.co-choices{display:flex;gap:5px}
+.co-choice{flex:1;padding:5px 4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:3px;cursor:pointer;border:1px solid var(--border2);color:var(--text3);background:transparent;transition:all .2s;text-align:center}
+.co-choice:hover{border-color:var(--text2);color:var(--text2)}
+.co-choice.co-selected-carry{border-color:var(--green2);color:var(--green);background:var(--green3)}
+.co-choice.co-selected-archive{border-color:var(--gold2);color:var(--gold);background:var(--gold3)}
+.co-choice.co-selected-drop{border-color:var(--red);color:var(--red);background:rgba(255,45,85,.08)}
+.co-tag{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:2px;font-weight:700;text-transform:uppercase;flex-shrink:0}
+.co-tag-carry{background:var(--green3);color:var(--green);border:1px solid var(--green2)}
+.co-tag-archive{background:var(--gold3);color:var(--gold);border:1px solid var(--gold2)}
+.co-tag-drop{background:rgba(255,45,85,.1);color:var(--red);border:1px solid rgba(255,45,85,.3)}
+.co-tag-none{background:var(--bg4);color:var(--text3);border:1px solid var(--border2)}
+.co-divider{border-top:1px solid var(--border);margin:2px 0}
+.carryover-footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;bottom:0;background:var(--bg2)}
+.co-footnote{font-size:10px;color:var(--text3);letter-spacing:1px}
+.co-confirm-btn{background:linear-gradient(135deg,var(--gold3),#1a1500);border:2px solid var(--gold2);color:var(--gold);padding:9px 20px;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .2s}
+.co-confirm-btn:disabled{opacity:.3;cursor:not-allowed;border-color:var(--border);color:var(--text3)}
+.co-confirm-btn:not(:disabled):hover{background:var(--gold2);color:#000}
+.co-empty{font-size:11px;color:var(--text3);letter-spacing:2px;text-align:center;padding:16px;}
+
 /* ── PREFLIGHT MODAL ──────────────────────────────────────── */
 .preflight-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
 .preflight-overlay.hidden{display:none}
@@ -258,34 +299,37 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
 .cal-toggle:hover{border-color:#4285f4;color:#4285f4}
 .cal-toggle.connected{border-color:rgba(66,133,244,.4);color:#4285f4}
 .cal-toggle .cal-dot{width:5px;height:5px;border-radius:50%;background:#4285f4;display:inline-block;margin-right:4px;animation:pulse-seg 2s infinite}
-.app-wrapper{display:flex;height:calc(100vh - 48px);overflow:hidden;position:relative}
+.app-wrapper{display:flex;flex-direction:column;height:calc(100vh - 48px);overflow:hidden}
 .app-content{flex:1;overflow-y:auto;min-width:0}
-.cal-panel{width:300px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;transition:width .3s,opacity .3s;overflow:hidden}
-.cal-panel.hidden{width:0;opacity:0;pointer-events:none}
-.cal-panel-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.cal-panel-title{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#4285f4}
-.cal-panel-actions{display:flex;gap:6px;align-items:center}
-.cal-connect-btn{background:rgba(66,133,244,.1);border:1px solid rgba(66,133,244,.3);color:#4285f4;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s}
+.cal-bar{background:var(--bg2);border-top:1px solid var(--border);display:flex;flex-direction:column;transition:height .3s ease;overflow:hidden;flex-shrink:0}
+.cal-bar.hidden{height:0;border-top:none}
+.cal-bar.open{height:220px}
+.cal-bar-header{padding:7px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.cal-bar-title{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#4285f4}
+.cal-bar-actions{display:flex;gap:6px;align-items:center;margin-left:auto}
+.cal-connect-btn{background:rgba(66,133,244,.1);border:1px solid rgba(66,133,244,.3);color:#4285f4;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s}
 .cal-connect-btn:hover{background:rgba(66,133,244,.2)}
-.cal-disconnect-btn{background:transparent;border:1px solid var(--border);color:var(--text3);padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s}
+.cal-disconnect-btn{background:transparent;border:1px solid var(--border);color:var(--text3);padding:3px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all .2s}
 .cal-disconnect-btn:hover{border-color:var(--red);color:var(--red)}
-.cal-body{flex:1;overflow-y:auto;padding:10px}
-.cal-body::-webkit-scrollbar{width:3px}
+.cal-status-bar{font-size:9px;font-family:var(--mono);color:var(--text3);letter-spacing:1px;margin-left:8px}
+.cal-body{flex:1;overflow-x:auto;overflow-y:hidden;padding:8px 12px;display:flex;gap:8px;align-items:flex-start}
+.cal-body::-webkit-scrollbar{height:3px}
 .cal-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-.cal-day-group{margin-bottom:14px}
-.cal-day-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cal-day-group{flex-shrink:0;width:160px;height:100%}
+.cal-day-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;white-space:nowrap}
 .cal-day-label.today{color:#4285f4}
 .cal-day-label .day-date{font-family:var(--mono);font-size:8px;color:var(--text3)}
-.cal-event{background:var(--bg3);border-radius:3px;padding:7px 9px;margin-bottom:5px;border-left:3px solid #4285f4;transition:background .2s;cursor:default}
+.cal-day-events{display:flex;flex-direction:column;gap:4px;overflow-y:auto;max-height:140px}
+.cal-day-events::-webkit-scrollbar{width:2px}
+.cal-day-events::-webkit-scrollbar-thumb{background:var(--border2)}
+.cal-event{background:var(--bg3);border-radius:3px;padding:5px 7px;border-left:3px solid #4285f4;cursor:default;transition:background .15s;flex-shrink:0}
 .cal-event:hover{background:var(--bg4)}
-.cal-event-title{font-size:12px;font-weight:600;letter-spacing:.3px;color:var(--text);line-height:1.3;margin-bottom:3px}
-.cal-event-time{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px}
-.cal-event-cal{font-size:8px;letter-spacing:1px;color:var(--text3);margin-top:2px;text-transform:uppercase}
-.cal-event-location{font-size:10px;color:var(--text3);margin-top:2px}
-.cal-empty{text-align:center;padding:30px 10px;color:var(--text3);font-size:11px;letter-spacing:2px;text-transform:uppercase;line-height:1.8}
-.cal-loading{text-align:center;padding:20px;color:var(--text3);font-size:11px;letter-spacing:2px}
-.cal-status-bar{padding:6px 10px;font-size:9px;font-family:var(--mono);color:var(--text3);border-top:1px solid var(--border);flex-shrink:0;letter-spacing:1px}
-@media(max-width:640px){.cal-panel{position:fixed;right:0;top:48px;bottom:0;z-index:150;width:280px!important;box-shadow:-4px 0 20px rgba(0,0,0,.4)}.cal-panel.hidden{width:0!important}}
+.cal-event-title{font-size:11px;font-weight:600;color:var(--text);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.cal-event-time{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:1px;margin-top:2px}
+.cal-event-cal{font-size:8px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.cal-empty{display:flex;align-items:center;justify-content:center;width:100%;color:var(--text3);font-size:11px;letter-spacing:2px;text-transform:uppercase;text-align:center;line-height:1.8}
+.cal-loading{display:flex;align-items:center;justify-content:center;width:100%;color:var(--text3);font-size:11px;letter-spacing:2px}
+@media(max-width:640px){.cal-bar.open{height:200px}.cal-day-group{width:140px}}
 </style>
 </head>
 <body>
@@ -426,6 +470,26 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
   </div>
 </div>
 
+<!-- ── CARRY-OVER MODAL ───────────────────────────────────── -->
+<div class="carryover-overlay hidden" id="carryoverModal">
+  <div class="carryover-box">
+    <div class="carryover-header">
+      <div>
+        <div class="carryover-title">↺ NEW MONTH — <span id="co-new-month-label"></span></div>
+        <div class="carryover-sub">Choose what happens to each unfinished item</div>
+      </div>
+    </div>
+    <div class="carryover-body" id="co-body"></div>
+    <div class="carryover-footer">
+      <div class="co-footnote">Completed items → Hall of Fame automatically</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" id="coCancelBtn">CANCEL</button>
+        <button class="co-confirm-btn" id="coConfirmBtn" disabled>CONFIRM →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── NEW MONTH MODAL ───────────────────────────────────── -->
 <div class="modal-overlay hidden" id="newMonthModal">
   <div class="modal-box">
@@ -482,20 +546,20 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
 
   </div><!-- end app-content -->
 
-  <!-- ── CALENDAR PANEL ─────────────────────────────────── -->
-  <div class="cal-panel hidden" id="calPanel">
-    <div class="cal-panel-header">
-      <div class="cal-panel-title">📅 Google Calendar</div>
-      <div class="cal-panel-actions">
+  <!-- ── CALENDAR BOTTOM BAR ───────────────────────────── -->
+  <div class="cal-bar hidden" id="calPanel">
+    <div class="cal-bar-header">
+      <div class="cal-bar-title">📅 Google Calendar</div>
+      <div class="cal-status-bar" id="calStatusBar">Not connected</div>
+      <div class="cal-bar-actions">
         <button class="cal-connect-btn" id="calConnectBtn" style="display:none">CONNECT</button>
-        <button class="cal-disconnect-btn" id="calDisconnectBtn" style="display:none">✕</button>
+        <button class="cal-disconnect-btn" id="calDisconnectBtn" style="display:none">DISCONNECT</button>
         <button class="cal-connect-btn" id="calRefreshBtn" style="display:none">↺ SYNC</button>
       </div>
     </div>
     <div class="cal-body" id="calBody">
       <div class="cal-loading">Loading...</div>
     </div>
-    <div class="cal-status-bar" id="calStatusBar">Not connected</div>
   </div>
 
   </div><!-- end app-wrapper -->
@@ -509,7 +573,7 @@ body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0
 // IMPORTANT: Replace with your Railway backend URL after deploying
 const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://localhost:3001'
-  : 'https://studioos-backend-production.up.railway.app'; // <-- UPDATE THIS AFTER RAILWAY DEPLOY
+  : 'https://YOUR-RAILWAY-APP.up.railway.app'; // <-- UPDATE THIS AFTER RAILWAY DEPLOY
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 const MUSIC_STEPS = ['Pre-Prod','Tracking GT','Tracking Bass','Drum Edit','Guitar Edit','Vocal Track','Comping','Mixing','Master Prep','Mastering','QC/Delivery'];
@@ -616,15 +680,15 @@ function scheduleSave() {
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 async function doAuth(type) {
-  const email = document.getElementById('si-email').value.trim();
-  const pass  = document.getElementById('si-pass').value;
-  const errEl = document.getElementById('signin-error');
-  const btn   = document.getElementById('signinBtn');
+  const email = document.getElementById(type==='signin'?'si-email':'su-email').value.trim();
+  const pass  = document.getElementById(type==='signin'?'si-pass':'su-pass').value;
+  const errEl = document.getElementById(type==='signin'?'signin-error':'signup-error');
+  const btn   = document.getElementById(type==='signin'?'signinBtn':'signupBtn');
   errEl.textContent = '';
   if (!email || !pass) { errEl.textContent = 'Email and password required.'; return; }
   btn.disabled = true; btn.textContent = 'CONNECTING...';
   try {
-    const data = await apiReq(type === 'signin' ? '/auth/login' : '/auth/register', 'POST', { email, password: pass });
+    const data = await apiReq('/auth/'+type, 'POST', { email, password: pass });
     token = data.token; userEmail = data.email;
     localStorage.setItem('studioos_token', token);
     localStorage.setItem('studioos_email', userEmail);
@@ -673,7 +737,6 @@ function checkMonthRollover() {
   const current = currentMonthLabel();
   if (!state.month) state.month = current;
   if (state.month !== current) {
-    // Auto-prompt new month
     document.getElementById('snapshot-label').textContent = state.month;
     document.getElementById('newMonthModal').classList.remove('hidden');
   }
@@ -692,39 +755,168 @@ function checkWeeklyReset() {
   }
 }
 
-async function doNewMonth() {
+// ── CARRY-OVER STATE ──────────────────────────────────────────────────────────
+let coDecisions = {}; // { id: 'carry' | 'archive' | 'drop' }
+
+function openCarryoverModal() {
+  const unfinishedSongs = state.songs.filter(s => !s.is_archived && calcPct(s.steps) < 100);
+  const unfinishedApps  = state.apps.filter(a => !a.is_archived && calcPct(a.steps) < 100);
+  const unfinishedBooks = state.books.filter(b => b.currentPage < b.totalPages);
+
+  // If nothing unfinished, skip straight to doNewMonth
+  if (!unfinishedSongs.length && !unfinishedApps.length && !unfinishedBooks.length) {
+    doNewMonth({}); return;
+  }
+
+  coDecisions = {};
+  document.getElementById('co-new-month-label').textContent = currentMonthLabel().toUpperCase();
+  document.getElementById('coConfirmBtn').disabled = true;
+
+  let html = '';
+
+  if (unfinishedSongs.length) {
+    html += `<div>
+      <div class="co-section-title co-music" style="color:var(--green)">Music — ${unfinishedSongs.length} unfinished track${unfinishedSongs.length>1?'s':''}</div>`;
+    unfinishedSongs.forEach(s => {
+      const pct = calcPct(s.steps);
+      html += coItemHTML(s.id, s.title, pct + '%', pct, 'music', ['carry','archive','drop'], '#39ff7a');
+    });
+    html += '</div><div class="co-divider"></div>';
+  }
+
+  if (unfinishedApps.length) {
+    html += `<div>
+      <div class="co-section-title co-appdev" style="color:var(--blue)">App Dev — ${unfinishedApps.length} unfinished project${unfinishedApps.length>1?'s':''}</div>`;
+    unfinishedApps.forEach(a => {
+      const pct = calcPct(a.steps);
+      html += coItemHTML(a.id, a.title, pct + '%', pct, 'app', ['carry','archive','drop'], '#00cfff');
+    });
+    html += '</div><div class="co-divider"></div>';
+  }
+
+  if (unfinishedBooks.length) {
+    html += `<div>
+      <div class="co-section-title co-reading" style="color:var(--purple)">Reading — ${unfinishedBooks.length} unfinished book${unfinishedBooks.length>1?'s':''}</div>`;
+    unfinishedBooks.forEach(b => {
+      const pct = Math.round(b.currentPage / b.totalPages * 100);
+      html += coItemHTML(b.id, b.title, `pg ${b.currentPage}/${b.totalPages}`, pct, 'book', ['carry','drop'], '#b060ff');
+    });
+    html += '</div>';
+  }
+
+  document.getElementById('co-body').innerHTML = html;
+  document.getElementById('carryoverModal').classList.remove('hidden');
+}
+
+function coItemHTML(id, title, pctLabel, pctNum, type, choices, color) {
+  const choiceHTML = choices.map(c => {
+    const labels = {carry:'↩ Carry over', archive:'✦ Archive as-is', drop:'✕ Drop'};
+    return `<button class="co-choice" data-coid="${id}" data-choice="${c}" onclick="coPickChoice(${id},'${c}',this)">${labels[c]}</button>`;
+  }).join('');
+  return `<div class="co-item co-item-${type}" id="co-item-${id}">
+    <div class="co-item-row">
+      <div class="co-item-name">${title}</div>
+      <div class="co-item-pct" style="color:${color}">${pctLabel}</div>
+      <div class="co-tag co-tag-none" id="co-tag-${id}">—</div>
+    </div>
+    <div class="co-mini-bar"><div class="co-mini-fill" id="co-bar-${id}" style="width:${pctNum}%;background:${color}"></div></div>
+    <div class="co-choices">${choiceHTML}</div>
+  </div>`;
+}
+
+function coPickChoice(id, choice, btn) {
+  coDecisions[id] = choice;
+  // Update button styles in this item
+  const item = document.getElementById('co-item-' + id);
+  item.querySelectorAll('.co-choice').forEach(b => {
+    b.className = 'co-choice';
+  });
+  btn.classList.add('co-selected-' + choice);
+  // Update tag
+  const tag = document.getElementById('co-tag-' + id);
+  tag.className = 'co-tag co-tag-' + choice;
+  const labels = {carry:'CARRY OVER', archive:'ARCHIVE', drop:'DROP'};
+  tag.textContent = labels[choice];
+  // Check if all items have a decision → enable confirm
+  checkCoComplete();
+}
+
+function checkCoComplete() {
+  const unfinishedSongs = state.songs.filter(s => !s.is_archived && calcPct(s.steps) < 100);
+  const unfinishedApps  = state.apps.filter(a => !a.is_archived && calcPct(a.steps) < 100);
+  const unfinishedBooks = state.books.filter(b => b.currentPage < b.totalPages);
+  const allItems = [...unfinishedSongs, ...unfinishedApps, ...unfinishedBooks];
+  const allDecided = allItems.every(item => coDecisions[item.id] !== undefined);
+  document.getElementById('coConfirmBtn').disabled = !allDecided;
+}
+
+async function doNewMonth(decisions) {
   const label = state.month || currentMonthLabel();
+
+  // Archive completed items to Hall of Fame first
+  const completedSongs = state.songs.filter(s => !s.is_archived && calcPct(s.steps) === 100);
+  const completedApps  = state.apps.filter(a => !a.is_archived && calcPct(a.steps) === 100);
+  completedSongs.forEach(s => state.archived.push({...s, type:'music', archivedAt:Date.now(), expanded:false}));
+  completedApps.forEach(a => state.archived.push({...a, type:'app',   archivedAt:Date.now(), expanded:false}));
+
+  // Process unfinished items based on decisions
+  const unfinishedSongs = state.songs.filter(s => !s.is_archived && calcPct(s.steps) < 100);
+  const unfinishedApps  = state.apps.filter(a => !a.is_archived && calcPct(a.steps) < 100);
+  const unfinishedBooks = state.books.filter(b => b.currentPage < b.totalPages);
+
+  const carriedSongs = [], carriedApps = [], carriedBooks = [];
+
+  unfinishedSongs.forEach(s => {
+    const d = decisions[s.id];
+    if (d === 'carry')   carriedSongs.push({...s, expanded:true});
+    if (d === 'archive') state.archived.push({...s, type:'music', archivedAt:Date.now(), expanded:false, meta:{shelved:true}});
+  });
+  unfinishedApps.forEach(a => {
+    const d = decisions[a.id];
+    if (d === 'carry')   carriedApps.push({...a, expanded:true});
+    if (d === 'archive') state.archived.push({...a, type:'app', archivedAt:Date.now(), expanded:false, meta:{shelved:true}});
+  });
+  unfinishedBooks.forEach(b => {
+    if (decisions[b.id] === 'carry') carriedBooks.push({...b});
+  });
+
+  // Save snapshot of current month
   const snapshot = {
     month: label,
     songs: state.songs,
-    apps: state.apps,
+    apps:  state.apps,
     books: state.books,
     fitness: state.fitness,
     archived: state.archived,
     createdAt: new Date().toISOString()
   };
-  // Save snapshot to server if logged in
   if (!isGuest && token) {
     try { await apiReq('/snapshots', 'POST', { monthLabel: label, snapshot }); }
     catch(e) { console.warn('Snapshot save failed:', e); }
   }
-  // Also save in localStorage as backup
   const allSnaps = JSON.parse(localStorage.getItem('studioos_snapshots') || '{}');
   allSnaps[label] = snapshot;
   localStorage.setItem('studioos_snapshots', JSON.stringify(allSnaps));
 
-  // Reset workspace
+  // Build fresh state for new month
   const fresh = DEFAULT_STATE();
-  fresh.archived = state.archived; // keep hall of fame
+  fresh.archived       = state.archived;
   fresh.checklistState = {};
-  fresh.darkMode = state.darkMode;
-  fresh.month = currentMonthLabel();
+  fresh.darkMode       = state.darkMode;
+  fresh.month          = currentMonthLabel();
+  fresh.nextId         = state.nextId;
+  fresh.songs          = carriedSongs;
+  fresh.apps           = carriedApps;
+  fresh.books          = carriedBooks;
   state = fresh;
+
   scheduleSave();
   document.getElementById('month-label').textContent = '◈ ' + state.month.toUpperCase();
   document.getElementById('newMonthModal').classList.add('hidden');
+  document.getElementById('carryoverModal').classList.add('hidden');
   renderAll();
-  showToast('New month started! ' + state.month, 'success');
+  const carried = carriedSongs.length + carriedApps.length + carriedBooks.length;
+  showToast(`New month started! ${carried ? carried + ' item(s) carried over' : ''}`, 'success');
 }
 
 // ── RENDER HELPERS ────────────────────────────────────────────────────────────
@@ -1034,7 +1226,9 @@ document.addEventListener('click', e => {
     document.getElementById('newMonthModal').classList.remove('hidden'); return;
   }
   if (t.id === 'cancelNewMonth') { document.getElementById('newMonthModal').classList.add('hidden'); return; }
-  if (t.id === 'confirmNewMonth') { doNewMonth(); return; }
+  if (t.id === 'confirmNewMonth') { document.getElementById('newMonthModal').classList.add('hidden'); openCarryoverModal(); return; }
+  if (t.id === 'coCancelBtn') { document.getElementById('carryoverModal').classList.add('hidden'); return; }
+  if (t.id === 'coConfirmBtn' && !t.disabled) { doNewMonth(coDecisions); return; }
   if (t.id === 'historyBtn') { openHistory(); return; }
   if (t.id === 'closeHistory') { document.getElementById('historyModal').classList.add('hidden'); return; }
 
@@ -1226,6 +1420,7 @@ function toggleCalPanel() {
   const panel = document.getElementById('calPanel');
   const btn   = document.getElementById('calToggleBtn');
   panel.classList.toggle('hidden', !calPanelOpen);
+  panel.classList.toggle('open', calPanelOpen);
   btn.classList.toggle('connected', calConnected);
   if (calPanelOpen && calConnected) loadCalendarEvents();
 }
@@ -1244,6 +1439,7 @@ async function initCalendar() {
     window.history.replaceState({}, '', window.location.pathname);
     calPanelOpen = true;
     document.getElementById('calPanel').classList.remove('hidden');
+    document.getElementById('calPanel').classList.add('open');
     document.getElementById('calToggleBtn').classList.add('connected');
   }
   if (params.get('cal') === 'error') {
@@ -1330,22 +1526,28 @@ async function loadCalendarEvents() {
 function renderCalendarEvents(events, cached) {
   const body = document.getElementById('calBody');
   if (!events || !events.length) {
-    body.innerHTML = '<div class="cal-empty">🎉<br><br>No events in<br>the next 7 days</div>';
+    body.innerHTML = '<div class="cal-empty">🎉 No events in the next 7 days</div>';
     return;
   }
 
   // Group by day
   const groups = {};
-  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const today = new Date(); today.setHours(0,0,0,0);
+
+  // Build 7 day slots even if empty
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today.getTime() + i * 86400000);
+    const key = d.toDateString();
+    groups[key] = { date: d, events: [] };
+  }
 
   events.forEach(ev => {
     const d = new Date(ev.start);
     d.setHours(0,0,0,0);
     const key = d.toDateString();
-    if (!groups[key]) groups[key] = { date: d, events: [] };
-    groups[key].events.push(ev);
+    if (groups[key]) groups[key].events.push(ev);
   });
 
   let html = '';
@@ -1353,36 +1555,38 @@ function renderCalendarEvents(events, cached) {
     const d        = group.date;
     const isToday  = d.getTime() === today.getTime();
     const isTomorrow = d.getTime() === today.getTime() + 86400000;
-    const dayLabel = isToday ? 'Today' : isTomorrow ? 'Tomorrow' : dayNames[d.getDay()];
+    const dayLabel = isToday ? 'TODAY' : isTomorrow ? 'TOMORROW' : dayNames[d.getDay()];
     const dateStr  = monthNames[d.getMonth()] + ' ' + d.getDate();
 
     html += `<div class="cal-day-group">
       <div class="cal-day-label ${isToday?'today':''}">
         <span>${dayLabel}</span>
         <span class="day-date">${dateStr}</span>
-      </div>`;
+      </div>
+      <div class="cal-day-events">`;
 
-    group.events.forEach(ev => {
-      const timeStr = ev.allDay ? 'All day' : formatEventTime(ev.start, ev.end);
-      const color   = ev.calendarColor || '#4285f4';
-      html += `<div class="cal-event" style="border-left-color:${color}">
-        <div class="cal-event-title">${escHtml(ev.title)}</div>
-        <div class="cal-event-time">${timeStr}</div>
-        <div class="cal-event-cal" style="color:${color}88">${escHtml(ev.calendarName)}</div>
-        ${ev.location ? `<div class="cal-event-location">📍 ${escHtml(ev.location)}</div>` : ''}
-      </div>`;
-    });
-    html += '</div>';
+    if (!group.events.length) {
+      html += `<div style="font-size:10px;color:var(--text3);padding:4px 0;letter-spacing:1px">—</div>`;
+    } else {
+      group.events.forEach(ev => {
+        const timeStr = ev.allDay ? 'All day' : formatEventTime(ev.start);
+        const color   = ev.calendarColor || '#4285f4';
+        html += `<div class="cal-event" style="border-left-color:${color}" title="${escHtml(ev.title)}">
+          <div class="cal-event-title">${escHtml(ev.title)}</div>
+          <div class="cal-event-time">${timeStr}</div>
+          <div class="cal-event-cal" style="color:${color}">${escHtml(ev.calendarName)}</div>
+        </div>`;
+      });
+    }
+    html += `</div></div>`;
   });
 
   body.innerHTML = html;
 }
 
-function formatEventTime(start, end) {
+function formatEventTime(start) {
   const s = new Date(start);
-  const e = new Date(end);
-  const fmt = t => t.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true});
-  return fmt(s) + (end ? ' – ' + fmt(e) : '');
+  return s.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true});
 }
 
 function escHtml(str) {
