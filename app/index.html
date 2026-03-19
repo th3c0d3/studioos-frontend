@@ -2525,48 +2525,91 @@ function renderFocusMain() {
     document.getElementById('focusMain').innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px;letter-spacing:3px">NO ITEMS TO FOCUS ON</div>`;
     return;
   }
-  const item = items[focusIdx];
-  const pct  = calcPct(item.steps);
+  const item  = items[focusIdx];
+  const pct   = calcPct(item.steps);
   const is100 = pct === 100;
-  const accentColor = is100 ? 'var(--green)' : focusType === 'app' ? 'var(--blue)' : 'var(--text)';
   const total = items.length;
+  const isSong = focusType === 'song';
+  const accentColor = is100 ? 'var(--green)' : isSong ? 'var(--text)' : 'var(--blue)';
   const notes = item.notes || [];
   const doneNotes = notes.filter(n => n.done).length;
 
-  const segs = item.steps.map((s,i) => {
-    const col = focusSegColor(i, item.steps.length, focusType);
-    return `<div class="focus-seg ${col} ${s.status}" data-fidx="${i}" title="${s.name}"></div>`;
-  }).join('');
-  const segNames = item.steps.map(s => `<div class="focus-seg-name">${s.name}</div>`).join('');
-
-  const deadlineBadge = item.deadline ? deadlineBadgeHTML(item.deadline) : '';
-  const typeBadge = focusType === 'song'
+  const typeBadge = isSong
     ? `<span class="track-cat ${item.trackType==='Cover'?'cat-cover':'cat-original'}">${item.trackType||'ORIGINAL'}</span>`
     : `<span class="track-cat cat-appdev">APP DEV</span>`;
+  const deadlineBadge = item.deadline ? deadlineBadgeHTML(item.deadline) : '';
 
-  const notesHTML = notes.map((n,i) => `
-    <div class="note-entry ${n.done?'note-done':''}" style="margin-bottom:4px;border-left-color:${n.done?'var(--border)':focusType==='app'?'var(--blue2)':'var(--green2)'}">
-      <div class="note-chk ${n.done?'chk-done':''}" data-focusnote="${i}"></div>
+  const songTypeVal = item.songType || 'With Lyrics';
+  const metaRow = isSong ? `<div class="meta-row" style="padding:5px 24px 7px;border-bottom:1px solid var(--border)">
+      <div class="meta-pill ${item.bpm?'mp-set':''}" data-editbpm="${item.id}"><span class="meta-lbl">BPM</span><span class="meta-val">${item.bpm||'—'}</span></div>
+      <div class="meta-sep"></div>
+      <div class="meta-pill ${item.key?'mp-set':''}" data-editkey="${item.id}"><span class="meta-lbl">KEY</span><span class="meta-val">${item.key||'—'}</span></div>
+      <div class="meta-sep"></div>
+      <div class="meta-pill" style="padding:2px 4px 2px 8px"><span class="meta-lbl">TYPE</span>
+        <select class="meta-sel" data-songtype="${item.id}">
+          <option ${songTypeVal==='With Lyrics'?'selected':''}>With Lyrics</option>
+          <option ${songTypeVal==='Instrumental'?'selected':''}>Instrumental</option>
+          <option ${songTypeVal==='Partial Lyrics'?'selected':''}>Partial Lyrics</option>
+          <option ${songTypeVal==='Melody Only'?'selected':''}>Melody Only</option>
+        </select>
+      </div>
+      <div style="flex:1"></div>
+      <button class="lyrics-btn ${item.lyricsOpen?'lyrics-open':''}" data-focuslyrics="${item.id}">♪ LYRICS${item.lyricsOpen?' ▲':''}</button>
+    </div>` : '';
+
+  const segs = item.steps.map((s,i) => {
+    const col = focusSegColor(i, item.steps.length, focusType);
+    const isQC = isSong && i === item.steps.length - 1;
+    return `<div class="focus-seg ${col} ${s.status}" data-fidx="${i}" title="${isQC?'Click to open QC/Delivery checklist':s.name}" ${isQC?'style="border:1px solid rgba(255,215,0,.3)"':''}></div>`;
+  }).join('');
+  const segNames = item.steps.map((s,i) => `<div class="focus-seg-name" data-stepname="${focusType}" data-stepid="${item.id}" data-stepidx="${i}" title="Click to rename">${s.name}</div>`).join('');
+
+  const notesHTML = notes.map((n,ni) => `
+    <div class="note-entry ${n.done?'note-done':''}" style="margin-bottom:4px;border-left-color:${n.done?'var(--border)':isSong?'var(--green2)':'var(--blue2)'}" data-togglenote="${ni}" data-toggletrack="${item.id}" data-toggletype="${focusType}">
+      <div class="note-chk ${n.done?'chk-done':''}"></div>
       <div class="note-ts">${n.date}</div>
       <div class="note-text">${n.text}</div>
-      <button class="note-del-btn" data-focusdel="${i}">✕</button>
+      <button class="note-del-btn" data-noteid="${ni}" data-trackid="${item.id}" data-tracktype="${focusType}">✕</button>
     </div>`).join('');
+
+  const lyricsWords = item.lyrics ? item.lyrics.trim().split(/\s+/).filter(w=>w.length>0).length : 0;
+  const lyricsLines = item.lyrics ? item.lyrics.split('\n').filter(l=>l.trim().length>0).length : 0;
+  const lyricsPanel = isSong && item.lyricsOpen ? `
+    <div class="lyrics-panel" style="margin:0 24px 8px;border-radius:3px">
+      <div class="lyrics-panel-hdr">
+        <span>♪ Lyrics / Words</span>
+        <span style="font-size:8px;color:var(--text3);letter-spacing:1px">${lyricsWords} words · ${lyricsLines} lines</span>
+      </div>
+      <textarea class="lyrics-ta" id="lta-${item.id}" placeholder="Write lyrics, ideas, concepts..." oninput="updateLyrics(${item.id},this.value)">${item.lyrics||''}</textarea>
+    </div>` : '';
+
+  const archiveBtn = is100
+    ? `<button class="archive-btn" data-id="${item.id}" data-action="${isSong?'open-pf':'open-pf-app'}" style="margin-left:8px">ARCHIVE</button>`
+    : '';
 
   document.getElementById('focusMain').innerHTML = `
     <div class="focus-track-hdr">
-      <div class="focus-track-num">TRACK ${String(focusIdx+1).padStart(2,'0')} OF ${String(total).padStart(2,'0')}</div>
-      <div class="focus-track-title">${item.title}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div class="focus-track-num" style="margin-bottom:0">TRACK ${String(focusIdx+1).padStart(2,'0')} OF ${String(total).padStart(2,'0')}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div class="focus-track-title" style="margin-bottom:0;flex:1">${item.title}</div>
+        <button class="rename-btn" data-startren="${item.id}" data-rentype="${focusType}" title="Rename" style="font-size:14px;opacity:1;color:var(--text3)">✎</button>
+      </div>
       <div class="focus-meta-row">
         ${typeBadge}
         ${deadlineBadge}
+        ${archiveBtn}
         <span class="focus-pct-big" style="color:${accentColor}">${pct}%</span>
       </div>
     </div>
+    ${metaRow}
     <div class="focus-seg-area">
-      <div class="focus-seg-lbl">${focusType==='song'?'Step Sequencer':'Sprint Board'}</div>
+      <div class="focus-seg-lbl">${isSong?'Step Sequencer':'Sprint Board'}</div>
       <div class="focus-seg-bar" id="focus-seg-bar">${segs}</div>
       <div class="focus-seg-names">${segNames}</div>
     </div>
+    ${lyricsPanel}
     <div class="focus-notes-area">
       <div class="focus-notes-hdr">
         <span>Notes</span>
@@ -2576,10 +2619,9 @@ function renderFocusMain() {
     </div>
     <div class="focus-note-input-row">
       <input class="note-text-input" id="focus-note-input" placeholder="Add a note..."/>
-      <button class="note-add-btn" id="focus-note-add" style="${focusType==='app'?'background:var(--blue3);border-color:var(--blue2);color:var(--blue)':''}">+ LOG</button>
+      <button class="note-add-btn" id="focus-note-add" style="${!isSong?'background:var(--blue3);border-color:var(--blue2);color:var(--blue)':''}">+ LOG</button>
     </div>`;
 }
-
 function focusSelectItem(i) {
   focusIdx = i;
   renderFocusSidebar();
@@ -2607,6 +2649,7 @@ document.addEventListener('click', e => {
       if (last !== undefined && last+1 < steps.length) steps[last+1].status = 'active';
       else steps[0].status = 'active';
     } else {
+      if (isSong && idx === steps.length - 1) { openPreflight(item.id, 'music'); return; }
       for (let i=0;i<=idx;i++) steps[i].status = 'done';
       steps.forEach((s,i) => { if (i>idx && s.status==='active') s.status='pending'; });
       if (idx+1 < steps.length) steps[idx+1].status = 'active';
@@ -2614,20 +2657,12 @@ document.addEventListener('click', e => {
     scheduleSave(); renderFocusSidebar(); renderFocusMain(); return;
   }
 
-  // Note toggle done
-  const noteChk = e.target.closest('[data-focusnote]');
-  if (noteChk) {
-    const i = +noteChk.dataset.focusnote;
-    if (item.notes?.[i] !== undefined) { item.notes[i].done = !item.notes[i].done; scheduleSave(); renderFocusMain(); renderFocusSidebar(); }
+  // Lyrics toggle (focus mode)
+  if (e.target.dataset.focuslyrics) {
+    const id = +e.target.dataset.focuslyrics;
+    const s = (focusType==='song' ? state.songs : state.apps).find(x => x.id === id);
+    if (s) { s.lyricsOpen = !s.lyricsOpen; renderFocusMain(); }
     return;
-  }
-
-  // Note delete
-  const noteDel = e.target.closest('[data-focusdel]');
-  if (noteDel) {
-    const i = +noteDel.dataset.focusdel;
-    item.notes?.splice(i, 1);
-    scheduleSave(); renderFocusMain(); renderFocusSidebar(); return;
   }
 
   // Note add
