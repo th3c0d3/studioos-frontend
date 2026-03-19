@@ -133,6 +133,22 @@ input,select{font-family:var(--font)}
 
 /* ── METER ────────────────────────────────────────────────── */
 .meter-wrap{padding:6px 12px 12px;border-top:1px solid var(--border)}
+.note-btn{background:transparent;border:1px solid var(--border);color:var(--text3);padding:3px 8px;font-size:9px;letter-spacing:1px;border-radius:2px;cursor:pointer;transition:all .2s;font-family:var(--mono);flex-shrink:0}
+.note-btn:hover{border-color:var(--green2);color:var(--green)}
+.note-btn.has-note{border-color:rgba(57,255,122,.3);color:var(--green);background:rgba(57,255,122,.05)}
+.notes-panel{border-top:1px solid var(--border);padding:10px 12px;background:var(--bg)}
+.notes-panel-label{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.notes-entries{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.note-entry{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;background:var(--bg2);border-radius:2px;border-left:2px solid var(--green2)}
+.note-ts{font-family:var(--mono);font-size:8px;color:var(--text3);white-space:nowrap;margin-top:1px;min-width:44px}
+.note-text{font-size:11px;color:var(--text2);flex:1;line-height:1.5}
+.note-del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:0 3px;transition:color .2s;flex-shrink:0}
+.note-del-btn:hover{color:var(--red)}
+.note-input-row{display:flex;gap:6px}
+.note-text-input{flex:1;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:6px 9px;font-size:11px;border-radius:2px;outline:none;font-family:var(--font);transition:border-color .2s}
+.note-text-input:focus{border-color:var(--green2)}
+.note-add-btn{background:var(--green3);border:1px solid var(--green2);color:var(--green);padding:6px 12px;font-size:10px;letter-spacing:1px;border-radius:2px;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .2s}
+.note-add-btn:hover{background:var(--green2)}
 .meter-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
 .seg-bar{display:flex;gap:2px}
 .seg{flex:1;height:18px;border-radius:2px;cursor:pointer;transition:all .2s;border:1px solid rgba(0,0,0,.3)}
@@ -946,6 +962,25 @@ function renderTracks() {
     const segs = song.steps.map((s,i) => `<div class="seg ${segCol(i,song.steps.length)} ${s.status}" data-idx="${i}" data-id="${song.id}" data-type="song" title="${s.name}"></div>`).join('');
     const names = song.steps.map(s => `<div class="seg-name">${s.name}</div>`).join('');
     const deadlineBadge = song.deadline ? deadlineBadgeHTML(song.deadline) : '';
+    const notes = song.notes || [];
+    const noteCount = notes.length;
+    const noteBtnClass = noteCount > 0 ? 'note-btn has-note' : 'note-btn';
+    const noteBtnLabel = noteCount > 0 ? `✎ ${noteCount} note${noteCount>1?'s':''}` : '✎ notes';
+    const notesHTML = song.notesOpen ? `
+      <div class="notes-panel">
+        <div class="notes-panel-label">Session notes</div>
+        <div class="notes-entries" id="ne-${song.id}">
+          ${notes.map((n,i) => `<div class="note-entry">
+            <div class="note-ts">${n.date}</div>
+            <div class="note-text">${n.text}</div>
+            <button class="note-del-btn" data-noteid="${i}" data-trackid="${song.id}" data-tracktype="song">✕</button>
+          </div>`).join('')}
+        </div>
+        <div class="note-input-row">
+          <input class="note-text-input" id="ni-${song.id}" placeholder="Add a session note..." />
+          <button class="note-add-btn" data-addnote="${song.id}" data-tracktype="song">+ LOG</button>
+        </div>
+      </div>` : '';
     return `<div class="track-card ${modeClass} ${is100?'complete-glow':''}" draggable="true" data-drag-idx="${idx}" data-track-id="${song.id}">
       <div class="track-header" data-id="${song.id}" data-action="toggle">
         <div class="track-drag">⠿</div>
@@ -953,12 +988,14 @@ function renderTracks() {
         <div class="track-title">${song.title}</div>
         <span class="track-cat ${catClass}">${song.category}</span>
         ${deadlineBadge}
-        <div class="track-pct" style="${is100?'color:var(--green);font-weight:700':''}${pct >= 80 && song.deadline && isDeadlineSoon(song.deadline) && !is100 ? ';color:var(--orange)' : ''}">${pct}%</div>
+        <button class="${noteBtnClass}" data-togglenotes="${song.id}" data-tracktype="song">${noteBtnLabel}</button>
+        <div class="track-pct" style="${is100?'color:var(--green);font-weight:700':''}">${pct}%</div>
         ${is100 ? `<button class="archive-btn" data-id="${song.id}" data-action="open-pf">ARCHIVE</button>` : ''}
         <button class="del-btn" data-id="${song.id}" data-action="del-song">✕</button>
         <div class="track-toggle ${song.expanded?'open':''}">▼</div>
       </div>
       <div class="deadline-drop-zone">⬇ drop calendar event to set deadline</div>
+      ${notesHTML}
       ${song.expanded ? `<div class="meter-wrap"><div class="meter-label">STEP SEQUENCER — ${pct}% COMPLETE</div><div class="seg-bar">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
     </div>`;
   }).join('');
@@ -972,6 +1009,25 @@ function renderApps() {
     const segs = app.steps.map((s,i) => `<div class="sprint-seg ${s.status}" data-idx="${i}" data-id="${app.id}" data-type="app" title="${s.name}"></div>`).join('');
     const names = app.steps.map(s => `<div class="seg-name">${s.name}</div>`).join('');
     const deadlineBadge = app.deadline ? deadlineBadgeHTML(app.deadline) : '';
+    const notes = app.notes || [];
+    const noteCount = notes.length;
+    const noteBtnClass = noteCount > 0 ? 'note-btn has-note' : 'note-btn';
+    const noteBtnLabel = noteCount > 0 ? `✎ ${noteCount} note${noteCount>1?'s':''}` : '✎ notes';
+    const notesHTML = app.notesOpen ? `
+      <div class="notes-panel">
+        <div class="notes-panel-label">Dev notes</div>
+        <div class="notes-entries" id="ne-${app.id}">
+          ${notes.map((n,i) => `<div class="note-entry" style="border-left-color:var(--blue2)">
+            <div class="note-ts">${n.date}</div>
+            <div class="note-text">${n.text}</div>
+            <button class="note-del-btn" data-noteid="${i}" data-trackid="${app.id}" data-tracktype="app">✕</button>
+          </div>`).join('')}
+        </div>
+        <div class="note-input-row">
+          <input class="note-text-input" id="ni-${app.id}" placeholder="Add a dev note..." />
+          <button class="note-add-btn" style="background:var(--blue3);border-color:var(--blue2);color:var(--blue)" data-addnote="${app.id}" data-tracktype="app">+ LOG</button>
+        </div>
+      </div>` : '';
     return `<div class="appdev-card ${is100?'complete-glow':''}" data-track-id="${app.id}">
       <div class="track-header" data-id="${app.id}" data-action="toggle-app">
         <div class="track-drag">⠿</div>
@@ -979,12 +1035,14 @@ function renderApps() {
         <div class="track-title">${app.title}</div>
         <span class="track-cat cat-appdev">AppDev</span>
         ${deadlineBadge}
+        <button class="${noteBtnClass}" data-togglenotes="${app.id}" data-tracktype="app" style="${noteCount>0?'':'border-color:rgba(0,207,255,.2);color:var(--blue)'}">${noteBtnLabel}</button>
         <div class="track-pct" style="${is100?'color:var(--blue);font-weight:700':''}">${pct}%</div>
         ${is100 ? `<button class="archive-btn" style="border-color:var(--blue2);color:var(--blue);background:var(--blue3);animation:none" data-id="${app.id}" data-action="open-pf-app">ARCHIVE</button>` : ''}
         <button class="del-btn" data-id="${app.id}" data-action="del-app">✕</button>
         <div class="track-toggle ${app.expanded?'open':''}">▼</div>
       </div>
       <div class="deadline-drop-zone">⬇ drop calendar event to set deadline</div>
+      ${notesHTML}
       ${app.expanded ? `<div class="meter-wrap" style="border-top:1px solid var(--border)"><div class="meter-label">SPRINT BOARD — ${pct}% SHIPPED</div><div class="seg-bar" style="gap:2px">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
     </div>`;
   }).join('');
@@ -1334,6 +1392,39 @@ document.addEventListener('click', e => {
   }
   // DELETE SONG
   if (t.dataset.action === 'del-song') { state.songs = state.songs.filter(x => x.id !== +t.dataset.id); scheduleSave(); renderTracks(); return; }
+
+  // NOTES — toggle panel
+  if (t.dataset.togglenotes) {
+    e.stopPropagation();
+    const id = +t.dataset.togglenotes, type = t.dataset.tracktype;
+    const item = type === 'song' ? state.songs.find(s => s.id === id) : state.apps.find(a => a.id === id);
+    if (item) { item.notesOpen = !item.notesOpen; scheduleSave(); type === 'song' ? renderTracks() : renderApps(); }
+    return;
+  }
+
+  // NOTES — add note
+  if (t.dataset.addnote) {
+    const id = +t.dataset.addnote, type = t.dataset.tracktype;
+    const input = document.getElementById('ni-' + id);
+    const text = input?.value.trim();
+    if (!text) return;
+    const item = type === 'song' ? state.songs.find(s => s.id === id) : state.apps.find(a => a.id === id);
+    if (item) {
+      if (!item.notes) item.notes = [];
+      const d = new Date();
+      item.notes.push({ text, date: d.toLocaleDateString('en-US', {month:'short', day:'numeric'}) });
+      scheduleSave(); type === 'song' ? renderTracks() : renderApps();
+    }
+    return;
+  }
+
+  // NOTES — delete note
+  if (t.dataset.noteid !== undefined && t.dataset.trackid) {
+    const id = +t.dataset.trackid, idx = +t.dataset.noteid, type = t.dataset.tracktype;
+    const item = type === 'song' ? state.songs.find(s => s.id === id) : state.apps.find(a => a.id === id);
+    if (item?.notes) { item.notes.splice(idx, 1); scheduleSave(); type === 'song' ? renderTracks() : renderApps(); }
+    return;
+  }
   if (t.dataset.action === 'clear-deadline') {
     const card = t.closest('[data-track-id]');
     if (card) {
@@ -1491,6 +1582,13 @@ document.addEventListener('input', e => {
 
 // ENTER KEY on login
 document.addEventListener('keydown', e => {
+  // Note input Enter key
+  if (e.key === 'Enter' && e.target.classList.contains('note-text-input')) {
+    const id = +e.target.id.replace('ni-','');
+    const addBtn = e.target.nextElementSibling;
+    if (addBtn) addBtn.click();
+    return;
+  }
   if (e.key === 'Enter') {
     const ls = document.getElementById('login-screen');
     if (!ls.classList.contains('hidden')) {
