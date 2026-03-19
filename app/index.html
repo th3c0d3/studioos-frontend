@@ -616,15 +616,15 @@ function scheduleSave() {
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 async function doAuth(type) {
-  const email = document.getElementById(type==='signin'?'si-email':'su-email').value.trim();
-  const pass  = document.getElementById(type==='signin'?'si-pass':'su-pass').value;
-  const errEl = document.getElementById(type==='signin'?'signin-error':'signup-error');
-  const btn   = document.getElementById(type==='signin'?'signinBtn':'signupBtn');
+  const email = document.getElementById('si-email').value.trim();
+  const pass  = document.getElementById('si-pass').value;
+  const errEl = document.getElementById('signin-error');
+  const btn   = document.getElementById('signinBtn');
   errEl.textContent = '';
   if (!email || !pass) { errEl.textContent = 'Email and password required.'; return; }
   btn.disabled = true; btn.textContent = 'CONNECTING...';
   try {
-    const data = await apiReq('/auth/'+type, 'POST', { email, password: pass });
+    const data = await apiReq(type === 'signin' ? '/auth/login' : '/auth/register', 'POST', { email, password: pass });
     token = data.token; userEmail = data.email;
     localStorage.setItem('studioos_token', token);
     localStorage.setItem('studioos_email', userEmail);
