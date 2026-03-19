@@ -473,20 +473,37 @@ body.amiga .stat-val{color:#0055aa}
 body.amiga .sec-title{color:#0055aa}
 body.amiga .sec-title::before{background:#0055aa}
 
-/* ── LIGHT FOCUS OVERRIDES ──────────────────────────────── */
-body.light #focusMode{background:#e8e8f0}
-body.light #focusMode > div:first-child{background:#ffffff;border-bottom:1px solid #d0d0e0}
-body.light #focusSidebar{background:#f0f0f4;border-right:1px solid #d0d0e0}
-body.light .focus-list-item{border-bottom:1px solid #e8e8f0}
+/* ── LIGHT FOCUS OVERRIDES — Option C: Soft grey ────────── */
+body.light #focusMode{background:#f0f0f4}
+body.light #focusMode > div:first-child{background:#1a1a2e;border-bottom:1px solid #333340}
+body.light #focusMode .topbar-btn{background:#2a2a3e;border:1px solid #444460;color:#c0c0d8}
+body.light #focusMode .topbar-btn:hover{border-color:#0a7a30;color:#0a7a30}
+body.light #focusSidebar{background:#f8f8ff;border-right:1px solid #b0b0c8}
+body.light .focus-list-item{border-bottom:1px solid #e0e0ee;color:#555570}
 body.light .focus-list-item:hover{background:#e8e8f0}
-body.light .focus-list-item.fli-active{background:#ffffff;border-left-color:#0a7a30}
+body.light .focus-list-item.fli-active{background:#e8e8f0;border-left-color:#0a7a30}
+body.light .focus-list-item.fli-active .fli-name{color:#1a1a2e;font-weight:700}
+body.light .fli-name{color:#555570}
+body.light .fli-pct{color:#555570}
 body.light .focus-track-hdr{background:#ffffff;border-bottom:1px solid #d0d0e0}
+body.light .focus-track-num{color:#555570}
+body.light .focus-track-title{color:#1a1a2e}
 body.light .focus-seg-area{background:#f0f0f4;border-bottom:1px solid #d0d0e0}
+body.light .focus-seg-lbl{color:#555570}
+body.light .focus-seg-name{color:#333350;font-weight:700}
 body.light .focus-notes-area{background:#ffffff}
+body.light .focus-notes-hdr{color:#555570}
 body.light .focus-note-input-row{background:#f0f0f4;border-top:1px solid #d0d0e0}
 body.light .focus-seg.s-green{background:#0a7a30}
 body.light .focus-seg.pending{background:#d8d8e8;border:1px solid #b0b0c8;opacity:1}
 body.light .focus-pct-big{color:#0a7a30}
+body.light #focusMode .note-entry{background:#f0f0f4;border-left-color:#0a7a30}
+body.light #focusMode .note-ts{color:#0a7a30}
+body.light #focusMode .note-text{color:#333350}
+body.light #focusMode .note-text-input{background:#ffffff;border:1px solid #b0b0c8;color:#1a1a2e}
+body.light #focusMode .note-add-btn{background:#d0f0de;border-color:#0f9a40;color:#0a7a30}
+body.light #focusMode .note-chk{border-color:#b0b0c8}
+body.light #focusMode .focus-badge{color:#0a7a30;background:rgba(10,122,48,.08);border-color:rgba(10,122,48,.3)}
 body.c64 .cal-bar{border-top:2px solid #6060c0}
 body.c64 .cal-bar-title{color:#00ff00}
 body.c64 #focusMode{background:#2020700}
@@ -511,31 +528,35 @@ body.c64 .focus-pct-big{color:#00ff00}
 body.amiga #focusMode{background:#cccccc}
 body.amiga #focusMode > div:first-child{background:#0055aa;border-bottom:2px solid #003377}
 body.amiga #focusMode .topbar-btn{background:#cccccc;border:1px solid #555;color:#000}
-body.amiga #focusSidebar{background:#bbbbbb;border-right:2px solid #888}
-body.amiga .focus-list-item{border-bottom:1px solid #aaaaaa}
-body.amiga .focus-list-item:hover{background:#cccccc}
-body.amiga .focus-list-item.fli-active{background:#ffffff;border-left-color:#0055aa}
-body.amiga .focus-list-item.fli-active .fli-name{color:#000000}
-body.amiga .fli-name{color:#333333}
-body.amiga .fli-pct{color:#555555}
+body.amiga #focusMode .topbar-btn:hover{border-color:#0055aa;color:#0055aa}
+body.amiga #focusSidebar{background:#ffffff;border-right:2px solid #0055aa}
+body.amiga .focus-list-item{border-bottom:1px solid #dddddd}
+body.amiga .focus-list-item:hover{background:#f0f0f4}
+body.amiga .focus-list-item.fli-active{background:#cce0ff;border-left-color:#0055aa}
+body.amiga .focus-list-item.fli-active .fli-name{color:#000000;font-weight:700}
+body.amiga .fli-name{color:#222222}
+body.amiga .fli-pct{color:#444444}
 body.amiga .focus-track-hdr{background:#ffffff;border-bottom:2px solid #888}
 body.amiga .focus-track-title{color:#000000}
-body.amiga .focus-track-num{color:#555555}
+body.amiga .focus-track-num{color:#444444}
 body.amiga .focus-seg-area{background:#dddddd;border-bottom:2px solid #888}
-body.amiga .focus-seg-lbl{color:#555555}
-body.amiga .focus-seg-name{color:#333333;font-weight:700}
+body.amiga .focus-seg-lbl{color:#444444}
+body.amiga .focus-seg-name{color:#222222;font-weight:700}
 body.amiga .focus-seg.s-green{background:#00aa00}
 body.amiga .focus-seg.pending{background:#cccccc;border:1px solid #888;opacity:1}
 body.amiga .focus-seg.s-blue{background:#0055aa}
 body.amiga .focus-seg.s-purple{background:#8800aa}
 body.amiga .focus-notes-area{background:#ffffff}
+body.amiga .focus-notes-hdr{color:#444444}
 body.amiga .focus-note-input-row{background:#dddddd;border-top:2px solid #888}
 body.amiga .focus-pct-big{color:#0055aa}
-body.amiga #focusMode .note-entry{background:#eeeeee;border-left-color:#0055aa}
+body.amiga #focusMode .note-entry{background:#f0f0f4;border-left-color:#0055aa}
 body.amiga #focusMode .note-ts{color:#cc0000}
-body.amiga #focusMode .note-text{color:#222222}
+body.amiga #focusMode .note-text{color:#111111}
 body.amiga #focusMode .note-text-input{background:#ffffff;border:1px solid #888;color:#000}
-body.amiga #focusMode .note-add-btn{background:#cccccc;border:1px solid #555;color:#000}
+body.amiga #focusMode .note-add-btn{background:#cccccc;border:2px solid #555;color:#000}
+body.amiga #focusMode .note-chk{border-color:#888}
+body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background:rgba(255,255,0,.1)}
 
 /* ── TOAST ────────────────────────────────────────────────── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 20px;border-radius:4px;font-size:13px;letter-spacing:1px;z-index:500;transition:transform .3s;white-space:nowrap}
@@ -838,7 +859,7 @@ body.amiga #focusMode .note-add-btn{background:#cccccc;border:1px solid #555;col
         <text x="70" y="28" font-family="JetBrains Mono,monospace" font-size="20" font-weight="700" letter-spacing="3" fill="#e8e8f0">Studio</text>
         <text x="70" y="50" font-family="JetBrains Mono,monospace" font-size="20" font-weight="700" letter-spacing="3" fill="#39ff7a">OS</text>
       </svg>
-      <span style="font-size:9px;letter-spacing:3px;color:var(--green);background:rgba(57,255,122,.08);border:1px solid rgba(57,255,122,.2);padding:2px 8px;border-radius:2px">⊙ FOCUS MODE</span>
+      <span class="focus-badge" style="font-size:9px;letter-spacing:3px;color:var(--green);background:rgba(57,255,122,.08);border:1px solid rgba(57,255,122,.2);padding:2px 8px;border-radius:2px">⊙ FOCUS MODE</span>
     </div>
     <button class="topbar-btn" id="exitFocusBtn" style="border-color:rgba(255,45,85,.3);color:#ff2d55">✕ EXIT FOCUS</button>
   </div>
