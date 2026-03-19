@@ -102,11 +102,18 @@ input,select{font-family:var(--font)}
 .sec-title::before{content:'';width:2px;height:12px;background:var(--accent);display:block}
 
 /* ── TRACK CARD ───────────────────────────────────────────── */
-.track-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.track-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
 .track-card:hover{border-color:var(--border2)}
 .track-card.mastering-mode{border-left:3px solid var(--green)}
 .track-card.logic-mode{border-left:3px solid var(--blue)}
 .track-card.complete-glow{animation:complete-pulse 2s ease-in-out 3}
+.track-card.cal-drag-over{border-color:#4285f4;box-shadow:0 0 0 1px rgba(66,133,244,.3)}
+.deadline-drop-zone{display:none;margin:0 12px 8px;border:1px dashed rgba(66,133,244,.3);border-radius:3px;padding:5px;font-size:9px;letter-spacing:2px;color:rgba(66,133,244,.4);text-align:center;text-transform:uppercase}
+.track-card.cal-drag-over .deadline-drop-zone{display:block;color:#4285f4;background:rgba(66,133,244,.05)}
+.deadline-badge{display:inline-flex;align-items:center;gap:4px;font-size:8px;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:2px;text-transform:uppercase;flex-shrink:0;cursor:pointer}
+.deadline-badge.dl-ok{background:rgba(66,133,244,.12);color:#4285f4;border:1px solid rgba(66,133,244,.3)}
+.deadline-badge.dl-soon{background:rgba(255,124,26,.12);color:#ff7c1a;border:1px solid rgba(255,124,26,.3)}
+.deadline-badge.dl-overdue{background:rgba(255,45,85,.12);color:#ff2d55;border:1px solid rgba(255,45,85,.3)}
 @keyframes complete-pulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 20px var(--green),0 0 40px rgba(57,255,122,.3)}}
 .track-header{display:flex;align-items:center;padding:9px 12px;gap:8px;cursor:pointer;user-select:none}
 .track-drag{color:var(--text3);font-size:14px;cursor:grab;line-height:1}
@@ -938,17 +945,20 @@ function renderTracks() {
     const catClass = song.category === 'Music' ? 'cat-music' : 'cat-appdev';
     const segs = song.steps.map((s,i) => `<div class="seg ${segCol(i,song.steps.length)} ${s.status}" data-idx="${i}" data-id="${song.id}" data-type="song" title="${s.name}"></div>`).join('');
     const names = song.steps.map(s => `<div class="seg-name">${s.name}</div>`).join('');
-    return `<div class="track-card ${modeClass} ${is100?'complete-glow':''}" draggable="true" data-drag-idx="${idx}">
+    const deadlineBadge = song.deadline ? deadlineBadgeHTML(song.deadline) : '';
+    return `<div class="track-card ${modeClass} ${is100?'complete-glow':''}" draggable="true" data-drag-idx="${idx}" data-track-id="${song.id}">
       <div class="track-header" data-id="${song.id}" data-action="toggle">
         <div class="track-drag">⠿</div>
         <div class="track-num">${String(idx+1).padStart(2,'0')}</div>
         <div class="track-title">${song.title}</div>
         <span class="track-cat ${catClass}">${song.category}</span>
-        <div class="track-pct" style="${is100?'color:var(--green);font-weight:700':''}">${pct}%</div>
+        ${deadlineBadge}
+        <div class="track-pct" style="${is100?'color:var(--green);font-weight:700':''}${pct >= 80 && song.deadline && isDeadlineSoon(song.deadline) && !is100 ? ';color:var(--orange)' : ''}">${pct}%</div>
         ${is100 ? `<button class="archive-btn" data-id="${song.id}" data-action="open-pf">ARCHIVE</button>` : ''}
         <button class="del-btn" data-id="${song.id}" data-action="del-song">✕</button>
         <div class="track-toggle ${song.expanded?'open':''}">▼</div>
       </div>
+      <div class="deadline-drop-zone">⬇ drop calendar event to set deadline</div>
       ${song.expanded ? `<div class="meter-wrap"><div class="meter-label">STEP SEQUENCER — ${pct}% COMPLETE</div><div class="seg-bar">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
     </div>`;
   }).join('');
@@ -961,17 +971,20 @@ function renderApps() {
     const pct = calcPct(app.steps), is100 = pct === 100;
     const segs = app.steps.map((s,i) => `<div class="sprint-seg ${s.status}" data-idx="${i}" data-id="${app.id}" data-type="app" title="${s.name}"></div>`).join('');
     const names = app.steps.map(s => `<div class="seg-name">${s.name}</div>`).join('');
-    return `<div class="appdev-card ${is100?'complete-glow':''}">
+    const deadlineBadge = app.deadline ? deadlineBadgeHTML(app.deadline) : '';
+    return `<div class="appdev-card ${is100?'complete-glow':''}" data-track-id="${app.id}">
       <div class="track-header" data-id="${app.id}" data-action="toggle-app">
         <div class="track-drag">⠿</div>
         <div class="track-num">${String(idx+1).padStart(2,'0')}</div>
         <div class="track-title">${app.title}</div>
         <span class="track-cat cat-appdev">AppDev</span>
+        ${deadlineBadge}
         <div class="track-pct" style="${is100?'color:var(--blue);font-weight:700':''}">${pct}%</div>
         ${is100 ? `<button class="archive-btn" style="border-color:var(--blue2);color:var(--blue);background:var(--blue3);animation:none" data-id="${app.id}" data-action="open-pf-app">ARCHIVE</button>` : ''}
         <button class="del-btn" data-id="${app.id}" data-action="del-app">✕</button>
         <div class="track-toggle ${app.expanded?'open':''}">▼</div>
       </div>
+      <div class="deadline-drop-zone">⬇ drop calendar event to set deadline</div>
       ${app.expanded ? `<div class="meter-wrap" style="border-top:1px solid var(--border)"><div class="meter-label">SPRINT BOARD — ${pct}% SHIPPED</div><div class="seg-bar" style="gap:2px">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
     </div>`;
   }).join('');
@@ -1183,23 +1196,97 @@ async function openHistory() {
   }).join('');
 }
 
-// ── DRAG & DROP ───────────────────────────────────────────────────────────────
+// ── DEADLINE HELPERS ──────────────────────────────────────────────────────────
+function isDeadlineSoon(deadline) {
+  const diff = (new Date(deadline).getTime() - Date.now()) / 86400000;
+  return diff <= 2;
+}
+function isDeadlineOverdue(deadline) {
+  return new Date(deadline).getTime() < Date.now();
+}
+function deadlineBadgeHTML(deadline) {
+  const d = new Date(deadline);
+  const label = d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  const cls = isDeadlineOverdue(deadline) ? 'dl-overdue' : isDeadlineSoon(deadline) ? 'dl-soon' : 'dl-ok';
+  const icon = isDeadlineOverdue(deadline) ? '⚠' : '⚑';
+  return `<span class="deadline-badge ${cls}" data-action="clear-deadline" title="Click to remove deadline">${icon} ${label}</span>`;
+}
+
+// ── DRAG: track reorder + calendar-to-track deadline drop ─────────────────────
 let dragIdx = null;
+let calDragData = null; // holds event data when dragging from calendar
+
 function setupDrag() {
   document.querySelectorAll('#tracks-list .track-card').forEach(el => {
-    el.addEventListener('dragstart', e => { dragIdx = +el.dataset.dragIdx; e.dataTransfer.effectAllowed = 'move'; });
-    el.addEventListener('dragover', e => { e.preventDefault(); el.style.opacity = '.6'; });
-    el.addEventListener('dragleave', () => el.style.opacity = '');
-    el.addEventListener('drop', e => {
-      el.style.opacity = '';
-      const toIdx = +el.dataset.dragIdx;
-      if (dragIdx !== null && dragIdx !== toIdx) {
-        const active = state.songs.filter(s => !s.is_archived);
-        const [moved] = active.splice(dragIdx, 1); active.splice(toIdx, 0, moved);
-        state.songs = active; scheduleSave(); renderTracks();
+    el.addEventListener('dragstart', e => {
+      // Only treat as reorder drag if calDragData is not set
+      if (!calDragData) {
+        dragIdx = +el.dataset.dragIdx;
+        e.dataTransfer.effectAllowed = 'move';
       }
     });
-    el.addEventListener('dragend', () => { dragIdx = null; document.querySelectorAll('.track-card').forEach(x => x.style.opacity = ''); });
+    el.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (calDragData) {
+        el.classList.add('cal-drag-over');
+      } else {
+        el.style.opacity = '.6';
+      }
+    });
+    el.addEventListener('dragleave', () => {
+      el.style.opacity = '';
+      el.classList.remove('cal-drag-over');
+    });
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      el.style.opacity = '';
+      el.classList.remove('cal-drag-over');
+      if (calDragData) {
+        // Calendar event drop → set as deadline
+        const trackId = +el.dataset.trackId;
+        const song = state.songs.find(s => s.id === trackId);
+        if (song) {
+          song.deadline = calDragData.start;
+          song.deadlineLabel = calDragData.title;
+          scheduleSave(); renderTracks();
+          showToast(`Deadline set: ${calDragData.title}`, 'success');
+        }
+        calDragData = null;
+      } else {
+        // Reorder drop
+        const toIdx = +el.dataset.dragIdx;
+        if (dragIdx !== null && dragIdx !== toIdx) {
+          const active = state.songs.filter(s => !s.is_archived);
+          const [moved] = active.splice(dragIdx, 1); active.splice(toIdx, 0, moved);
+          state.songs = active; scheduleSave(); renderTracks();
+        }
+      }
+    });
+    el.addEventListener('dragend', () => {
+      dragIdx = null; calDragData = null;
+      document.querySelectorAll('.track-card').forEach(x => { x.style.opacity = ''; x.classList.remove('cal-drag-over'); });
+    });
+  });
+
+  // App dev cards also accept calendar drops
+  document.querySelectorAll('#appdev-list .appdev-card').forEach(el => {
+    el.addEventListener('dragover', e => { if (calDragData) { e.preventDefault(); el.classList.add('cal-drag-over'); } });
+    el.addEventListener('dragleave', () => el.classList.remove('cal-drag-over'));
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      el.classList.remove('cal-drag-over');
+      if (calDragData) {
+        const appId = +el.dataset.trackId;
+        const app = state.apps.find(a => a.id === appId);
+        if (app) {
+          app.deadline = calDragData.start;
+          app.deadlineLabel = calDragData.title;
+          scheduleSave(); renderApps();
+          showToast(`Deadline set: ${calDragData.title}`, 'success');
+        }
+        calDragData = null;
+      }
+    });
   });
 }
 
@@ -1247,6 +1334,17 @@ document.addEventListener('click', e => {
   }
   // DELETE SONG
   if (t.dataset.action === 'del-song') { state.songs = state.songs.filter(x => x.id !== +t.dataset.id); scheduleSave(); renderTracks(); return; }
+  if (t.dataset.action === 'clear-deadline') {
+    const card = t.closest('[data-track-id]');
+    if (card) {
+      const id = +card.dataset.trackId;
+      const song = state.songs.find(s => s.id === id);
+      const app  = state.apps.find(a => a.id === id);
+      if (song) { delete song.deadline; delete song.deadlineLabel; scheduleSave(); renderTracks(); }
+      if (app)  { delete app.deadline;  delete app.deadlineLabel;  scheduleSave(); renderApps(); }
+    }
+    return;
+  }
   // OPEN PREFLIGHT
   if (t.dataset.action === 'open-pf') { openPreflight(+t.dataset.id, 'music'); return; }
   if (t.dataset.action === 'open-pf-app') { openPreflight(+t.dataset.id, 'app'); return; }
@@ -1571,7 +1669,12 @@ function renderCalendarEvents(events, cached) {
       group.events.forEach(ev => {
         const timeStr = ev.allDay ? 'All day' : formatEventTime(ev.start);
         const color   = ev.calendarColor || '#4285f4';
-        html += `<div class="cal-event" style="border-left-color:${color}" title="${escHtml(ev.title)}">
+        html += `<div class="cal-event" style="border-left-color:${color}" 
+          draggable="true" 
+          data-cal-start="${ev.start}" 
+          data-cal-title="${escHtml(ev.title)}"
+          data-cal-color="${color}"
+          title="Drag onto a track to set as deadline">
           <div class="cal-event-title">${escHtml(ev.title)}</div>
           <div class="cal-event-time">${timeStr}</div>
           <div class="cal-event-cal" style="color:${color}">${escHtml(ev.calendarName)}</div>
@@ -1592,6 +1695,24 @@ function formatEventTime(start) {
 function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+
+// Calendar event drag start — delegated since cal events are dynamically rendered
+document.addEventListener('dragstart', e => {
+  const el = e.target.closest('.cal-event');
+  if (el) {
+    calDragData = {
+      start: el.dataset.calStart,
+      title: el.dataset.calTitle,
+      color: el.dataset.calColor,
+    };
+    el.style.opacity = '.5';
+    dragIdx = null; // not a reorder drag
+  }
+});
+document.addEventListener('dragend', e => {
+  const el = e.target.closest('.cal-event');
+  if (el) el.style.opacity = '';
+});
 
 // Calendar button clicks
 document.addEventListener('click', e => {
