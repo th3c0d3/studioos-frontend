@@ -892,9 +892,29 @@ const MUSIC_STEPS = ['Pre-Prod','Tracking GT','Tracking Bass','Drum Edit','Guita
 const APP_STEPS   = ['Backlog','Planning','Design','Frontend','Backend','Integration','Testing','Deploy'];
 
 const MUSIC_CHECKLIST = [
-  {section:'Digital Distribution',items:['Upload to Distributor — all 5 WAV files 24-bit','Metadata Audit: Song Titles, Artist Name, Featured Artists','ISRC Codes: unique code for each song','Release Date & Time: 12:00 AM local or Global Friday','Lyric Sync: .lrc files for Spotify / Apple Music']},
-  {section:'Visual & Social Assets',items:['Cover Art: 3000×3000px RGB, no blurred text','Canvas / Looping Video: 8-second vertical loops for Spotify','Social Kit: 15-second teaser clip (Guitar focus)','Social Kit: 30-second Studio Process clip (Vocal/Mixing)','Linktree / SmartLink updated with Pre-Save or Listen Now']},
-  {section:'Platform Tasks',items:['Spotify for Artists: submit Lead Single to playlist editors','Bandcamp: FLAC/ALAC + digital booklet uploaded','YouTube: Official Audio / Lyric Video set to Premiere']}
+  {section:'Scratch & Structure', items:[
+    'Finalize lyrics and structure. Select BPM. Record Scratch tracks (Vocal + Guitar) to a click. Target: -18dBFS.'
+  ]},
+  {section:'Tracking — Guitar', items:[
+    'Mic at 12th fret. Check Phase. Use Fat Channel Vintage EQ for tone shaping during monitoring.',
+    '3-5 inches from mic for Proximity Effect. Record 3-5 full takes. Use Intimate headphone mix.'
+  ]},
+  {section:'Editing & Comping', items:[
+    'Piece together the best phrases. Use Clip Gain to smooth out breaths. Apply Crossfades.',
+    'Apply Graillon 3 (Subtle). Use Studio One Audio Bend or manual nudging for rhythm timing.'
+  ]},
+  {section:'Mix — Levels & Tone', items:[
+    'Set levels and panning. Use Binaural Pan to widen guitars (120%). No plugins yet.',
+    'Apply Fat Channel XT presets. Set up Sidechain Ducking (Vocal triggers Guitar compressor).',
+    'Set up FX Channels for Plate Reverb and Slap Delay. Dial in the depth.'
+  ]},
+  {section:'Mastering & QC', items:[
+    'Import Song to Project Page. Detect Loudness. Match LUFS across the project.',
+    'Car test; phone speaker test. Adjust Limiter (LoudMax) for -14 LUFS target.'
+  ]},
+  {section:'Delivery', items:[
+    'Enter ISRC; Artist; Title. Export Digital Release (24-bit WAV). Upload to Distributor.'
+  ]}
 ];
 const APP_CHECKLIST = [
   {section:'Environment & Config',items:['All API keys set to Production mode','Analytics & error logging verified active','README.md and Version History updated']},
@@ -1272,7 +1292,11 @@ function renderTracks() {
     const modeClass = 'mastering-mode';
     const typeClass = song.trackType === 'Cover' ? 'cat-cover' : 'cat-original';
     const typeLabel = song.trackType === 'Cover' ? 'COVER' : 'ORIGINAL';
-    const segs = song.steps.map((s,i) => `<div class="seg ${segCol(i,song.steps.length)} ${s.status}" data-idx="${i}" data-id="${song.id}" data-type="song" title="${s.name}"></div>`).join('');
+    const segs = song.steps.map((s,i) => {
+      const isQC = i === song.steps.length - 1;
+      const titleAttr = isQC ? 'Click to open QC/Delivery checklist' : s.name;
+      return `<div class="seg ${segCol(i,song.steps.length)} ${s.status}" data-idx="${i}" data-id="${song.id}" data-type="song" title="${titleAttr}" ${isQC?'style="cursor:pointer;border:1px solid rgba(255,215,0,.3)"':''}></div>`;
+    }).join('');
     const names = song.steps.map((s,i) => `<div class="seg-name" data-stepname="song" data-stepid="${song.id}" data-stepidx="${i}" title="Click to rename step">${s.name}</div>`).join('');
     const deadlineBadge = song.deadline ? deadlineBadgeHTML(song.deadline) : '';
     const notes = song.notes || [];
@@ -1508,7 +1532,13 @@ function openPreflight(id, type) {
   const proj = type === 'music' ? state.songs.find(s => s.id === id) : state.apps.find(a => a.id === id);
   if (!proj) return;
   if (!state.checklistState[id]) state.checklistState[id] = {};
-  document.getElementById('pf-title').textContent = 'PRE-FLIGHT: ' + proj.title.toUpperCase().slice(0,24);
+  if (type === 'music') {
+    document.getElementById('pf-title').textContent = 'QC/DELIVERY: ' + proj.title.toUpperCase().slice(0,20);
+    document.getElementById('pf-subtitle').textContent = 'Complete production checklist before archiving';
+  } else {
+    document.getElementById('pf-title').textContent = 'PRE-FLIGHT: ' + proj.title.toUpperCase().slice(0,24);
+    document.getElementById('pf-subtitle').textContent = 'Complete all items before archiving';
+  }
   let html = '';
   checklist.forEach((sec, si) => {
     html += `<div class="cl-section"><div class="cl-section-title">${sec.section}</div>`;
@@ -1535,7 +1565,12 @@ function doArchive() {
   let proj;
   if (type === 'music') {
     proj = state.songs.find(s => s.id === id);
-    if (proj) { state.songs = state.songs.filter(s => s.id !== id); state.archived.push({...proj, type:'music', archivedAt:Date.now(), expanded:false}); }
+    if (proj) {
+      // Mark all steps including QC/Delivery as done
+      proj.steps.forEach(s => s.status = 'done');
+      state.songs = state.songs.filter(s => s.id !== id);
+      state.archived.push({...proj, type:'music', archivedAt:Date.now(), expanded:false});
+    }
   } else {
     proj = state.apps.find(a => a.id === id);
     if (proj) { state.apps = state.apps.filter(a => a.id !== id); state.archived.push({...proj, type:'app', archivedAt:Date.now(), expanded:false}); }
@@ -1543,7 +1578,6 @@ function doArchive() {
   delete state.checklistState[id];
   document.getElementById('preflightModal').classList.add('hidden');
   scheduleSave(); renderTracks(); renderApps(); renderArchive();
-  // Switch to archive tab
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'archive'));
   document.querySelectorAll('.main').forEach(m => m.classList.toggle('visible', m.id === 'tab-archive'));
   showToast('Archived to Hall of Fame!', 'success');
@@ -1843,6 +1877,14 @@ document.addEventListener('click', e => {
   if (t.classList.contains('seg') && t.dataset.type === 'song') {
     const id = +t.dataset.id, idx = +t.dataset.idx;
     const song = state.songs.find(s => s.id === id); if (!song) return;
+
+    // QC/Delivery is the last step — clicking it opens the production checklist
+    const isLastStep = idx === song.steps.length - 1;
+    if (isLastStep) {
+      openPreflight(id, 'music');
+      return;
+    }
+
     const steps = song.steps, cur = steps[idx].status;
     if (cur === 'done') {
       steps[idx].status = 'pending';
