@@ -124,6 +124,9 @@ input,select{font-family:var(--font)}
 .track-num{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:20px}
 .track-title{flex:1;font-size:14px;font-weight:600;letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .track-title-input{flex:1;font-size:14px;font-weight:600;letter-spacing:.5px;background:var(--bg4);border:1px solid var(--accent);color:var(--text);padding:2px 7px;border-radius:3px;outline:none;font-family:var(--font);min-width:0}
+.rename-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:2px 4px;border-radius:2px;transition:all .2s;flex-shrink:0;opacity:0;line-height:1}
+.track-header:hover .rename-btn{opacity:1}
+.rename-btn:hover{color:var(--accent);background:var(--bg3)}
 .track-cat{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:2px;font-weight:600;flex-shrink:0}
 .cat-music{background:var(--green3);color:var(--green);border:1px solid var(--green2)}
 .cat-appdev{background:var(--blue3);color:var(--blue);border:1px solid var(--blue2)}
@@ -1107,7 +1110,8 @@ function renderTracks() {
       <div class="track-header" data-id="${song.id}" data-action="toggle">
         <div class="track-drag">⠿</div>
         <div class="track-num">${String(idx+1).padStart(2,'0')}</div>
-        <div class="track-title" data-rename="song" data-renameid="${song.id}" title="Double-click to rename">${song.title}</div>
+        <div class="track-title" data-rename="song" data-renameid="${song.id}">${song.title}</div>
+        <button class="rename-btn" data-startren="${song.id}" data-rentype="song" title="Rename">✎</button>
         <span class="track-cat ${catClass}">${song.category}</span>
         ${deadlineBadge}
         <button class="${noteBtnClass}" data-togglenotes="${song.id}" data-tracktype="song">${noteBtnLabel}</button>
@@ -1154,7 +1158,8 @@ function renderApps() {
       <div class="track-header" data-id="${app.id}" data-action="toggle-app">
         <div class="track-drag">⠿</div>
         <div class="track-num">${String(idx+1).padStart(2,'0')}</div>
-        <div class="track-title" data-rename="app" data-renameid="${app.id}" title="Double-click to rename">${app.title}</div>
+        <div class="track-title" data-rename="app" data-renameid="${app.id}">${app.title}</div>
+        <button class="rename-btn" data-startren="${app.id}" data-rentype="app" title="Rename">✎</button>
         <span class="track-cat cat-appdev">AppDev</span>
         ${deadlineBadge}
         <button class="${noteBtnClass}" data-togglenotes="${app.id}" data-tracktype="app" style="${noteCount>0?'':'border-color:rgba(0,207,255,.2);color:var(--blue)'}">${noteBtnLabel}</button>
@@ -1191,7 +1196,10 @@ function renderBooks() {
     const done = b.currentPage >= b.totalPages;
     return `<div class="book-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div style="font-size:14px;font-weight:600;letter-spacing:.5px;cursor:default" data-rename="book" data-renameid="${b.id}" title="Double-click to rename">${b.title}</div>
+        <div style="display:flex;align-items:center;gap:4px;flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600;letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" data-rename="book" data-renameid="${b.id}">${b.title}</div>
+          <button class="rename-btn" data-startren="${b.id}" data-rentype="book" title="Rename" style="opacity:0;transition:opacity .2s" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0">✎</button>
+        </div>
         <div style="display:flex;align-items:center;gap:6px">
           ${done?'<span style="font-size:8px;letter-spacing:2px;color:var(--green);background:var(--green3);padding:2px 7px;border-radius:2px;border:1px solid var(--green2)">DONE</span>':''}
           <button class="del-btn" data-bookid="${b.id}">✕</button>
@@ -1520,6 +1528,13 @@ document.addEventListener('click', e => {
     const tab = t.closest('.tab').dataset.tab;
     document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === tab));
     document.querySelectorAll('.main').forEach(x => x.classList.toggle('visible', x.id === 'tab-' + tab));
+    return;
+  }
+
+  // RENAME button
+  if (t.dataset.startren) {
+    e.stopPropagation();
+    startRename(t.dataset.rentype, +t.dataset.startren);
     return;
   }
 
@@ -1933,22 +1948,19 @@ function escHtml(str) {
 }
 
 // ── INLINE RENAME ────────────────────────────────────────────────────────────
-document.addEventListener('dblclick', e => {
-  const el = e.target.closest('[data-rename]');
-  if (!el) return;
-  e.stopPropagation();
-  const type = el.dataset.rename;
-  const id   = +el.dataset.renameid;
+function startRename(type, id) {
   const item = type === 'song' ? state.songs.find(s => s.id === id)
              : type === 'app'  ? state.apps.find(a => a.id === id)
              : state.books.find(b => b.id === id);
   if (!item) return;
 
-  // Replace title div with input
+  const titleEl = document.querySelector(`[data-rename="${type}"][data-renameid="${id}"]`);
+  if (!titleEl) return;
+
   const input = document.createElement('input');
   input.className = 'track-title-input';
   input.value = item.title;
-  el.replaceWith(input);
+  titleEl.replaceWith(input);
   input.focus();
   input.select();
 
@@ -1964,9 +1976,9 @@ document.addEventListener('dblclick', e => {
   input.addEventListener('blur', commitRename);
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') { input.blur(); }
-    if (e.key === 'Escape') { input.value = item.title; input.blur(); }
+    if (e.key === 'Escape') { item.title = item.title; input.blur(); }
   });
-});
+}
 
 // Calendar event drag start — delegated since cal events are dynamically rendered
 document.addEventListener('dragstart', e => {
