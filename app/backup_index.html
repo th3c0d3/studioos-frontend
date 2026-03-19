@@ -140,21 +140,7 @@ input,select{font-family:var(--font)}
 .meta-sep{width:1px;height:12px;background:var(--border2)}
 .meta-sel{background:transparent;border:none;color:var(--text2);font-size:9px;font-weight:700;font-family:var(--mono);outline:none;cursor:pointer;letter-spacing:1px;padding:0}
 .meta-inp{background:transparent;border:none;color:var(--green);font-size:9px;font-weight:700;font-family:var(--mono);outline:none;width:32px;letter-spacing:1px}
-.track-mini-meta{font-size:9px;color:var(--text3);letter-spacing:.5px;padding:2px 12px 7px;border-bottom:1px solid var(--border)}
-.lyrics-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:300;align-items:center;justify-content:center}
-.lyrics-modal-overlay.open{display:flex}
-.lyrics-modal{background:var(--bg2);border:1px solid rgba(176,96,255,.4);border-radius:5px;width:90%;max-width:520px;overflow:hidden}
-.lyrics-modal-hdr{background:var(--bg3);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.lyrics-modal-title{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--purple)}
-.lyrics-modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;font-family:var(--mono);transition:color .2s;letter-spacing:1px}
-.lyrics-modal-close:hover{color:var(--text)}
-.lyrics-modal-body{padding:14px}
-.lyrics-modal-ta{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:10px;font-size:12px;line-height:1.9;border-radius:3px;outline:none;font-family:var(--font);resize:vertical;min-height:200px;transition:border-color .2s}
-.lyrics-modal-ta:focus{border-color:rgba(176,96,255,.5)}
-.lyrics-modal-footer{padding:8px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.lyrics-modal-stats{font-size:9px;color:var(--text3);letter-spacing:1px;font-family:var(--mono)}
-.lyrics-modal-save{background:var(--purple);border:none;color:#fff;font-size:9px;font-weight:700;letter-spacing:2px;padding:5px 14px;border-radius:2px;cursor:pointer;font-family:var(--font)}
-.lyrics-modal-save:hover{opacity:.85}padding:4px 14px;font-size:12px;font-weight:700;letter-spacing:3px;border-radius:3px;cursor:pointer;transition:all .2s;font-family:var(--font);text-transform:uppercase;white-space:nowrap}
+.lyrics-btn{background:transparent;border:1px solid rgba(176,96,255,.35);color:#b060ff;padding:4px 14px;font-size:12px;font-weight:700;letter-spacing:3px;border-radius:3px;cursor:pointer;transition:all .2s;font-family:var(--font);text-transform:uppercase;white-space:nowrap}
 .lyrics-btn:hover{background:rgba(176,96,255,.12);border-color:#b060ff}
 .lyrics-btn.lyrics-open{background:rgba(176,96,255,.12);border-color:#b060ff;color:#b060ff}
 .lyrics-panel{border-top:1px solid var(--border);background:var(--bg);padding:10px 12px}
@@ -905,23 +891,6 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
   </div>
 </div>
 
-<!-- ── LYRICS MODAL ───────────────────────────────────────── -->
-<div class="lyrics-modal-overlay" id="lyricsModal">
-  <div class="lyrics-modal">
-    <div class="lyrics-modal-hdr">
-      <div class="lyrics-modal-title" id="lyricsModalTitle">♪ LYRICS</div>
-      <button class="lyrics-modal-close" id="lyricsModalClose">✕ close</button>
-    </div>
-    <div class="lyrics-modal-body">
-      <textarea class="lyrics-modal-ta" id="lyricsModalTa" placeholder="Write lyrics, ideas, concepts..." oninput="lyricsModalCount()"></textarea>
-    </div>
-    <div class="lyrics-modal-footer">
-      <div class="lyrics-modal-stats" id="lyricsModalStats">0 words · 0 lines</div>
-      <button class="lyrics-modal-save" id="lyricsModalSave">SAVE ✓</button>
-    </div>
-  </div>
-</div>
-
 <!-- ── SEARCH MODAL ──────────────────────────────────────── -->
 <div class="modal-overlay hidden" id="searchModal" style="align-items:flex-start;padding-top:60px">
   <div class="modal-box" style="max-width:560px;border-color:var(--border2)">
@@ -1373,43 +1342,73 @@ function renderTracks() {
   const active = state.songs.filter(s => !s.is_archived);
   document.getElementById('tracks-list').innerHTML = active.map((song, idx) => {
     const pct = calcPct(song.steps), is100 = pct === 100;
+    const modeClass = 'mastering-mode';
     const typeClass = song.trackType === 'Cover' ? 'cat-cover' : 'cat-original';
-    const typeLabel = song.trackType === 'Cover' ? 'CVR' : 'ORIG';
+    const typeLabel = song.trackType === 'Cover' ? 'COVER' : 'ORIGINAL';
     const segs = song.steps.map((s,i) => {
       const isQC = i === song.steps.length - 1;
-      return `<div class="seg ${segCol(i,song.steps.length)} ${s.status}" data-idx="${i}" data-id="${song.id}" data-type="song" title="${isQC?'Click to open QC/Delivery checklist':s.name}" ${isQC?'style="border:1px solid rgba(255,215,0,.3)"':''}></div>`;
+      const titleAttr = isQC ? 'Click to open QC/Delivery checklist' : s.name;
+      return `<div class="seg ${segCol(i,song.steps.length)} ${s.status}" data-idx="${i}" data-id="${song.id}" data-type="song" title="${titleAttr}" ${isQC?'style="cursor:pointer;border:1px solid rgba(255,215,0,.3)"':''}></div>`;
     }).join('');
     const names = song.steps.map((s,i) => `<div class="seg-name" data-stepname="song" data-stepid="${song.id}" data-stepidx="${i}" title="Click to rename step">${s.name}</div>`).join('');
     const deadlineBadge = song.deadline ? deadlineBadgeHTML(song.deadline) : '';
     const notes = song.notes || [];
     const noteCount = notes.length;
+    const noteBtnClass = noteCount > 0 ? 'note-btn has-note' : 'note-btn';
+    const noteBtnLabel = noteCount > 0 ? `✎ ${noteCount} note${noteCount>1?'s':''}` : '✎ notes';
     const doneCount = notes.filter(n => n.done).length;
+    // Meta row
+    const hasBpm = !!song.bpm; const hasKey = !!(song.key && song.key !== '');
     const songTypeVal = song.songType || 'With Lyrics';
-    const hasLyrics = !!(song.lyrics && song.lyrics.trim().length > 0);
-    // compact meta line
-    const metaParts = [song.bpm?`${song.bpm} bpm`:'', song.key||'', songTypeVal].filter(Boolean).join(' · ');
-    // notes badge
-    const notesBadge = noteCount > 0
-      ? `<button class="note-btn has-note" data-togglenotes="${song.id}" data-tracktype="song">✎ ${noteCount}${doneCount>0?' ('+doneCount+'✓)':''}</button>`
-      : `<button class="note-btn" data-togglenotes="${song.id}" data-tracktype="song">✎ notes</button>`;
-    return `<div class="track-card mastering-mode ${is100?'complete-glow':''}" draggable="true" data-drag-idx="${idx}" data-track-id="${song.id}">
+    const metaRowHTML = `<div class="meta-row">
+      <div class="meta-pill ${hasBpm?'mp-set':''}" data-editbpm="${song.id}"><span class="meta-lbl">BPM</span><span class="meta-val">${song.bpm||'—'}</span></div>
+      <div class="meta-sep"></div>
+      <div class="meta-pill ${hasKey?'mp-set':''}" data-editkey="${song.id}"><span class="meta-lbl">KEY</span><span class="meta-val">${song.key||'—'}</span></div>
+      <div class="meta-sep"></div>
+      <div class="meta-pill" style="padding:2px 4px 2px 8px"><span class="meta-lbl">TYPE</span><select class="meta-sel" data-songtype="${song.id}"><option ${songTypeVal==='With Lyrics'?'selected':''}>With Lyrics</option><option ${songTypeVal==='Instrumental'?'selected':''}>Instrumental</option><option ${songTypeVal==='Partial Lyrics'?'selected':''}>Partial Lyrics</option><option ${songTypeVal==='Melody Only'?'selected':''}>Melody Only</option></select></div>
+      <div style="flex:1"></div>
+      <button class="lyrics-btn ${song.lyricsOpen?'lyrics-open':''}" data-togglelyrics="${song.id}">♪ lyrics${song.lyricsOpen?' ▲':''}</button>
+    </div>`;
+    const lyricsWords = song.lyrics ? song.lyrics.trim().split(/\s+/).filter(w=>w.length>0).length : 0;
+    const lyricsLines = song.lyrics ? song.lyrics.split('\n').filter(l=>l.trim().length>0).length : 0;
+    const lyricsPanel = song.lyricsOpen ? `<div class="lyrics-panel"><div class="lyrics-panel-hdr"><span>♪ Lyrics / Words</span><span style="font-size:8px;color:var(--text3);letter-spacing:1px">${lyricsWords} words · ${lyricsLines} lines</span></div><textarea class="lyrics-ta" id="lta-${song.id}" placeholder="Write lyrics, ideas, concepts..." oninput="updateLyrics(${song.id},this.value)">${song.lyrics||''}</textarea></div>` : '';
+    const notesHTML = song.notesOpen ? `
+      <div class="notes-panel">
+        <div class="notes-panel-hdr">
+          <div class="notes-panel-label" style="margin-bottom:0">Session notes</div>
+          ${noteCount > 0 ? `<div class="notes-done-count ${doneCount===noteCount&&noteCount>0?'all-done':''}">${doneCount} / ${noteCount} done</div>` : ''}
+        </div>
+        <div class="notes-entries" id="ne-${song.id}" style="margin-top:7px">
+          ${notes.map((n,i) => `<div class="note-entry ${n.done?'note-done':''}" data-togglenote="${i}" data-toggletrack="${song.id}" data-toggletype="song">
+            <div class="note-chk ${n.done?'chk-done':''}"></div>
+            <div class="note-ts">${n.date}</div>
+            <div class="note-text">${n.text}</div>
+            <button class="note-del-btn" data-noteid="${i}" data-trackid="${song.id}" data-tracktype="song">✕</button>
+          </div>`).join('')}
+        </div>
+        <div class="note-input-row">
+          <input class="note-text-input" id="ni-${song.id}" placeholder="Add a session note..." />
+          <button class="note-add-btn" data-addnote="${song.id}" data-tracktype="song">+ LOG</button>
+        </div>
+      </div>` : '';
+    return `<div class="track-card ${modeClass} ${is100?'complete-glow':''}" draggable="true" data-drag-idx="${idx}" data-track-id="${song.id}">
       <div class="track-header" data-id="${song.id}" data-action="toggle">
         <div class="track-drag">⠿</div>
         <div class="track-num">${String(idx+1).padStart(2,'0')}</div>
         <button class="rename-btn" data-startren="${song.id}" data-rentype="song" title="Rename">✎</button>
         <div class="track-title" data-rename="song" data-renameid="${song.id}">${song.title}</div>
-        <span class="track-cat ${typeClass}" style="font-size:8px;padding:2px 5px">${typeLabel}</span>
+        <span class="track-cat ${typeClass}">${typeLabel}</span>
         ${deadlineBadge}
-        ${notesBadge}
-        <button class="lyrics-btn" data-openlyrics="${song.id}" title="Open lyrics editor">♪ LYRICS</button>
+        <button class="${noteBtnClass}" data-togglenotes="${song.id}" data-tracktype="song">${noteBtnLabel}</button>
         <div class="track-pct" style="${is100?'color:var(--green);font-weight:700':''}">${pct}%</div>
         ${is100 ? `<button class="archive-btn" data-id="${song.id}" data-action="open-pf">ARCHIVE</button>` : ''}
         <button class="del-btn" data-id="${song.id}" data-action="del-song">✕</button>
         <div class="track-toggle ${song.expanded?'open':''}">▼</div>
       </div>
-      ${metaParts ? `<div class="track-mini-meta">${metaParts}</div>` : ''}
+      ${metaRowHTML}
       <div class="deadline-drop-zone">⬇ drop calendar event to set deadline</div>
-      ${song.notesOpen ? `<div class="notes-panel"><div class="notes-panel-hdr"><div class="notes-panel-label" style="margin-bottom:0">Notes</div>${noteCount > 0 ? `<div class="notes-done-count ${doneCount===noteCount&&noteCount>0?'all-done':''}">${doneCount} / ${noteCount} done</div>` : ''}</div><div class="notes-entries" style="margin-top:7px">${notes.map((n,i) => `<div class="note-entry ${n.done?'note-done':''}" data-togglenote="${i}" data-toggletrack="${song.id}" data-toggletype="song"><div class="note-chk ${n.done?'chk-done':''}"></div><div class="note-ts">${n.date}</div><div class="note-text">${n.text}</div><button class="note-del-btn" data-noteid="${i}" data-trackid="${song.id}" data-tracktype="song">✕</button></div>`).join('')}</div><div class="note-input-row"><input class="note-text-input" id="ni-${song.id}" placeholder="Add a session note..."/><button class="note-add-btn" data-addnote="${song.id}" data-tracktype="song">+ LOG</button></div></div>` : ''}
+      ${notesHTML}
+      ${lyricsPanel}
       ${song.expanded ? `<div class="meter-wrap"><div class="meter-label" style="display:flex;align-items:center;justify-content:space-between"><span>STEP SEQUENCER — ${pct}% COMPLETE</span><button class="btn-ghost" style="font-size:8px;padding:2px 8px;letter-spacing:1px" data-resetsteps="${song.id}" data-resettype="song">↺ RESET STEPS</button></div><div class="seg-bar">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
     </div>`;
   }).join('');
@@ -1883,6 +1882,15 @@ document.addEventListener('click', e => {
   }
   // DELETE SONG
   if (t.dataset.action === 'del-song') { state.songs = state.songs.filter(x => x.id !== +t.dataset.id); scheduleSave(); renderTracks(); return; }
+
+  // META ROW — toggle lyrics panel
+  if (t.dataset.togglelyrics) {
+    e.stopPropagation();
+    const id = +t.dataset.togglelyrics;
+    const s = state.songs.find(x => x.id === id);
+    if (s) { s.lyricsOpen = !s.lyricsOpen; renderTracks(); }
+    return;
+  }
 
   // META ROW — edit BPM inline
   if (t.dataset.editbpm) {
@@ -2546,7 +2554,7 @@ function renderFocusMain() {
         </select>
       </div>
       <div style="flex:1"></div>
-      <button class="lyrics-btn ${hasLyrics?'lyrics-open':''}" data-focuslyrics="${item.id}">♪ LYRICS${hasLyrics?' ✦':''}</button>
+      <button class="lyrics-btn ${item.lyricsOpen?'lyrics-open':''}" data-focuslyrics="${item.id}">♪ LYRICS${item.lyricsOpen?' ▲':''}</button>
     </div>` : '';
 
   const segs = item.steps.map((s,i) => {
@@ -2564,6 +2572,16 @@ function renderFocusMain() {
       <button class="note-del-btn" data-noteid="${ni}" data-trackid="${item.id}" data-tracktype="${focusType}">✕</button>
     </div>`).join('');
 
+  const lyricsWords = item.lyrics ? item.lyrics.trim().split(/\s+/).filter(w=>w.length>0).length : 0;
+  const lyricsLines = item.lyrics ? item.lyrics.split('\n').filter(l=>l.trim().length>0).length : 0;
+  const lyricsPanel = isSong && item.lyricsOpen ? `
+    <div class="lyrics-panel" style="margin:0 24px 8px;border-radius:3px">
+      <div class="lyrics-panel-hdr">
+        <span>♪ Lyrics / Words</span>
+        <span style="font-size:8px;color:var(--text3);letter-spacing:1px">${lyricsWords} words · ${lyricsLines} lines</span>
+      </div>
+      <textarea class="lyrics-ta" id="lta-${item.id}" placeholder="Write lyrics, ideas, concepts..." oninput="updateLyrics(${item.id},this.value)">${item.lyrics||''}</textarea>
+    </div>` : '';
 
   const archiveBtn = is100
     ? `<button class="archive-btn" data-id="${item.id}" data-action="${isSong?'open-pf':'open-pf-app'}" style="margin-left:8px">ARCHIVE</button>`
@@ -2591,6 +2609,7 @@ function renderFocusMain() {
       <div class="focus-seg-bar" id="focus-seg-bar">${segs}</div>
       <div class="focus-seg-names">${segNames}</div>
     </div>
+    ${lyricsPanel}
     <div class="focus-notes-area">
       <div class="focus-notes-hdr">
         <span>Notes</span>
@@ -2638,6 +2657,14 @@ document.addEventListener('click', e => {
     scheduleSave(); renderFocusSidebar(); renderFocusMain(); return;
   }
 
+  // Lyrics toggle (focus mode)
+  if (e.target.dataset.focuslyrics) {
+    const id = +e.target.dataset.focuslyrics;
+    const s = (focusType==='song' ? state.songs : state.apps).find(x => x.id === id);
+    if (s) { s.lyricsOpen = !s.lyricsOpen; renderFocusMain(); }
+    return;
+  }
+
   // Note add
   if (e.target.id === 'focus-note-add') {
     const inp = document.getElementById('focus-note-input');
@@ -2658,66 +2685,6 @@ document.addEventListener('keydown', e => {
     document.getElementById('focus-note-add')?.click();
   }
   if (e.key === 'Escape' && focusType) { closeFocus(); }
-});
-
-// ── LYRICS MODAL ──────────────────────────────────────────────────────────────
-let lyricsModalId = null;
-
-function openLyricsModal(id) {
-  const song = state.songs.find(s => s.id === id);
-  if (!song) return;
-  lyricsModalId = id;
-  document.getElementById('lyricsModalTitle').textContent = '♪ ' + song.title.toUpperCase().slice(0,28);
-  const ta = document.getElementById('lyricsModalTa');
-  ta.value = song.lyrics || '';
-  lyricsModalCount();
-  document.getElementById('lyricsModal').classList.add('open');
-  ta.focus();
-}
-
-function closeLyricsModal() {
-  document.getElementById('lyricsModal').classList.remove('open');
-  lyricsModalId = null;
-}
-
-function lyricsModalCount() {
-  const val = document.getElementById('lyricsModalTa').value;
-  const words = val.trim().split(/\s+/).filter(w=>w.length>0).length;
-  const lines  = val.split('\n').filter(l=>l.trim().length>0).length;
-  document.getElementById('lyricsModalStats').textContent = words + ' words · ' + lines + ' lines';
-}
-
-document.addEventListener('click', e => {
-  // open lyrics modal — track card button
-  if (e.target.dataset.openlyrics) {
-    e.stopPropagation();
-    openLyricsModal(+e.target.dataset.openlyrics);
-    return;
-  }
-  // open lyrics modal — focus mode button
-  if (e.target.dataset.focuslyrics) {
-    e.stopPropagation();
-    openLyricsModal(+e.target.dataset.focuslyrics);
-    return;
-  }
-  // close
-  if (e.target.id === 'lyricsModalClose' || e.target.id === 'lyricsModal') {
-    closeLyricsModal(); return;
-  }
-  // save
-  if (e.target.id === 'lyricsModalSave') {
-    if (lyricsModalId !== null) {
-      const song = state.songs.find(s => s.id === lyricsModalId);
-      if (song) { song.lyrics = document.getElementById('lyricsModalTa').value; scheduleSave(); }
-    }
-    closeLyricsModal(); return;
-  }
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && document.getElementById('lyricsModal').classList.contains('open')) {
-    closeLyricsModal();
-  }
 });
 
 // ── GLOBAL SEARCH ─────────────────────────────────────────────────────────────
