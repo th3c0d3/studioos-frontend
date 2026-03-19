@@ -1138,7 +1138,7 @@ async function doAuth(type) {
   if (!email || !pass) { errEl.textContent = 'Email and password required.'; return; }
   btn.disabled = true; btn.textContent = 'CONNECTING...';
   try {
-    const data = await apiReq('/auth/'+type, 'POST', { email, password: pass });
+    const data = await apiReq('/auth/' + (type === 'signin' ? 'login' : 'register'), 'POST', { email, password: pass });
     token = data.token; userEmail = data.email;
     localStorage.setItem('studioos_token', token);
     localStorage.setItem('studioos_email', userEmail);
