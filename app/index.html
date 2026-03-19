@@ -1385,15 +1385,7 @@ document.addEventListener('click', e => {
     return;
   }
 
-  // TRACK TOGGLE
-  if (t.closest('[data-action="toggle"]') && !t.dataset.action) {
-    const id = +t.closest('[data-action="toggle"]').dataset.id;
-    const s = state.songs.find(x => x.id === id); if (s) { s.expanded = !s.expanded; scheduleSave(); renderTracks(); } return;
-  }
-  // DELETE SONG
-  if (t.dataset.action === 'del-song') { state.songs = state.songs.filter(x => x.id !== +t.dataset.id); scheduleSave(); renderTracks(); return; }
-
-  // NOTES — toggle panel
+  // NOTES — toggle panel (must come BEFORE track toggle handler)
   if (t.dataset.togglenotes) {
     e.stopPropagation();
     const id = +t.dataset.togglenotes, type = t.dataset.tracktype;
@@ -1401,6 +1393,14 @@ document.addEventListener('click', e => {
     if (item) { item.notesOpen = !item.notesOpen; scheduleSave(); type === 'song' ? renderTracks() : renderApps(); }
     return;
   }
+
+  // TRACK TOGGLE
+  if (t.closest('[data-action="toggle"]') && !t.dataset.action) {
+    const id = +t.closest('[data-action="toggle"]').dataset.id;
+    const s = state.songs.find(x => x.id === id); if (s) { s.expanded = !s.expanded; scheduleSave(); renderTracks(); } return;
+  }
+  // DELETE SONG
+  if (t.dataset.action === 'del-song') { state.songs = state.songs.filter(x => x.id !== +t.dataset.id); scheduleSave(); renderTracks(); return; }
 
   // NOTES — add note
   if (t.dataset.addnote) {
