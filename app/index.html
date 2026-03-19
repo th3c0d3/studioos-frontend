@@ -129,6 +129,8 @@ input,select{font-family:var(--font)}
 .track-cat{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:2px;font-weight:600;flex-shrink:0}
 .cat-music{background:var(--green3);color:var(--green);border:1px solid var(--green2)}
 .cat-appdev{background:var(--blue3);color:var(--blue);border:1px solid var(--blue2)}
+.cat-original{background:rgba(57,255,122,.1);color:var(--green);border:1px solid rgba(57,255,122,.3)}
+.cat-cover{background:rgba(176,96,255,.1);color:var(--purple);border:1px solid rgba(176,96,255,.3)}
 .track-pct{font-family:var(--mono);font-size:11px;color:var(--text2);min-width:32px;text-align:right;flex-shrink:0}
 .track-toggle{color:var(--text3);font-size:11px;transition:transform .2s;flex-shrink:0}
 .track-toggle.open{transform:rotate(180deg)}
@@ -544,8 +546,8 @@ body.amiga .archive-tab.active{color:#664400;border-bottom-color:#664400}
     <div id="add-track-form" style="display:none">
       <div class="add-form"><div class="add-row">
         <div class="field"><div class="field-lbl">Title</div><input class="daw-input" id="newTitle" placeholder="Track Name..."></div>
-        <div class="field" style="max-width:120px"><div class="field-lbl">Category</div><select class="daw-select" id="newCat"><option value="Music">Music</option><option value="AppDev">AppDev</option></select></div>
-        <div class="field" style="max-width:90px"><div class="field-lbl">Segments</div><input class="daw-input" id="newSegs" type="number" min="1" max="20" value="11"></div>
+        <div class="field" style="max-width:130px"><div class="field-lbl">Type</div><select class="daw-select" id="newType"><option value="Original">Original</option><option value="Cover">Cover</option></select></div>
+        <div class="field" style="max-width:90px"><div class="field-lbl">Steps</div><input class="daw-input" id="newSegs" type="number" min="1" max="20" value="11"></div>
         <button class="btn-green" id="confirmAdd">ADD</button>
         <button class="btn-ghost" id="cancelAdd">✕</button>
       </div></div>
@@ -799,6 +801,10 @@ async function loadFromServer() {
         parsed.theme = parsed.darkMode ? 'dark' : 'light';
         delete parsed.darkMode;
       }
+      // Migrate existing songs missing trackType
+      if (parsed.songs) {
+        parsed.songs.forEach(s => { if (!s.trackType) s.trackType = 'Original'; });
+      }
       state = parsed;
     } catch(e) {} }
     return;
@@ -811,6 +817,10 @@ async function loadFromServer() {
       if (serverState.darkMode !== undefined && !serverState.theme) {
         serverState.theme = serverState.darkMode ? 'dark' : 'light';
         delete serverState.darkMode;
+      }
+      // Migrate existing songs missing trackType
+      if (serverState.songs) {
+        serverState.songs.forEach(s => { if (!s.trackType) s.trackType = 'Original'; });
       }
       state = serverState;
     }
@@ -1083,8 +1093,9 @@ function renderTracks() {
   const active = state.songs.filter(s => !s.is_archived);
   document.getElementById('tracks-list').innerHTML = active.map((song, idx) => {
     const pct = calcPct(song.steps), is100 = pct === 100;
-    const modeClass = song.category === 'Music' ? 'mastering-mode' : 'logic-mode';
-    const catClass = song.category === 'Music' ? 'cat-music' : 'cat-appdev';
+    const modeClass = 'mastering-mode';
+    const typeClass = song.trackType === 'Cover' ? 'cat-cover' : 'cat-original';
+    const typeLabel = song.trackType === 'Cover' ? 'COVER' : 'ORIGINAL';
     const segs = song.steps.map((s,i) => `<div class="seg ${segCol(i,song.steps.length)} ${s.status}" data-idx="${i}" data-id="${song.id}" data-type="song" title="${s.name}"></div>`).join('');
     const names = song.steps.map((s,i) => `<div class="seg-name" data-stepname="song" data-stepid="${song.id}" data-stepidx="${i}" title="Click to rename step">${s.name}</div>`).join('');
     const deadlineBadge = song.deadline ? deadlineBadgeHTML(song.deadline) : '';
@@ -1113,7 +1124,7 @@ function renderTracks() {
         <div class="track-num">${String(idx+1).padStart(2,'0')}</div>
         <button class="rename-btn" data-startren="${song.id}" data-rentype="song" title="Rename">✎</button>
         <div class="track-title" data-rename="song" data-renameid="${song.id}">${song.title}</div>
-        <span class="track-cat ${catClass}">${song.category}</span>
+        <span class="track-cat ${typeClass}">${typeLabel}</span>
         ${deadlineBadge}
         <button class="${noteBtnClass}" data-togglenotes="${song.id}" data-tracktype="song">${noteBtnLabel}</button>
         <div class="track-pct" style="${is100?'color:var(--green);font-weight:700':''}">${pct}%</div>
@@ -1675,10 +1686,10 @@ document.addEventListener('click', e => {
   if (t.id === 'cancelAdd') { document.getElementById('add-track-form').style.display = 'none'; document.getElementById('addTrackBtn').style.display = ''; return; }
   if (t.id === 'confirmAdd') {
     const title = document.getElementById('newTitle').value.trim() || 'New Track';
-    const cat = document.getElementById('newCat').value;
+    const trackType = document.getElementById('newType').value;
     const segs = Math.max(1, Math.min(20, +document.getElementById('newSegs').value || 11));
-    const names = cat === 'Music' ? MUSIC_STEPS.slice(0, segs) : APP_STEPS.slice(0, segs);
-    state.songs.push({ id: state.nextId++, title, category: cat, expanded: true, startDate: Date.now(), steps: Array.from({length:segs}, (_,i) => ({name:names[i]||'Step '+(i+1), status:i===0?'active':'pending'})) });
+    const names = MUSIC_STEPS.slice(0, segs);
+    state.songs.push({ id: state.nextId++, title, trackType, category: 'Music', expanded: true, startDate: Date.now(), steps: Array.from({length:segs}, (_,i) => ({name:names[i]||'Step '+(i+1), status:i===0?'active':'pending'})) });
     document.getElementById('newTitle').value = '';
     document.getElementById('add-track-form').style.display = 'none';
     document.getElementById('addTrackBtn').style.display = '';
