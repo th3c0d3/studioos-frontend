@@ -83,6 +83,66 @@ input,select{font-family:var(--font)}
 .tabnav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 12px;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tabnav::-webkit-scrollbar{display:none}
 .tab{padding:10px 14px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:all .2s;white-space:nowrap;position:relative;background:none;border-top:none;border-left:none;border-right:none}
+
+/* ── MOBILE TAB DOTS ─────────────────────────────────────── */
+.mob-tab-dots{display:none;gap:5px;padding:7px 14px 5px;background:var(--bg)}
+.mob-tab-dot{flex:1;height:2px;border-radius:1px;background:var(--border);transition:background .3s}
+.mob-tab-dot.act{background:var(--accent)}
+.mob-tab-lbls{display:none;padding:0 14px 6px;background:var(--bg)}
+.mob-tab-lbl{flex:1;font-size:8px;text-align:center;color:var(--text3);letter-spacing:1px;transition:color .3s}
+.mob-tab-lbl.act{color:var(--accent);font-weight:700}
+
+/* ── BOTTOM NAV ──────────────────────────────────────────── */
+.bottom-nav{display:none;background:var(--bg2);border-top:1px solid var(--border);padding:6px 0 10px;flex-shrink:0;z-index:10}
+.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:3px 0;transition:all .15s}
+.bottom-nav-item .bn-icon{font-size:18px;color:var(--text3);line-height:1;transition:color .2s}
+.bottom-nav-item .bn-lbl{font-size:7px;color:var(--text3);letter-spacing:.5px;transition:color .2s}
+.bottom-nav-item.act .bn-icon,.bottom-nav-item.act .bn-lbl{color:var(--accent)}
+
+/* ── FAB ─────────────────────────────────────────────────── */
+.fab{display:none;position:fixed;bottom:74px;right:16px;width:52px;height:52px;background:var(--accent);border-radius:50%;align-items:center;justify-content:center;font-size:26px;color:#000;font-weight:900;cursor:pointer;z-index:15;border:none;transition:transform .15s;font-family:var(--font)}
+.fab:active{transform:scale(.92)}
+
+/* ── ACTION SHEET ────────────────────────────────────────── */
+.sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50;flex-direction:column;justify-content:flex-end}
+.sheet-overlay.open{display:flex}
+.action-sheet{background:var(--bg2);border-radius:16px 16px 0 0;border-top:1px solid var(--border);padding:0 0 12px;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:36px;height:3px;background:var(--border2);border-radius:2px;margin:12px auto 14px}
+.sheet-section-title{font-size:8px;font-weight:700;letter-spacing:4px;color:var(--text3);text-align:center;margin-bottom:8px;text-transform:uppercase}
+.sheet-item{display:flex;align-items:center;gap:14px;padding:13px 20px;cursor:pointer;transition:background .15s}
+.sheet-item:active{background:var(--bg3)}
+.sheet-item-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.si-music{background:rgba(57,255,122,.1);border:1px solid rgba(57,255,122,.2)}
+.si-app{background:rgba(0,207,255,.1);border:1px solid rgba(0,207,255,.2)}
+.si-book{background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.2)}
+.sheet-item-name{font-size:13px;color:var(--text);font-weight:600;margin-bottom:1px}
+.sheet-item-desc{font-size:10px;color:var(--text3);letter-spacing:.3px}
+.sheet-cancel{margin:6px 14px 0;background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:calc(100% - 28px);padding:13px;border-radius:10px;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;font-family:var(--font);transition:background .15s}
+.sheet-cancel:active{background:var(--bg4)}
+
+/* ── CARD ACTION ROW (mobile) ────────────────────────────── */
+.card-action-row{display:none;border-top:1px solid var(--border)}
+.card-action-btn{flex:1;padding:11px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:background .15s;border-right:1px solid var(--border)}
+.card-action-btn:last-child{border-right:none}
+.card-action-btn:active{background:var(--bg3)}
+.cab-icon{font-size:14px;color:var(--text3);line-height:1;transition:color .2s}
+.cab-lbl{font-size:7px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+
+/* ── MOBILE BREAKPOINT ───────────────────────────────────── */
+@media(max-width:640px){
+  .tabnav{display:none}
+  .mob-tab-dots{display:flex}
+  .mob-tab-lbls{display:flex}
+  .bottom-nav{display:flex}
+  .fab{display:flex}
+  .card-action-row{display:flex}
+  .app-wrapper{height:calc(100vh - 48px - 62px)}
+  .note-btn,.lyrics-btn{display:none}
+  .sec-header .btn-ghost#addTrackBtn,
+  .sec-header .btn-ghost#addAppBtn,
+  .sec-header .btn-ghost#addBookBtn{display:none}
+}
 .tab:hover{color:var(--text2)}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab.archive-tab{color:var(--gold2)}
@@ -717,6 +777,22 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
     <button class="tab archive-tab" data-tab="archive">Hall of Fame <div class="badge" id="archive-badge">0</div></button>
   </div>
 
+  <!-- mobile tab indicators -->
+  <div class="mob-tab-dots" id="mobDots">
+    <div class="mob-tab-dot act" data-dtab="music"></div>
+    <div class="mob-tab-dot" data-dtab="appdev"></div>
+    <div class="mob-tab-dot" data-dtab="fitness"></div>
+    <div class="mob-tab-dot" data-dtab="reading"></div>
+    <div class="mob-tab-dot" data-dtab="archive"></div>
+  </div>
+  <div class="mob-tab-lbls" id="mobLbls">
+    <div class="mob-tab-lbl act" data-ltab="music">Music</div>
+    <div class="mob-tab-lbl" data-ltab="appdev">App</div>
+    <div class="mob-tab-lbl" data-ltab="fitness">Fitness</div>
+    <div class="mob-tab-lbl" data-ltab="reading">Books</div>
+    <div class="mob-tab-lbl" data-ltab="archive">Hall</div>
+  </div>
+
   <div class="main visible" id="tab-music">
     <div class="stats-row" id="music-stats"></div>
     <div class="sec-header"><div class="sec-title">Track Sessions</div><div style="display:flex;gap:6px"><button class="btn-ghost" id="focusMusicBtn">⊙ FOCUS</button><button class="btn-ghost" id="addTrackBtn">+ NEW TRACK</button></div></div>
@@ -862,6 +938,25 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
 
   </div><!-- end app-content -->
 
+  <!-- ── BOTTOM NAV (mobile) ───────────────────────────── -->
+  <div class="bottom-nav" id="bottomNav">
+    <div class="bottom-nav-item act" data-tab="music" onclick="switchTab('music')">
+      <div class="bn-icon">♪</div><div class="bn-lbl">Music</div>
+    </div>
+    <div class="bottom-nav-item" data-tab="appdev" onclick="switchTab('appdev')">
+      <div class="bn-icon">⚡</div><div class="bn-lbl">App Dev</div>
+    </div>
+    <div class="bottom-nav-item" data-tab="fitness" onclick="switchTab('fitness')">
+      <div class="bn-icon">◎</div><div class="bn-lbl">Fitness</div>
+    </div>
+    <div class="bottom-nav-item" data-tab="reading" onclick="switchTab('reading')">
+      <div class="bn-icon">◻</div><div class="bn-lbl">Books</div>
+    </div>
+    <div class="bottom-nav-item" data-tab="archive" onclick="switchTab('archive')">
+      <div class="bn-icon">✦</div><div class="bn-lbl">Hall</div>
+    </div>
+  </div>
+
   <!-- ── CALENDAR BOTTOM BAR ───────────────────────────── -->
   <div class="cal-bar hidden" id="calPanel">
     <div class="cal-bar-header">
@@ -880,6 +975,30 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
 
   </div><!-- end app-wrapper -->
 </div><!-- end dashboard -->
+
+<!-- ── FAB (mobile) ───────────────────────────────────────── -->
+<button class="fab" id="fabBtn">+</button>
+
+<!-- ── ACTION SHEET (mobile) ─────────────────────────────── -->
+<div class="sheet-overlay" id="actionSheet">
+  <div class="action-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-section-title">Add new</div>
+    <div class="sheet-item" id="sheetAddTrack">
+      <div class="sheet-item-icon si-music">♪</div>
+      <div><div class="sheet-item-name">Music track</div><div class="sheet-item-desc">Add to your production pipeline</div></div>
+    </div>
+    <div class="sheet-item" id="sheetAddApp">
+      <div class="sheet-item-icon si-app">⚡</div>
+      <div><div class="sheet-item-name">App project</div><div class="sheet-item-desc">Start a new dev sprint</div></div>
+    </div>
+    <div class="sheet-item" id="sheetAddBook">
+      <div class="sheet-item-icon si-book">◻</div>
+      <div><div class="sheet-item-name">Book</div><div class="sheet-item-desc">Add to your reading list</div></div>
+    </div>
+    <button class="sheet-cancel" id="sheetCancel">CANCEL</button>
+  </div>
+</div>
 
 <!-- ── FOCUS MODE ─────────────────────────────────────────── -->
 <div id="focusMode" style="display:none;position:fixed;inset:0;background:#0a0a0c;z-index:200;flex-direction:column">
@@ -1422,6 +1541,11 @@ function renderTracks() {
       <div class="deadline-drop-zone">⬇ drop calendar event to set deadline</div>
       ${song.notesOpen ? `<div class="notes-panel"><div class="notes-panel-hdr"><div class="notes-panel-label" style="margin-bottom:0">Notes</div>${noteCount > 0 ? `<div class="notes-done-count ${doneCount===noteCount&&noteCount>0?'all-done':''}">${doneCount} / ${noteCount} done</div>` : ''}</div><div class="notes-entries" style="margin-top:7px">${notes.map((n,i) => `<div class="note-entry ${n.done?'note-done':''}" data-togglenote="${i}" data-toggletrack="${song.id}" data-toggletype="song"><div class="note-chk ${n.done?'chk-done':''}"></div><div class="note-ts">${n.date}</div><div class="note-text">${n.text}</div><button class="note-del-btn" data-noteid="${i}" data-trackid="${song.id}" data-tracktype="song">✕</button></div>`).join('')}</div><div class="note-input-row"><input class="note-text-input" id="ni-${song.id}" placeholder="Add a session note..."/><button class="note-add-btn" data-addnote="${song.id}" data-tracktype="song">+ LOG</button></div></div>` : ''}
       ${song.expanded ? `<div class="meter-wrap"><div class="meter-label" style="display:flex;align-items:center;justify-content:space-between"><span>STEP SEQUENCER — ${pct}% COMPLETE</span><button class="btn-ghost" style="font-size:8px;padding:2px 8px;letter-spacing:1px" data-resetsteps="${song.id}" data-resettype="song">↺ RESET STEPS</button></div><div class="seg-bar">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
+      <div class="card-action-row">
+        <div class="card-action-btn" data-togglenotes="${song.id}" data-tracktype="song"><div class="cab-icon">✎</div><div class="cab-lbl">${noteCount>0?`notes (${noteCount})`:'Notes'}</div></div>
+        <div class="card-action-btn" data-openlyrics="${song.id}"><div class="cab-icon" style="color:var(--purple)">♪</div><div class="cab-lbl">Lyrics</div></div>
+        <div class="card-action-btn" id="focusMusicBtnCard" onclick="openFocus('song')"><div class="cab-icon" style="color:var(--blue)">⊙</div><div class="cab-lbl">Focus</div></div>
+      </div>
     </div>`;
   }).join('');
   renderMusicStats(); setupDrag();
@@ -1475,6 +1599,11 @@ function renderApps() {
       <div class="deadline-drop-zone">⬇ drop calendar event to set deadline</div>
       ${notesHTML}
       ${app.expanded ? `<div class="meter-wrap" style="border-top:1px solid var(--border)"><div class="meter-label" style="display:flex;align-items:center;justify-content:space-between"><span>SPRINT BOARD — ${pct}% SHIPPED</span><button class="btn-ghost" style="font-size:8px;padding:2px 8px;letter-spacing:1px" data-resetsteps="${app.id}" data-resettype="app">↺ RESET STEPS</button></div><div class="seg-bar" style="gap:2px">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
+      <div class="card-action-row">
+        <div class="card-action-btn" data-togglenotes="${app.id}" data-tracktype="app"><div class="cab-icon" style="color:var(--blue)">✎</div><div class="cab-lbl">${noteCount>0?`notes (${noteCount})`:'Notes'}</div></div>
+        <div class="card-action-btn" onclick="openFocus('app')"><div class="cab-icon" style="color:var(--blue)">⊙</div><div class="cab-lbl">Focus</div></div>
+        <div class="card-action-btn" data-id="${app.id}" data-action="del-app"><div class="cab-icon">✕</div><div class="cab-lbl">Delete</div></div>
+      </div>
     </div>`;
   }).join('');
   renderAppStats();
@@ -2731,6 +2860,85 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.getElementById('lyricsModal').classList.contains('open')) {
     closeLyricsModal();
   }
+});
+
+// ── MOBILE: SWIPE TABS ────────────────────────────────────────────────────────
+const TABS = ['music','appdev','fitness','reading','archive'];
+let touchStartX = 0, touchStartY = 0;
+
+const appContent = document.querySelector('.app-content');
+if (appContent) {
+  appContent.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, {passive:true});
+
+  appContent.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return;
+    const cur = TABS.findIndex(t => document.getElementById('tab-'+t)?.classList.contains('visible'));
+    if (dx < 0 && cur < TABS.length-1) switchTab(TABS[cur+1]);
+    if (dx > 0 && cur > 0) switchTab(TABS[cur-1]);
+  }, {passive:true});
+}
+
+function switchTab(tab) {
+  // reuse existing tab logic
+  document.querySelectorAll('.tab').forEach(t => {
+    const isActive = t.dataset.tab === tab;
+    t.classList.toggle('active', isActive);
+  });
+  document.querySelectorAll('.main').forEach(m => {
+    m.classList.toggle('visible', m.id === 'tab-'+tab);
+  });
+  // sync bottom nav
+  document.querySelectorAll('.bottom-nav-item').forEach(n => {
+    n.classList.toggle('act', n.dataset.tab === tab);
+  });
+  // sync dots + labels
+  document.querySelectorAll('.mob-tab-dot').forEach(d => d.classList.toggle('act', d.dataset.dtab === tab));
+  document.querySelectorAll('.mob-tab-lbl').forEach(l => l.classList.toggle('act', l.dataset.ltab === tab));
+  appContent?.scrollTo(0,0);
+}
+
+// sync mobile dots/labels when desktop tabs are clicked
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    const tab = t.dataset.tab;
+    document.querySelectorAll('.mob-tab-dot').forEach(d => d.classList.toggle('act', d.dataset.dtab === tab));
+    document.querySelectorAll('.mob-tab-lbl').forEach(l => l.classList.toggle('act', l.dataset.ltab === tab));
+    document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.toggle('act', n.dataset.tab === tab));
+  });
+});
+
+// ── MOBILE: FAB + ACTION SHEET ────────────────────────────────────────────────
+const fabBtn = document.getElementById('fabBtn');
+const actionSheet = document.getElementById('actionSheet');
+
+if (fabBtn) fabBtn.addEventListener('click', () => actionSheet?.classList.add('open'));
+if (actionSheet) actionSheet.addEventListener('click', e => {
+  if (e.target === actionSheet) actionSheet.classList.remove('open');
+});
+
+document.getElementById('sheetCancel')?.addEventListener('click', () => actionSheet?.classList.remove('open'));
+
+document.getElementById('sheetAddTrack')?.addEventListener('click', () => {
+  actionSheet.classList.remove('open');
+  switchTab('music');
+  document.getElementById('addTrackBtn')?.click();
+});
+
+document.getElementById('sheetAddApp')?.addEventListener('click', () => {
+  actionSheet.classList.remove('open');
+  switchTab('appdev');
+  document.getElementById('addAppBtn')?.click();
+});
+
+document.getElementById('sheetAddBook')?.addEventListener('click', () => {
+  actionSheet.classList.remove('open');
+  switchTab('reading');
+  document.getElementById('addBookBtn')?.click();
 });
 
 // ── GLOBAL SEARCH ─────────────────────────────────────────────────────────────
