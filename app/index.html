@@ -124,8 +124,7 @@ input,select{font-family:var(--font)}
 .track-num{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:20px}
 .track-title{flex:1;font-size:14px;font-weight:600;letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .track-title-input{flex:1;font-size:14px;font-weight:600;letter-spacing:.5px;background:var(--bg4);border:1px solid var(--accent);color:var(--text);padding:2px 7px;border-radius:3px;outline:none;font-family:var(--font);min-width:0}
-.rename-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:2px 4px;border-radius:2px;transition:all .2s;flex-shrink:0;opacity:0;line-height:1}
-.track-header:hover .rename-btn{opacity:1}
+.rename-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:2px 5px;border-radius:2px;transition:all .2s;flex-shrink:0;line-height:1}
 .rename-btn:hover{color:var(--accent);background:var(--bg3)}
 .track-cat{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:2px;font-weight:600;flex-shrink:0}
 .cat-music{background:var(--green3);color:var(--green);border:1px solid var(--green2)}
@@ -1110,8 +1109,8 @@ function renderTracks() {
       <div class="track-header" data-id="${song.id}" data-action="toggle">
         <div class="track-drag">⠿</div>
         <div class="track-num">${String(idx+1).padStart(2,'0')}</div>
-        <div class="track-title" data-rename="song" data-renameid="${song.id}">${song.title}</div>
         <button class="rename-btn" data-startren="${song.id}" data-rentype="song" title="Rename">✎</button>
+        <div class="track-title" data-rename="song" data-renameid="${song.id}">${song.title}</div>
         <span class="track-cat ${catClass}">${song.category}</span>
         ${deadlineBadge}
         <button class="${noteBtnClass}" data-togglenotes="${song.id}" data-tracktype="song">${noteBtnLabel}</button>
@@ -1158,8 +1157,8 @@ function renderApps() {
       <div class="track-header" data-id="${app.id}" data-action="toggle-app">
         <div class="track-drag">⠿</div>
         <div class="track-num">${String(idx+1).padStart(2,'0')}</div>
-        <div class="track-title" data-rename="app" data-renameid="${app.id}">${app.title}</div>
         <button class="rename-btn" data-startren="${app.id}" data-rentype="app" title="Rename">✎</button>
+        <div class="track-title" data-rename="app" data-renameid="${app.id}">${app.title}</div>
         <span class="track-cat cat-appdev">AppDev</span>
         ${deadlineBadge}
         <button class="${noteBtnClass}" data-togglenotes="${app.id}" data-tracktype="app" style="${noteCount>0?'':'border-color:rgba(0,207,255,.2);color:var(--blue)'}">${noteBtnLabel}</button>
