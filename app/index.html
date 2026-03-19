@@ -171,7 +171,9 @@ input,select{font-family:var(--font)}
 .seg.active.s-red{box-shadow:0 0 6px var(--red)}
 @keyframes pulse-seg{0%,100%{opacity:1}50%{opacity:.5}}
 .seg-names{display:flex;gap:2px;margin-top:3px}
-.seg-name{flex:1;font-size:10px;font-weight:700;color:var(--text2);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono)}
+.seg-name{flex:1;font-size:10px;font-weight:700;color:var(--text2);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono);cursor:pointer;padding:2px 1px;border-radius:2px;transition:all .15s}
+.seg-name:hover{color:var(--accent);background:rgba(57,255,122,.08)}
+.seg-name-input{flex:1;font-size:9px;font-weight:700;font-family:var(--mono);background:var(--bg4);border:1px solid var(--accent);color:var(--text);padding:1px 3px;border-radius:2px;outline:none;text-align:center;min-width:0}
 
 /* ── ADD FORM ─────────────────────────────────────────────── */
 .add-form{background:var(--bg3);border:1px dashed var(--border2);border-radius:4px;padding:12px;margin-bottom:10px}
@@ -1084,7 +1086,7 @@ function renderTracks() {
     const modeClass = song.category === 'Music' ? 'mastering-mode' : 'logic-mode';
     const catClass = song.category === 'Music' ? 'cat-music' : 'cat-appdev';
     const segs = song.steps.map((s,i) => `<div class="seg ${segCol(i,song.steps.length)} ${s.status}" data-idx="${i}" data-id="${song.id}" data-type="song" title="${s.name}"></div>`).join('');
-    const names = song.steps.map(s => `<div class="seg-name">${s.name}</div>`).join('');
+    const names = song.steps.map((s,i) => `<div class="seg-name" data-stepname="song" data-stepid="${song.id}" data-stepidx="${i}" title="Click to rename step">${s.name}</div>`).join('');
     const deadlineBadge = song.deadline ? deadlineBadgeHTML(song.deadline) : '';
     const notes = song.notes || [];
     const noteCount = notes.length;
@@ -1121,7 +1123,7 @@ function renderTracks() {
       </div>
       <div class="deadline-drop-zone">⬇ drop calendar event to set deadline</div>
       ${notesHTML}
-      ${song.expanded ? `<div class="meter-wrap"><div class="meter-label">STEP SEQUENCER — ${pct}% COMPLETE</div><div class="seg-bar">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
+      ${song.expanded ? `<div class="meter-wrap"><div class="meter-label" style="display:flex;align-items:center;justify-content:space-between"><span>STEP SEQUENCER — ${pct}% COMPLETE</span><button class="btn-ghost" style="font-size:8px;padding:2px 8px;letter-spacing:1px" data-resetsteps="${song.id}" data-resettype="song">↺ RESET STEPS</button></div><div class="seg-bar">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
     </div>`;
   }).join('');
   renderMusicStats(); setupDrag();
@@ -1132,7 +1134,7 @@ function renderApps() {
   document.getElementById('appdev-list').innerHTML = active.map((app, idx) => {
     const pct = calcPct(app.steps), is100 = pct === 100;
     const segs = app.steps.map((s,i) => `<div class="sprint-seg ${s.status}" data-idx="${i}" data-id="${app.id}" data-type="app" title="${s.name}"></div>`).join('');
-    const names = app.steps.map(s => `<div class="seg-name">${s.name}</div>`).join('');
+    const names = app.steps.map((s,i) => `<div class="seg-name" data-stepname="app" data-stepid="${app.id}" data-stepidx="${i}" title="Click to rename step">${s.name}</div>`).join('');
     const deadlineBadge = app.deadline ? deadlineBadgeHTML(app.deadline) : '';
     const notes = app.notes || [];
     const noteCount = notes.length;
@@ -1169,7 +1171,7 @@ function renderApps() {
       </div>
       <div class="deadline-drop-zone">⬇ drop calendar event to set deadline</div>
       ${notesHTML}
-      ${app.expanded ? `<div class="meter-wrap" style="border-top:1px solid var(--border)"><div class="meter-label">SPRINT BOARD — ${pct}% SHIPPED</div><div class="seg-bar" style="gap:2px">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
+      ${app.expanded ? `<div class="meter-wrap" style="border-top:1px solid var(--border)"><div class="meter-label" style="display:flex;align-items:center;justify-content:space-between"><span>SPRINT BOARD — ${pct}% SHIPPED</span><button class="btn-ghost" style="font-size:8px;padding:2px 8px;letter-spacing:1px" data-resetsteps="${app.id}" data-resettype="app">↺ RESET STEPS</button></div><div class="seg-bar" style="gap:2px">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
     </div>`;
   }).join('');
   renderAppStats();
@@ -1527,6 +1529,28 @@ document.addEventListener('click', e => {
     const tab = t.closest('.tab').dataset.tab;
     document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === tab));
     document.querySelectorAll('.main').forEach(x => x.classList.toggle('visible', x.id === 'tab-' + tab));
+    return;
+  }
+
+  // STEP NAME rename
+  if (t.dataset.stepname) {
+    e.stopPropagation();
+    startStepRename(t);
+    return;
+  }
+
+  // RESET STEPS to default
+  if (t.dataset.resetsteps) {
+    e.stopPropagation();
+    const id = +t.dataset.resetsteps, type = t.dataset.resettype;
+    const item = type === 'song' ? state.songs.find(s => s.id === id) : state.apps.find(a => a.id === id);
+    if (item) {
+      const defaults = type === 'song' ? MUSIC_STEPS : APP_STEPS;
+      item.steps.forEach((s, i) => { s.name = defaults[i] || s.name; });
+      scheduleSave();
+      type === 'song' ? renderTracks() : renderApps();
+      showToast('Steps reset to default', '');
+    }
     return;
   }
 
@@ -1976,6 +2000,37 @@ function startRename(type, id) {
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') { input.blur(); }
     if (e.key === 'Escape') { item.title = item.title; input.blur(); }
+  });
+}
+
+// ── STEP NAME RENAME ─────────────────────────────────────────────────────────
+function startStepRename(el) {
+  const type  = el.dataset.stepname;
+  const id    = +el.dataset.stepid;
+  const idx   = +el.dataset.stepidx;
+  const item  = type === 'song' ? state.songs.find(s => s.id === id) : state.apps.find(a => a.id === id);
+  if (!item) return;
+
+  const input = document.createElement('input');
+  input.className = 'seg-name-input';
+  input.value = item.steps[idx].name;
+  input.maxLength = 12;
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+
+  function commit() {
+    const newName = input.value.trim() || item.steps[idx].name;
+    item.steps[idx].name = newName;
+    scheduleSave();
+    type === 'song' ? renderTracks() : renderApps();
+  }
+
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { input.blur(); }
+    if (e.key === 'Escape') { item.steps[idx].name = item.steps[idx].name; input.blur(); }
+    e.stopPropagation();
   });
 }
 
