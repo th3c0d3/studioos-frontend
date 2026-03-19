@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StudioOS — Your Creative Command Center</title>
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="apple-touch-icon" href="./favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -138,11 +141,22 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.06);pa
 <div class="orb orb-3"></div>
 
 <nav>
-  <div class="nav-logo">Studio<span>OS</span></div>
+  <div class="nav-logo">
+    <svg width="88" height="26" viewBox="0 0 220 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#0d0d0f" stroke="#333340" stroke-width="1.5"/>
+      <path d="M32 4 A28 28 0 1 1 7.2 48.4" fill="none" stroke="#39ff7a" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="32" cy="32" r="20" fill="none" stroke="#1e1e24" stroke-width="1"/>
+      <circle cx="32" cy="32" r="13" fill="none" stroke="#1e1e24" stroke-width="1"/>
+      <circle cx="32" cy="32" r="7" fill="#1a1a1e" stroke="#333340" stroke-width="1"/>
+      <circle cx="32" cy="32" r="2.5" fill="#39ff7a"/>
+      <text x="70" y="28" font-family="JetBrains Mono,monospace" font-size="20" font-weight="700" letter-spacing="3" fill="#e8e8f0">Studio</text>
+      <text x="70" y="50" font-family="JetBrains Mono,monospace" font-size="20" font-weight="700" letter-spacing="3" fill="#39ff7a">OS</text>
+    </svg>
+  </div>
   <div class="nav-links">
     <a href="#features">Features</a>
     <a href="#modules">Modules</a>
-    
+    <a href="#pricing">Pricing</a>
   </div>
   <a class="nav-cta" href="./app/index.html">LAUNCH APP</a>
 </nav>
@@ -240,10 +254,52 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.06);pa
   </div>
 </section>
 
-
+<section class="pricing" id="pricing">
+  <div class="section-eyebrow">Simple Pricing</div>
+  <h2 class="section-title">One person.<br><span>One flat rate.</span></h2>
+  <div class="price-cards">
+    <div class="price-card">
+      <div class="price-name">Free Preview</div>
+      <div class="price-amount">$0<span>/mo</span></div>
+      <div class="price-note">No account needed</div>
+      <ul class="price-features">
+        <li>Full dashboard UI</li>
+        <li>Local browser storage</li>
+        <li>All 4 modules</li>
+        <li>Archive & Hall of Fame</li>
+        <li style="opacity:.4;color:#555">No cross-device sync</li>
+        <li style="opacity:.4;color:#555">No monthly history</li>
+      </ul>
+      <a class="price-btn price-btn-outline" href="./app/index.html">Try Without Account</a>
+    </div>
+    <div class="price-card featured">
+      <div class="price-name">Personal</div>
+      <div class="price-amount">$5<span>/mo</span></div>
+      <div class="price-note">Everything, forever</div>
+      <ul class="price-features">
+        <li>Everything in Free</li>
+        <li>Secure login</li>
+        <li>Cross-device sync</li>
+        <li>Monthly snapshots history</li>
+        <li>Works on Android & desktop</li>
+        <li>Data never lost</li>
+      </ul>
+      <a class="price-btn price-btn-filled" href="./app/index.html">Get Started</a>
+    </div>
+  </div>
+</section>
 
 <footer>
-  <div class="footer-logo">Studio<span>OS</span></div>
+  <div class="footer-logo">
+    <svg width="70" height="20" viewBox="0 0 220 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="28" fill="#0d0d0f" stroke="#333340" stroke-width="1.5"/>
+      <path d="M32 4 A28 28 0 1 1 7.2 48.4" fill="none" stroke="#39ff7a" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="32" cy="32" r="13" fill="none" stroke="#1e1e24" stroke-width="1"/>
+      <circle cx="32" cy="32" r="2.5" fill="#39ff7a"/>
+      <text x="70" y="28" font-family="JetBrains Mono,monospace" font-size="20" font-weight="700" letter-spacing="3" fill="#e8e8f0">Studio</text>
+      <text x="70" y="50" font-family="JetBrains Mono,monospace" font-size="20" font-weight="700" letter-spacing="3" fill="#39ff7a">OS</text>
+    </svg>
+  </div>
   <div class="footer-note">Built for creators. Runs on Railway + Vercel.</div>
   <div class="footer-note">© 2026 StudioOS</div>
 </footer>
