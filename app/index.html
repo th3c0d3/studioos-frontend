@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>StudioOS — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 /* ── RESET & VARS ─────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -308,8 +308,99 @@ input,select{font-family:var(--font)}
 .final-btn:disabled{opacity:.3;cursor:not-allowed;border-color:var(--border);color:var(--text3)}
 .final-btn:not(:disabled):hover{background:var(--gold2);color:#000}
 
-/* ── LIGHT MODE ───────────────────────────────────────────── */
-body.light{--bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;--border:#d0d0e0;--border2:#b0b0c8;--text:#1a1a2e;--text2:#555570;--text3:#9090a8;--green:#0a7a30;--green2:#0f9a40;--green3:#d0f0de;--blue:#0050a0;--blue2:#0070d0;--blue3:#d0e8ff;--gold3:#fff8d0;--gold2:#8c6800}
+/* ── THEMES ────────────────────────────────────────────────── */
+body.light{
+  --bg:#f0f0f4;--bg2:#ffffff;--bg3:#e8e8f0;--bg4:#d8d8e8;
+  --border:#d0d0e0;--border2:#b0b0c8;
+  --text:#1a1a2e;--text2:#555570;--text3:#9090a8;
+  --green:#0a7a30;--green2:#0f9a40;--green3:#d0f0de;
+  --blue:#0050a0;--blue2:#0070d0;--blue3:#d0e8ff;
+  --gold3:#fff8d0;--gold2:#8c6800;
+  --accent:#0a7a30;
+}
+
+body.c64{
+  --bg:#3535a0;--bg2:#4040b0;--bg3:#2a2a90;--bg4:#202080;
+  --border:#6060c0;--border2:#8080e0;
+  --text:#a0a0ff;--text2:#c0c0ff;--text3:#7070c0;
+  --green:#00ff00;--green2:#00cc00;--green3:#003300;
+  --yellow:#ffff00;--yellow2:#cccc00;--yellow3:#333300;
+  --orange:#ff8800;--red:#ff4040;
+  --blue:#4040ff;--blue2:#6060ff;--blue3:#202060;
+  --purple:#ff00ff;
+  --gold:#ffff00;--gold2:#cccc00;--gold3:#333300;
+  --accent:#00ff00;
+  --font:'Share Tech Mono',monospace;--mono:'Share Tech Mono',monospace;
+}
+body.c64 .logo{color:#00ff00 !important}
+body.c64 .logo span{color:#a0a0ff !important}
+body.c64 .topbar{background:#2020700;border-bottom:2px solid #6060c0}
+body.c64 .month-banner{background:rgba(0,255,0,.06);border-bottom:1px solid rgba(0,255,0,.3)}
+body.c64 .month-label{color:#00ff00}
+body.c64 .tabnav{background:#2a2a90;border-bottom:2px solid #6060c0}
+body.c64 .tab.active{color:#ffff00;border-bottom-color:#ffff00}
+body.c64 .track-card{border-color:#6060c0}
+body.c64 .track-card.mastering-mode{border-left-color:#00ff00}
+body.c64 .track-card.logic-mode{border-left-color:#00ffff}
+body.c64 .seg.s-green{background:#00ff00}
+body.c64 .login-logo{color:#00ff00}
+body.c64 .login-btn{background:#00ff00;color:#000}
+body.c64 .new-month-btn{background:#333300;border-color:#cccc00;color:#ffff00}
+body.c64 *{letter-spacing:1px}
+body.c64 .cal-bar{border-top:2px solid #6060c0}
+body.c64 .cal-bar-title{color:#00ff00}
+
+body.amiga{
+  --bg:#aaaaaa;--bg2:#cccccc;--bg3:#bbbbbb;--bg4:#dddddd;
+  --border:#888888;--border2:#555555;
+  --text:#000000;--text2:#222222;--text3:#555555;
+  --green:#008800;--green2:#00aa00;--green3:#ccffcc;
+  --yellow:#aa8800;--yellow2:#886600;--yellow3:#fffacc;
+  --orange:#cc6600;--red:#cc0000;
+  --blue:#0055aa;--blue2:#0077cc;--blue3:#cce0ff;
+  --purple:#8800aa;
+  --gold:#886600;--gold2:#664400;--gold3:#fff8cc;
+  --accent:#0055aa;
+  --font:'Share Tech Mono',monospace;--mono:'Share Tech Mono',monospace;
+}
+body.amiga .topbar{background:#0055aa;border-bottom:2px solid #003377}
+body.amiga .logo{color:#ffffff !important;font-family:'Share Tech Mono',monospace}
+body.amiga .logo span{color:#aaaaff !important}
+body.amiga .topbar-btn{background:#cccccc;border:1px solid #555;color:#000;font-family:'Share Tech Mono',monospace}
+body.amiga .topbar-btn:hover{border-color:#0055aa;color:#0055aa}
+body.amiga .month-banner{background:#0055aa;border-bottom:2px solid #003377}
+body.amiga .month-label{color:#ffffff;font-family:'Share Tech Mono',monospace}
+body.amiga .new-month-btn{background:#cccccc;border:2px solid #555;color:#000;font-family:'Share Tech Mono',monospace}
+body.amiga .history-btn{border:1px solid #555;color:#000}
+body.amiga .tabnav{background:#cccccc;border-bottom:2px solid #888}
+body.amiga .tab{color:#555;border-bottom:2px solid transparent;font-family:'Share Tech Mono',monospace}
+body.amiga .tab.active{color:#0055aa;border-bottom-color:#0055aa;background:#dddddd}
+body.amiga .track-card{background:#ffffff;border:1px solid #888;border-radius:0}
+body.amiga .track-card.mastering-mode{border-left:3px solid #00aa00}
+body.amiga .track-card.logic-mode{border-left:3px solid #0055aa}
+body.amiga .track-header{background:#ffffff}
+body.amiga .track-title{color:#000}
+body.amiga .track-card:hover{border-color:#0055aa}
+body.amiga .seg.s-green{background:#00aa00}
+body.amiga .seg.pending{background:#cccccc;border:1px solid #888;opacity:1}
+body.amiga .notes-panel{background:#eeeeee;border-top:1px solid #888}
+body.amiga .note-entry{background:#ffffff;border-left:2px solid #0055aa}
+body.amiga .note-ts{color:#cc0000}
+body.amiga .login-logo{color:#0055aa}
+body.amiga .login-input{background:#ffffff;border:1px solid #888;color:#000}
+body.amiga .login-btn{background:#0055aa;color:#ffffff}
+body.amiga .cal-bar{border-top:2px solid #0055aa;background:#cccccc}
+body.amiga .cal-bar-title{color:#0055aa;font-family:'Share Tech Mono',monospace}
+body.amiga .cal-event{background:#ffffff;border-left:3px solid #0055aa}
+body.amiga .cal-event-title{color:#000}
+body.amiga .cal-status-bar{color:#555;font-family:'Share Tech Mono',monospace}
+body.amiga *{letter-spacing:.3px}
+body.amiga .stat-card{background:#dddddd;border:1px solid #888}
+body.amiga .stat-val{color:#0055aa}
+body.amiga .sec-title{color:#0055aa}
+body.amiga .sec-title::before{background:#0055aa}
+body.amiga .archive-tab{color:#886600}
+body.amiga .archive-tab.active{color:#664400;border-bottom-color:#664400}
 
 /* ── TOAST ────────────────────────────────────────────────── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 20px;border-radius:4px;font-size:13px;letter-spacing:1px;z-index:500;transition:transform .3s;white-space:nowrap}
@@ -636,7 +727,7 @@ const DEFAULT_STATE = () => ({
   },
   books: [],
   nextId: 1,
-  darkMode: true,
+  theme: 'dark',
   checklistState: {}
 });
 
@@ -681,13 +772,28 @@ async function saveToServer() {
 async function loadFromServer() {
   if (isGuest || !token) {
     const s = localStorage.getItem('studioos_state');
-    if (s) { try { state = JSON.parse(s); } catch(e) {} }
+    if (s) { try {
+      const parsed = JSON.parse(s);
+      // Migrate old darkMode boolean to theme string
+      if (parsed.darkMode !== undefined && !parsed.theme) {
+        parsed.theme = parsed.darkMode ? 'dark' : 'light';
+        delete parsed.darkMode;
+      }
+      state = parsed;
+    } catch(e) {} }
     return;
   }
   setSyncState('syncing');
   try {
     const { state: serverState } = await apiReq('/state');
-    if (serverState) state = serverState;
+    if (serverState) {
+      // Migrate old darkMode boolean to theme string
+      if (serverState.darkMode !== undefined && !serverState.theme) {
+        serverState.theme = serverState.darkMode ? 'dark' : 'light';
+        delete serverState.darkMode;
+      }
+      state = serverState;
+    }
     setSyncState('synced');
   } catch (e) {
     setSyncState('error');
@@ -925,7 +1031,7 @@ async function doNewMonth(decisions) {
   const fresh = DEFAULT_STATE();
   fresh.archived       = state.archived;
   fresh.checklistState = {};
-  fresh.darkMode       = state.darkMode;
+  fresh.theme          = state.theme;
   fresh.month          = currentMonthLabel();
   fresh.nextId         = state.nextId;
   fresh.songs          = carriedSongs;
@@ -1159,9 +1265,16 @@ function renderAll() {
 }
 
 function applyTheme() {
-  document.body.classList.toggle('light', !state.darkMode);
+  const themes = ['dark','light','c64','amiga'];
+  const icons  = ['◐','◑','■','▪'];
+  const t = state.theme || 'dark';
+  document.body.className = t === 'dark' ? '' : t;
   const btn = document.getElementById('themeBtn');
-  if (btn) btn.textContent = state.darkMode ? '◐' : '◑';
+  if (btn) {
+    const idx = themes.indexOf(t);
+    btn.textContent = icons[idx] || '◐';
+    btn.title = ['Dark','Light','C64','Amiga'][idx] || 'Dark';
+  }
 }
 
 // ── PREFLIGHT ─────────────────────────────────────────────────────────────────
@@ -1363,7 +1476,16 @@ document.addEventListener('click', e => {
   if (t.id === 'logoutBtn') { doLogout(); return; }
 
   // THEME
-  if (t.id === 'themeBtn') { state.darkMode = !state.darkMode; applyTheme(); scheduleSave(); return; }
+  if (t.id === 'themeBtn') {
+    const themes = ['dark','light','c64','amiga'];
+    const cur = state.theme || 'dark';
+    const next = themes[(themes.indexOf(cur) + 1) % themes.length];
+    state.theme = next;
+    applyTheme();
+    scheduleSave();
+    showToast(next.toUpperCase() + ' MODE', '');
+    return;
+  }
 
   // MONTH
   if (t.id === 'newMonthBtn') {
