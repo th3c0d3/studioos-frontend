@@ -302,7 +302,28 @@ input,select{font-family:var(--font)}
 .co-confirm-btn{background:linear-gradient(135deg,var(--gold3),#1a1500);border:2px solid var(--gold2);color:var(--gold);padding:9px 20px;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .2s}
 .co-confirm-btn:disabled{opacity:.3;cursor:not-allowed;border-color:var(--border);color:var(--text3)}
 .co-confirm-btn:not(:disabled):hover{background:var(--gold2);color:#000}
-.co-empty{font-size:11px;color:var(--text3);letter-spacing:2px;text-align:center;padding:16px;}
+.search-filter{font-size:9px;letter-spacing:1px;padding:3px 9px;white-space:nowrap}
+.search-filter.active-filter{border-color:var(--accent);color:var(--accent);background:rgba(57,255,122,.07)}
+.search-group-label{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);padding:8px 16px 4px;display:flex;align-items:center;gap:5px}
+.search-group-label::before{content:'';width:2px;height:9px;display:block}
+.sg-music::before{background:var(--green)}
+.sg-app::before{background:var(--blue)}
+.sg-note::before{background:var(--purple)}
+.sg-book::before,.sg-archive::before,.sg-history::before{background:var(--gold)}
+.search-result{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;transition:background .15s;border-left:2px solid transparent}
+.search-result:hover{background:var(--bg3);border-left-color:var(--accent)}
+.sr-icon{width:20px;height:20px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.sr-music{background:rgba(57,255,122,.1);color:var(--green);border:1px solid rgba(57,255,122,.2)}
+.sr-app{background:rgba(0,207,255,.1);color:var(--blue);border:1px solid rgba(0,207,255,.2)}
+.sr-note{background:rgba(176,96,255,.1);color:var(--purple);border:1px solid rgba(176,96,255,.2)}
+.sr-book,.sr-archive,.sr-history{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.2)}
+.sr-body{flex:1;min-width:0}
+.sr-title{font-size:12px;color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sr-title mark{background:rgba(57,255,122,.2);color:var(--green);border-radius:1px;padding:0 1px}
+.sr-sub{font-size:10px;color:var(--text3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sr-sub mark{background:rgba(57,255,122,.1);color:var(--green);border-radius:1px;padding:0 1px}
+.sr-pct{font-family:var(--mono);font-size:10px;color:var(--text2);flex-shrink:0}
+.sr-empty{padding:36px 16px;text-align:center;color:var(--text3);font-size:11px;letter-spacing:2px}
 
 /* ── PREFLIGHT MODAL ──────────────────────────────────────── */
 .preflight-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -527,6 +548,7 @@ body.amiga .archive-tab.active{color:#664400;border-bottom-color:#664400}
       <span class="user-badge" id="user-badge">guest</span>
       <span><span class="sync-dot" id="sync-dot"></span></span>
       <button class="topbar-btn cal-toggle" id="calToggleBtn">📅 CAL</button>
+      <button class="topbar-btn" id="searchBtn" title="Search (/)">⌕</button>
       <button class="topbar-btn" id="themeBtn">◐</button>
       <button class="topbar-btn" id="logoutBtn">EXIT</button>
     </div>
@@ -710,6 +732,33 @@ body.amiga .archive-tab.active{color:#664400;border-bottom-color:#664400}
 
   </div><!-- end app-wrapper -->
 </div><!-- end dashboard -->
+
+<!-- ── SEARCH MODAL ──────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="searchModal" style="align-items:flex-start;padding-top:60px">
+  <div class="modal-box" style="max-width:560px;border-color:var(--border2)">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border)">
+      <span style="color:var(--text3);font-size:16px;flex-shrink:0">⌕</span>
+      <input id="searchInput" style="flex:1;background:transparent;border:none;color:var(--text);font-size:14px;outline:none;font-family:var(--mono);letter-spacing:.5px" placeholder="Search tracks, projects, notes, books..."/>
+      <span style="font-size:9px;color:var(--text3);border:1px solid var(--border);border-radius:2px;padding:2px 6px;letter-spacing:1px;cursor:pointer" id="searchClose">ESC</span>
+    </div>
+    <div style="display:flex;gap:4px;padding:7px 10px;border-bottom:1px solid var(--border);overflow-x:auto;flex-wrap:nowrap" id="searchFilters">
+      <button class="topbar-btn search-filter active-filter" data-filter="all">All</button>
+      <button class="topbar-btn search-filter" data-filter="music" style="color:var(--green)">Music</button>
+      <button class="topbar-btn search-filter" data-filter="app" style="color:var(--blue)">App Dev</button>
+      <button class="topbar-btn search-filter" data-filter="note" style="color:var(--purple)">Notes</button>
+      <button class="topbar-btn search-filter" data-filter="book" style="color:var(--gold)">Books</button>
+      <button class="topbar-btn search-filter" data-filter="archive" style="color:var(--gold)">Hall of Fame</button>
+      <button class="topbar-btn search-filter" data-filter="history" style="color:var(--text3)">History</button>
+    </div>
+    <div id="searchResults" style="max-height:360px;overflow-y:auto"></div>
+    <div style="padding:7px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:9px;color:var(--text3);letter-spacing:1px;display:flex;gap:10px">
+        <span>↵ go to tab</span><span>ESC close</span><span>/ open</span>
+      </div>
+      <div style="font-size:9px;color:var(--text3);letter-spacing:1px" id="searchCount"></div>
+    </div>
+  </div>
+</div>
 
 <!-- ── TOAST ─────────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
@@ -2104,6 +2153,158 @@ document.addEventListener('click', e => {
   if (e.target.id === 'calConnectBtn')    { connectGoogleCalendar(); return; }
   if (e.target.id === 'calDisconnectBtn') { disconnectGoogleCalendar(); return; }
   if (e.target.id === 'calRefreshBtn')    { loadCalendarEvents(); return; }
+});
+
+// ── GLOBAL SEARCH ─────────────────────────────────────────────────────────────
+let searchFilter = 'all';
+
+function openSearch() {
+  document.getElementById('searchModal').classList.remove('hidden');
+  const inp = document.getElementById('searchInput');
+  inp.value = '';
+  inp.focus();
+  runSearch('');
+}
+
+function closeSearch() {
+  document.getElementById('searchModal').classList.add('hidden');
+}
+
+function highlight(text, q) {
+  if (!q) return text;
+  const i = text.toLowerCase().indexOf(q.toLowerCase());
+  if (i < 0) return text;
+  return text.slice(0,i) + '<mark>' + text.slice(i, i+q.length) + '</mark>' + text.slice(i+q.length);
+}
+
+function buildSearchIndex() {
+  const items = [];
+  const q = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+
+  // Songs
+  state.songs.filter(s => !s.is_archived).forEach(s => {
+    items.push({ type:'music', tab:'music', title:s.title, sub:`${calcPct(s.steps)}% · ${s.trackType||'Original'}`, pct:calcPct(s.steps)+'%' });
+    (s.notes||[]).forEach(n => items.push({ type:'note', tab:'music', title:n.text, sub:`Note on: ${s.title} · ${n.date}`, pct:'' }));
+  });
+  // Apps
+  state.apps.filter(a => !a.is_archived).forEach(a => {
+    items.push({ type:'app', tab:'appdev', title:a.title, sub:`${calcPct(a.steps)}% · Sprint board`, pct:calcPct(a.steps)+'%' });
+    (a.notes||[]).forEach(n => items.push({ type:'note', tab:'appdev', title:n.text, sub:`Note on: ${a.title} · ${n.date}`, pct:'' }));
+  });
+  // Books
+  state.books.forEach(b => {
+    const pct = Math.round(b.currentPage/b.totalPages*100);
+    items.push({ type:'book', tab:'reading', title:b.title, sub:`Page ${b.currentPage} / ${b.totalPages} · ${pct}%`, pct:pct+'%' });
+  });
+  // Hall of Fame
+  (state.archived||[]).forEach(p => {
+    items.push({ type:'archive', tab:'archive', title:p.title, sub:`Archived · ${p.type==='music'?'Music':'App Dev'}`, pct:'100%' });
+  });
+  // History (localStorage snapshots)
+  if (searchFilter === 'history' || searchFilter === 'all') {
+    try {
+      const snaps = JSON.parse(localStorage.getItem('studioos_snapshots') || '{}');
+      Object.entries(snaps).forEach(([month, snap]) => {
+        const songs = snap.songs || snap.snapshot_json?.songs || [];
+        const apps  = snap.apps  || snap.snapshot_json?.apps  || [];
+        const books = snap.books || snap.snapshot_json?.books || [];
+        songs.forEach(s => items.push({ type:'history', tab:null, title:s.title, sub:`${month} · Music track`, pct:'' }));
+        apps.forEach(a  => items.push({ type:'history', tab:null, title:a.title, sub:`${month} · App project`, pct:'' }));
+        books.forEach(b => items.push({ type:'history', tab:null, title:b.title, sub:`${month} · Book`, pct:'' }));
+      });
+    } catch(e) {}
+  }
+  return items;
+}
+
+function runSearch(q) {
+  const query = q.trim().toLowerCase();
+  const all   = buildSearchIndex();
+  const filtered = all.filter(item => {
+    const matchFilter = searchFilter === 'all' || item.type === searchFilter;
+    const matchQuery  = !query || item.title.toLowerCase().includes(query) || item.sub.toLowerCase().includes(query);
+    return matchFilter && matchQuery;
+  });
+
+  const results = document.getElementById('searchResults');
+  const count   = document.getElementById('searchCount');
+
+  if (!filtered.length) {
+    results.innerHTML = `<div class="sr-empty">NO RESULTS${query ? ' FOR "' + query.toUpperCase() + '"' : ''}</div>`;
+    count.textContent = '0 results';
+    return;
+  }
+
+  const order = ['music','app','note','book','archive','history'];
+  const labels = {music:'MUSIC TRACKS', app:'APP PROJECTS', note:'NOTES', book:'READING', archive:'HALL OF FAME', history:'HISTORY'};
+  const icons  = {music:'♪', app:'⚡', note:'✎', book:'◻', archive:'✦', history:'◈'};
+  const groups = {};
+  filtered.forEach(item => { if (!groups[item.type]) groups[item.type] = []; groups[item.type].push(item); });
+
+  let html = '';
+  order.forEach(type => {
+    if (!groups[type]) return;
+    html += `<div class="search-group-label sg-${type}">${labels[type]} <span style="color:var(--text3);font-size:8px;margin-left:4px">${groups[type].length}</span></div>`;
+    groups[type].forEach(item => {
+      const tabAttr = item.tab ? `data-srctab="${item.tab}"` : '';
+      html += `<div class="search-result" ${tabAttr}>
+        <div class="sr-icon sr-${type}">${icons[type]}</div>
+        <div class="sr-body">
+          <div class="sr-title">${highlight(item.title, q)}</div>
+          <div class="sr-sub">${highlight(item.sub, q)}</div>
+        </div>
+        ${item.pct ? `<div class="sr-pct">${item.pct}</div>` : ''}
+      </div>`;
+    });
+  });
+
+  results.innerHTML = html;
+  count.textContent = filtered.length + ' result' + (filtered.length !== 1 ? 's' : '');
+}
+
+// Search event wiring — done after DOM ready via delegation
+document.addEventListener('input', e => {
+  if (e.target.id === 'searchInput') runSearch(e.target.value);
+});
+
+document.addEventListener('click', e => {
+  // Search button
+  if (e.target.id === 'searchBtn') { openSearch(); return; }
+  if (e.target.id === 'searchClose') { closeSearch(); return; }
+  // Click outside modal
+  if (e.target.id === 'searchModal') { closeSearch(); return; }
+  // Filter buttons
+  const filterBtn = e.target.closest('.search-filter');
+  if (filterBtn && document.getElementById('searchModal') && !document.getElementById('searchModal').classList.contains('hidden')) {
+    document.querySelectorAll('.search-filter').forEach(b => b.classList.remove('active-filter'));
+    filterBtn.classList.add('active-filter');
+    searchFilter = filterBtn.dataset.filter;
+    runSearch(document.getElementById('searchInput').value);
+    return;
+  }
+  // Click result — jump to tab
+  const resultRow = e.target.closest('.search-result[data-srctab]');
+  if (resultRow) {
+    const tab = resultRow.dataset.srctab;
+    closeSearch();
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    document.querySelectorAll('.main').forEach(m => m.classList.toggle('visible', m.id === 'tab-' + tab));
+    return;
+  }
+});
+
+// / key to open search
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    openSearch();
+    return;
+  }
+  if (e.key === 'Escape') {
+    if (!document.getElementById('searchModal').classList.contains('hidden')) {
+      closeSearch(); return;
+    }
+  }
 });
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
