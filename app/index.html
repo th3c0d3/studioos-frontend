@@ -131,6 +131,23 @@ input,select{font-family:var(--font)}
 .cat-appdev{background:var(--blue3);color:var(--blue);border:1px solid var(--blue2)}
 .cat-original{background:rgba(57,255,122,.1);color:var(--green);border:1px solid rgba(57,255,122,.3)}
 .cat-cover{background:rgba(176,96,255,.1);color:var(--purple);border:1px solid rgba(176,96,255,.3)}
+.meta-row{display:flex;align-items:center;gap:5px;padding:5px 12px 7px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.meta-pill{display:inline-flex;align-items:center;gap:3px;background:var(--bg4);border:1px solid var(--border2);border-radius:2px;padding:2px 8px;font-size:9px;color:var(--text3);cursor:pointer;transition:all .2s;white-space:nowrap;font-family:var(--mono)}
+.meta-pill:hover{border-color:var(--green2);color:var(--green)}
+.meta-pill.mp-set{border-color:rgba(57,255,122,.3);color:var(--green);background:rgba(57,255,122,.05)}
+.meta-lbl{font-size:8px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-right:1px}
+.meta-val{font-weight:700;letter-spacing:1px}
+.meta-sep{width:1px;height:12px;background:var(--border2)}
+.meta-sel{background:transparent;border:none;color:var(--text2);font-size:9px;font-weight:700;font-family:var(--mono);outline:none;cursor:pointer;letter-spacing:1px;padding:0}
+.meta-inp{background:transparent;border:none;color:var(--green);font-size:9px;font-weight:700;font-family:var(--mono);outline:none;width:32px;letter-spacing:1px}
+.lyrics-btn{background:transparent;border:1px solid var(--border);color:var(--text3);padding:2px 7px;font-size:9px;letter-spacing:1px;border-radius:2px;cursor:pointer;transition:all .2s;font-family:var(--font);text-transform:uppercase;white-space:nowrap}
+.lyrics-btn:hover{border-color:rgba(176,96,255,.4);color:var(--purple)}
+.lyrics-btn.lyrics-open{border-color:rgba(176,96,255,.4);color:var(--purple);background:rgba(176,96,255,.06)}
+.lyrics-panel{border-top:1px solid var(--border);background:var(--bg);padding:10px 12px}
+.lyrics-panel-hdr{font-size:8px;letter-spacing:3px;color:var(--purple);text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between}
+.lyrics-ta{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:9px 10px;font-size:12px;line-height:1.9;letter-spacing:.3px;border-radius:3px;outline:none;font-family:var(--font);resize:vertical;min-height:80px;transition:border-color .2s}
+.lyrics-ta:focus{border-color:rgba(176,96,255,.5);color:var(--text)}
+.lyrics-stats{display:flex;gap:10px;margin-top:5px;font-size:9px;color:var(--text3);letter-spacing:1px;font-family:var(--mono)}
 .track-pct{font-family:var(--mono);font-size:11px;color:var(--text2);min-width:32px;text-align:right;flex-shrink:0}
 .track-toggle{color:var(--text3);font-size:11px;transition:transform .2s;flex-shrink:0}
 .track-toggle.open{transform:rotate(180deg)}
@@ -692,8 +709,11 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
     <div id="add-track-form" style="display:none">
       <div class="add-form"><div class="add-row">
         <div class="field"><div class="field-lbl">Title</div><input class="daw-input" id="newTitle" placeholder="Track Name..."></div>
+        <div class="field" style="max-width:70px"><div class="field-lbl">BPM</div><input class="daw-input" id="newBpm" type="number" min="40" max="300" placeholder="120"></div>
+        <div class="field" style="max-width:90px"><div class="field-lbl">Key</div><select class="daw-select" id="newKey"><option value="">— Key —</option><option>C maj</option><option>C min</option><option>C# maj</option><option>C# min</option><option>D maj</option><option>D min</option><option>Eb maj</option><option>Eb min</option><option>E maj</option><option>E min</option><option>F maj</option><option>F min</option><option>F# maj</option><option>F# min</option><option>G maj</option><option>G min</option><option>Ab maj</option><option>Ab min</option><option>A maj</option><option selected>A min</option><option>Bb maj</option><option>Bb min</option><option>B maj</option><option>B min</option></select></div>
         <div class="field" style="max-width:130px"><div class="field-lbl">Type</div><select class="daw-select" id="newType"><option value="Original">Original</option><option value="Cover">Cover</option></select></div>
-        <div class="field" style="max-width:90px"><div class="field-lbl">Steps</div><input class="daw-input" id="newSegs" type="number" min="1" max="20" value="11"></div>
+        <div class="field" style="max-width:110px"><div class="field-lbl">Song Type</div><select class="daw-select" id="newSongType"><option value="With Lyrics">With Lyrics</option><option value="Instrumental">Instrumental</option><option value="Partial Lyrics">Partial Lyrics</option><option value="Melody Only">Melody Only</option></select></div>
+        <div class="field" style="max-width:80px"><div class="field-lbl">Steps</div><input class="daw-input" id="newSegs" type="number" min="1" max="20" value="11"></div>
         <button class="btn-green" id="confirmAdd">ADD</button>
         <button class="btn-ghost" id="cancelAdd">✕</button>
       </div></div>
@@ -1020,7 +1040,13 @@ async function loadFromServer() {
       }
       // Migrate existing songs missing trackType
       if (parsed.songs) {
-        parsed.songs.forEach(s => { if (!s.trackType) s.trackType = 'Original'; });
+        parsed.songs.forEach(s => {
+          if (!s.trackType) s.trackType = 'Original';
+          if (!s.songType)  s.songType  = 'With Lyrics';
+          if (s.bpm   === undefined) s.bpm   = '';
+          if (s.key   === undefined) s.key   = '';
+          if (s.lyrics === undefined) s.lyrics = '';
+        });
       }
       state = parsed;
     } catch(e) {} }
@@ -1037,7 +1063,13 @@ async function loadFromServer() {
       }
       // Migrate existing songs missing trackType
       if (serverState.songs) {
-        serverState.songs.forEach(s => { if (!s.trackType) s.trackType = 'Original'; });
+        serverState.songs.forEach(s => {
+          if (!s.trackType) s.trackType = 'Original';
+          if (!s.songType)  s.songType  = 'With Lyrics';
+          if (s.bpm    === undefined) s.bpm    = '';
+          if (s.key    === undefined) s.key    = '';
+          if (s.lyrics === undefined) s.lyrics = '';
+        });
       }
       state = serverState;
     }
@@ -1325,6 +1357,21 @@ function renderTracks() {
     const noteBtnClass = noteCount > 0 ? 'note-btn has-note' : 'note-btn';
     const noteBtnLabel = noteCount > 0 ? `✎ ${noteCount} note${noteCount>1?'s':''}` : '✎ notes';
     const doneCount = notes.filter(n => n.done).length;
+    // Meta row
+    const hasBpm = !!song.bpm; const hasKey = !!(song.key && song.key !== '');
+    const songTypeVal = song.songType || 'With Lyrics';
+    const metaRowHTML = `<div class="meta-row">
+      <div class="meta-pill ${hasBpm?'mp-set':''}" data-editbpm="${song.id}"><span class="meta-lbl">BPM</span><span class="meta-val">${song.bpm||'—'}</span></div>
+      <div class="meta-sep"></div>
+      <div class="meta-pill ${hasKey?'mp-set':''}" data-editkey="${song.id}"><span class="meta-lbl">KEY</span><span class="meta-val">${song.key||'—'}</span></div>
+      <div class="meta-sep"></div>
+      <div class="meta-pill" style="padding:2px 4px 2px 8px"><span class="meta-lbl">TYPE</span><select class="meta-sel" data-songtype="${song.id}"><option ${songTypeVal==='With Lyrics'?'selected':''}>With Lyrics</option><option ${songTypeVal==='Instrumental'?'selected':''}>Instrumental</option><option ${songTypeVal==='Partial Lyrics'?'selected':''}>Partial Lyrics</option><option ${songTypeVal==='Melody Only'?'selected':''}>Melody Only</option></select></div>
+      <div style="flex:1"></div>
+      <button class="lyrics-btn ${song.lyricsOpen?'lyrics-open':''}" data-togglelyrics="${song.id}">♪ lyrics${song.lyricsOpen?' ▲':''}</button>
+    </div>`;
+    const lyricsWords = song.lyrics ? song.lyrics.trim().split(/\s+/).filter(w=>w.length>0).length : 0;
+    const lyricsLines = song.lyrics ? song.lyrics.split('\n').filter(l=>l.trim().length>0).length : 0;
+    const lyricsPanel = song.lyricsOpen ? `<div class="lyrics-panel"><div class="lyrics-panel-hdr"><span>♪ Lyrics / Words</span><span style="font-size:8px;color:var(--text3);letter-spacing:1px">${lyricsWords} words · ${lyricsLines} lines</span></div><textarea class="lyrics-ta" id="lta-${song.id}" placeholder="Write lyrics, ideas, concepts..." oninput="updateLyrics(${song.id},this.value)">${song.lyrics||''}</textarea></div>` : '';
     const notesHTML = song.notesOpen ? `
       <div class="notes-panel">
         <div class="notes-panel-hdr">
@@ -1358,8 +1405,10 @@ function renderTracks() {
         <button class="del-btn" data-id="${song.id}" data-action="del-song">✕</button>
         <div class="track-toggle ${song.expanded?'open':''}">▼</div>
       </div>
+      ${metaRowHTML}
       <div class="deadline-drop-zone">⬇ drop calendar event to set deadline</div>
       ${notesHTML}
+      ${lyricsPanel}
       ${song.expanded ? `<div class="meter-wrap"><div class="meter-label" style="display:flex;align-items:center;justify-content:space-between"><span>STEP SEQUENCER — ${pct}% COMPLETE</span><button class="btn-ghost" style="font-size:8px;padding:2px 8px;letter-spacing:1px" data-resetsteps="${song.id}" data-resettype="song">↺ RESET STEPS</button></div><div class="seg-bar">${segs}</div><div class="seg-names">${names}</div></div>` : ''}
     </div>`;
   }).join('');
@@ -1834,6 +1883,50 @@ document.addEventListener('click', e => {
   // DELETE SONG
   if (t.dataset.action === 'del-song') { state.songs = state.songs.filter(x => x.id !== +t.dataset.id); scheduleSave(); renderTracks(); return; }
 
+  // META ROW — toggle lyrics panel
+  if (t.dataset.togglelyrics) {
+    e.stopPropagation();
+    const id = +t.dataset.togglelyrics;
+    const s = state.songs.find(x => x.id === id);
+    if (s) { s.lyricsOpen = !s.lyricsOpen; renderTracks(); }
+    return;
+  }
+
+  // META ROW — edit BPM inline
+  if (t.dataset.editbpm) {
+    e.stopPropagation();
+    const id = +t.dataset.editbpm;
+    const s = state.songs.find(x => x.id === id);
+    if (!s) return;
+    const valEl = t.querySelector('.meta-val');
+    const inp = document.createElement('input');
+    inp.className = 'meta-inp'; inp.type = 'number'; inp.value = s.bpm || '';
+    inp.placeholder = '120'; inp.style.width = '36px';
+    valEl.replaceWith(inp); inp.focus(); inp.select();
+    const commit = () => { s.bpm = inp.value.trim(); scheduleSave(); renderTracks(); };
+    inp.addEventListener('blur', commit);
+    inp.addEventListener('keydown', e => { if(e.key==='Enter'||e.key==='Escape') inp.blur(); });
+    return;
+  }
+
+  // META ROW — edit Key inline
+  if (t.dataset.editkey) {
+    e.stopPropagation();
+    const id = +t.dataset.editkey;
+    const s = state.songs.find(x => x.id === id);
+    if (!s) return;
+    const valEl = t.querySelector('.meta-val');
+    const KEYS = ['','C maj','C min','C# maj','C# min','D maj','D min','Eb maj','Eb min','E maj','E min','F maj','F min','F# maj','F# min','G maj','G min','Ab maj','Ab min','A maj','A min','Bb maj','Bb min','B maj','B min'];
+    const sel = document.createElement('select');
+    sel.className = 'meta-sel'; sel.style.color = 'var(--green)';
+    KEYS.forEach(k => { const o = document.createElement('option'); o.value=k; o.textContent=k||'— Key —'; if(k===(s.key||'')) o.selected=true; sel.appendChild(o); });
+    valEl.replaceWith(sel); sel.focus();
+    const commit = () => { s.key = sel.value; scheduleSave(); renderTracks(); };
+    sel.addEventListener('blur', commit);
+    sel.addEventListener('change', commit);
+    return;
+  }
+
   // NOTES — add note
   if (t.dataset.addnote) {
     const id = +t.dataset.addnote, type = t.dataset.tracktype;
@@ -1953,12 +2046,16 @@ document.addEventListener('click', e => {
   if (t.id === 'addTrackBtn') { document.getElementById('add-track-form').style.display = 'block'; t.style.display = 'none'; return; }
   if (t.id === 'cancelAdd') { document.getElementById('add-track-form').style.display = 'none'; document.getElementById('addTrackBtn').style.display = ''; return; }
   if (t.id === 'confirmAdd') {
-    const title = document.getElementById('newTitle').value.trim() || 'New Track';
+    const title    = document.getElementById('newTitle').value.trim() || 'New Track';
     const trackType = document.getElementById('newType').value;
+    const songType  = document.getElementById('newSongType').value;
+    const bpm       = document.getElementById('newBpm').value.trim();
+    const key       = document.getElementById('newKey').value;
     const segs = Math.max(1, Math.min(20, +document.getElementById('newSegs').value || 11));
     const names = MUSIC_STEPS.slice(0, segs);
-    state.songs.push({ id: state.nextId++, title, trackType, category: 'Music', expanded: true, startDate: Date.now(), steps: Array.from({length:segs}, (_,i) => ({name:names[i]||'Step '+(i+1), status:i===0?'active':'pending'})) });
+    state.songs.push({ id: state.nextId++, title, trackType, songType, bpm, key, expanded: true, startDate: Date.now(), steps: Array.from({length:segs}, (_,i) => ({name:names[i]||'Step '+(i+1), status:i===0?'active':'pending'})) });
     document.getElementById('newTitle').value = '';
+    document.getElementById('newBpm').value = '';
     document.getElementById('add-track-form').style.display = 'none';
     document.getElementById('addTrackBtn').style.display = '';
     scheduleSave(); renderTracks(); return;
@@ -2033,6 +2130,20 @@ document.addEventListener('input', e => {
     if (book) { book.currentPage = +t.value; document.getElementById('sv-' + id).textContent = t.value; scheduleSave(); renderReadingStats(); }
   }
   if (t.id === 'fitTarget') { state.fitness.target = +t.value; document.getElementById('fitTargetVal').textContent = t.value; scheduleSave(); renderFitnessStats(); }
+
+  // SongType select change
+  if (t.dataset.songtype) {
+    const id = +t.dataset.songtype;
+    const s = state.songs.find(x => x.id === id);
+    if (s) { s.songType = t.value; scheduleSave(); renderTracks(); }
+  }
+
+  // Lyrics textarea
+  if (t.id && t.id.startsWith('lta-')) {
+    const id = +t.id.replace('lta-','');
+    const s = state.songs.find(x => x.id === id);
+    if (s) { s.lyrics = t.value; scheduleSave(); }
+  }
 });
 
 // ENTER KEY on login
@@ -2247,6 +2358,15 @@ function formatEventTime(start) {
 
 function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function updateLyrics(id, val) {
+  const s = state.songs.find(x => x.id === id);
+  if (s) { s.lyrics = val; scheduleSave(); }
+  const words = val.trim().split(/\s+/).filter(w=>w.length>0).length;
+  const lines  = val.split('\n').filter(l=>l.trim().length>0).length;
+  const hdr = document.querySelector(`#lta-${id}`)?.previousElementSibling?.querySelector('span:last-child');
+  if (hdr) hdr.textContent = words + ' words · ' + lines + ' lines';
 }
 
 // ── INLINE RENAME ────────────────────────────────────────────────────────────
