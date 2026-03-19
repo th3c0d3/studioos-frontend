@@ -303,6 +303,37 @@ input,select{font-family:var(--font)}
 .co-confirm-btn:disabled{opacity:.3;cursor:not-allowed;border-color:var(--border);color:var(--text3)}
 .co-confirm-btn:not(:disabled):hover{background:var(--gold2);color:#000}
 .search-filter{font-size:9px;letter-spacing:1px;padding:3px 9px;white-space:nowrap}
+.focus-list-item{padding:10px 12px;cursor:pointer;border-left:2px solid transparent;transition:all .2s;border-bottom:1px solid #111113}
+.focus-list-item:hover{background:#111113}
+.focus-list-item.fli-active{border-left-color:var(--green);background:#111113}
+.focus-list-item.fli-active .fli-name{color:var(--text)}
+.fli-name{font-size:11px;color:var(--text3);font-weight:600;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.5px}
+.fli-minibar{display:flex;gap:1px;margin-bottom:3px}
+.fli-seg{flex:1;height:3px;border-radius:1px}
+.fli-pct{font-size:9px;color:var(--text3);font-family:var(--mono)}
+.focus-track-hdr{padding:20px 24px 14px;border-bottom:1px solid #1a1a1e;flex-shrink:0}
+.focus-track-num{font-size:9px;color:var(--text3);letter-spacing:3px;margin-bottom:4px;text-transform:uppercase}
+.focus-track-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:1px;margin-bottom:8px}
+.focus-meta-row{display:flex;align-items:center;gap:8px}
+.focus-pct-big{font-size:28px;font-weight:700;font-family:var(--mono);margin-left:auto}
+.focus-seg-area{padding:16px 24px;border-bottom:1px solid #1a1a1e;flex-shrink:0}
+.focus-seg-lbl{font-size:8px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.focus-seg-bar{display:flex;gap:4px;margin-bottom:8px}
+.focus-seg{flex:1;height:28px;border-radius:3px;cursor:pointer;transition:all .15s;border:1px solid rgba(0,0,0,.3)}
+.focus-seg:hover{filter:brightness(1.2);transform:scaleY(1.04)}
+.focus-seg.pending{opacity:.2}
+.focus-seg.active{animation:pulse-seg 1s infinite}
+.focus-seg.s-green{background:var(--green)}
+.focus-seg.s-yellow{background:var(--yellow)}
+.focus-seg.s-orange{background:var(--orange)}
+.focus-seg.s-red{background:var(--red)}
+.focus-seg.s-blue{background:var(--blue)}
+.focus-seg.s-purple{background:var(--purple)}
+.focus-seg-names{display:flex;gap:4px}
+.focus-seg-name{flex:1;font-size:9px;font-weight:700;color:var(--text3);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.focus-notes-area{flex:1;overflow-y:auto;padding:14px 24px}
+.focus-notes-hdr{font-size:8px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.focus-note-input-row{padding:10px 24px 14px;border-top:1px solid #1a1a1e;display:flex;gap:6px;flex-shrink:0}
 .search-filter.active-filter{border-color:var(--accent);color:var(--accent);background:rgba(57,255,122,.07)}
 .search-group-label{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);padding:8px 16px 4px;display:flex;align-items:center;gap:5px}
 .search-group-label::before{content:'';width:2px;height:9px;display:block}
@@ -574,7 +605,7 @@ body.amiga .archive-tab.active{color:#664400;border-bottom-color:#664400}
 
   <div class="main visible" id="tab-music">
     <div class="stats-row" id="music-stats"></div>
-    <div class="sec-header"><div class="sec-title">Track Sessions</div><button class="btn-ghost" id="addTrackBtn">+ NEW TRACK</button></div>
+    <div class="sec-header"><div class="sec-title">Track Sessions</div><div style="display:flex;gap:6px"><button class="btn-ghost" id="focusMusicBtn">⊙ FOCUS</button><button class="btn-ghost" id="addTrackBtn">+ NEW TRACK</button></div></div>
     <div id="add-track-form" style="display:none">
       <div class="add-form"><div class="add-row">
         <div class="field"><div class="field-lbl">Title</div><input class="daw-input" id="newTitle" placeholder="Track Name..."></div>
@@ -589,7 +620,7 @@ body.amiga .archive-tab.active{color:#664400;border-bottom-color:#664400}
 
   <div class="main" id="tab-appdev">
     <div class="stats-row" id="appdev-stats"></div>
-    <div class="sec-header"><div class="sec-title">App Projects</div><button class="btn-ghost" id="addAppBtn">+ NEW PROJECT</button></div>
+    <div class="sec-header"><div class="sec-title">App Projects</div><div style="display:flex;gap:6px"><button class="btn-ghost" id="focusAppBtn">⊙ FOCUS</button><button class="btn-ghost" id="addAppBtn">+ NEW PROJECT</button></div></div>
     <div id="add-app-form" style="display:none">
       <div class="add-form"><div class="add-row">
         <div class="field"><div class="field-lbl">Project Name</div><input class="daw-input" id="newAppTitle" placeholder="Project Name..."></div>
@@ -732,6 +763,30 @@ body.amiga .archive-tab.active{color:#664400;border-bottom-color:#664400}
 
   </div><!-- end app-wrapper -->
 </div><!-- end dashboard -->
+
+<!-- ── FOCUS MODE ─────────────────────────────────────────── -->
+<div id="focusMode" style="display:none;position:fixed;inset:0;background:#0a0a0c;z-index:200;display:none;flex-direction:column">
+  <div style="background:#111113;border-bottom:1px solid #333340;padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:12px">
+      <svg width="80" height="24" viewBox="0 0 220 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#0d0d0f" stroke="#333340" stroke-width="1.5"/>
+        <path d="M32 4 A28 28 0 1 1 7.2 48.4" fill="none" stroke="#39ff7a" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="32" cy="32" r="13" fill="none" stroke="#1e1e24" stroke-width="1"/>
+        <circle cx="32" cy="32" r="2.5" fill="#39ff7a"/>
+        <text x="70" y="28" font-family="JetBrains Mono,monospace" font-size="20" font-weight="700" letter-spacing="3" fill="#e8e8f0">Studio</text>
+        <text x="70" y="50" font-family="JetBrains Mono,monospace" font-size="20" font-weight="700" letter-spacing="3" fill="#39ff7a">OS</text>
+      </svg>
+      <span style="font-size:9px;letter-spacing:3px;color:var(--green);background:rgba(57,255,122,.08);border:1px solid rgba(57,255,122,.2);padding:2px 8px;border-radius:2px">⊙ FOCUS MODE</span>
+    </div>
+    <button class="topbar-btn" id="exitFocusBtn" style="border-color:rgba(255,45,85,.3);color:#ff2d55">✕ EXIT FOCUS</button>
+  </div>
+  <div style="display:flex;flex:1;overflow:hidden">
+    <!-- sidebar -->
+    <div style="width:220px;border-right:1px solid #1a1a1e;background:#0d0d0f;overflow-y:auto;flex-shrink:0" id="focusSidebar"></div>
+    <!-- main -->
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden" id="focusMain"></div>
+  </div>
+</div>
 
 <!-- ── SEARCH MODAL ──────────────────────────────────────── -->
 <div class="modal-overlay hidden" id="searchModal" style="align-items:flex-start;padding-top:60px">
@@ -1634,6 +1689,10 @@ document.addEventListener('click', e => {
     return;
   }
 
+  if (t.id === 'focusMusicBtn') { openFocus('song'); return; }
+  if (t.id === 'focusAppBtn')   { openFocus('app');  return; }
+  if (t.id === 'exitFocusBtn')  { closeFocus(); return; }
+
   // RENAME button
   if (t.dataset.startren) {
     e.stopPropagation();
@@ -2153,6 +2212,199 @@ document.addEventListener('click', e => {
   if (e.target.id === 'calConnectBtn')    { connectGoogleCalendar(); return; }
   if (e.target.id === 'calDisconnectBtn') { disconnectGoogleCalendar(); return; }
   if (e.target.id === 'calRefreshBtn')    { loadCalendarEvents(); return; }
+});
+
+// ── FOCUS MODE ────────────────────────────────────────────────────────────────
+let focusType = null; // 'song' | 'app'
+let focusIdx  = 0;
+
+function openFocus(type) {
+  focusType = type;
+  focusIdx  = 0;
+  document.getElementById('focusMode').style.display = 'flex';
+  document.getElementById('dashboard').style.opacity = '0';
+  renderFocusSidebar();
+  renderFocusMain();
+}
+
+function closeFocus() {
+  document.getElementById('focusMode').style.display = 'none';
+  document.getElementById('dashboard').style.opacity = '1';
+  focusType = null;
+  renderTracks(); renderApps(); // refresh in case steps changed
+}
+
+function getFocusItems() {
+  return focusType === 'song'
+    ? state.songs.filter(s => !s.is_archived)
+    : state.apps.filter(a => !a.is_archived);
+}
+
+function focusSegColor(i, total, type) {
+  if (type === 'app') {
+    const p = (i+1)/total;
+    return p <= 0.5 ? 's-blue' : 's-purple';
+  }
+  return segCol(i, total);
+}
+
+function renderFocusSidebar() {
+  const items = getFocusItems();
+  const sidebar = document.getElementById('focusSidebar');
+  const label = focusType === 'song' ? 'MUSIC' : 'APP DEV';
+  const accentColor = focusType === 'song' ? 'var(--green)' : 'var(--blue)';
+
+  let html = `<div style="padding:10px 12px;font-size:8px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;border-bottom:1px solid #1a1a1e">${label} · ${items.length} item${items.length!==1?'s':''}</div>`;
+
+  items.forEach((item, i) => {
+    const pct = calcPct(item.steps);
+    const miniSegs = item.steps.map((s,si) => {
+      const col = focusType === 'app'
+        ? ((si+1)/item.steps.length <= 0.5 ? 'var(--blue)' : 'var(--purple)')
+        : (['var(--green)','var(--green)','var(--green)','var(--green)','var(--green)','var(--green)','var(--green)','var(--green)','var(--yellow)','var(--orange)','var(--red)'][Math.min(si,10)]);
+      const done = s.status === 'done';
+      return `<div class="fli-seg" style="background:${done?col:'#222228'};opacity:${done?1:.35}"></div>`;
+    }).join('');
+    html += `<div class="focus-list-item ${i===focusIdx?'fli-active':''}" onclick="focusSelectItem(${i})">
+      <div class="fli-name">${item.title}</div>
+      <div class="fli-minibar">${miniSegs}</div>
+      <div class="fli-pct" style="color:${pct===100?'var(--green)':pct>=70?'var(--yellow)':'var(--text3)'}">${pct}%</div>
+    </div>`;
+  });
+  sidebar.innerHTML = html;
+}
+
+function renderFocusMain() {
+  const items = getFocusItems();
+  if (!items.length) {
+    document.getElementById('focusMain').innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px;letter-spacing:3px">NO ITEMS TO FOCUS ON</div>`;
+    return;
+  }
+  const item = items[focusIdx];
+  const pct  = calcPct(item.steps);
+  const is100 = pct === 100;
+  const accentColor = is100 ? 'var(--green)' : focusType === 'app' ? 'var(--blue)' : 'var(--text)';
+  const total = items.length;
+  const notes = item.notes || [];
+  const doneNotes = notes.filter(n => n.done).length;
+
+  const segs = item.steps.map((s,i) => {
+    const col = focusSegColor(i, item.steps.length, focusType);
+    return `<div class="focus-seg ${col} ${s.status}" data-fidx="${i}" title="${s.name}"></div>`;
+  }).join('');
+  const segNames = item.steps.map(s => `<div class="focus-seg-name">${s.name}</div>`).join('');
+
+  const deadlineBadge = item.deadline ? deadlineBadgeHTML(item.deadline) : '';
+  const typeBadge = focusType === 'song'
+    ? `<span class="track-cat ${item.trackType==='Cover'?'cat-cover':'cat-original'}">${item.trackType||'ORIGINAL'}</span>`
+    : `<span class="track-cat cat-appdev">APP DEV</span>`;
+
+  const notesHTML = notes.map((n,i) => `
+    <div class="note-entry ${n.done?'note-done':''}" style="margin-bottom:4px;border-left-color:${n.done?'var(--border)':focusType==='app'?'var(--blue2)':'var(--green2)'}">
+      <div class="note-chk ${n.done?'chk-done':''}" data-focusnote="${i}"></div>
+      <div class="note-ts">${n.date}</div>
+      <div class="note-text">${n.text}</div>
+      <button class="note-del-btn" data-focusdel="${i}">✕</button>
+    </div>`).join('');
+
+  document.getElementById('focusMain').innerHTML = `
+    <div class="focus-track-hdr">
+      <div class="focus-track-num">TRACK ${String(focusIdx+1).padStart(2,'0')} OF ${String(total).padStart(2,'0')}</div>
+      <div class="focus-track-title">${item.title}</div>
+      <div class="focus-meta-row">
+        ${typeBadge}
+        ${deadlineBadge}
+        <span class="focus-pct-big" style="color:${accentColor}">${pct}%</span>
+      </div>
+    </div>
+    <div class="focus-seg-area">
+      <div class="focus-seg-lbl">${focusType==='song'?'Step Sequencer':'Sprint Board'}</div>
+      <div class="focus-seg-bar" id="focus-seg-bar">${segs}</div>
+      <div class="focus-seg-names">${segNames}</div>
+    </div>
+    <div class="focus-notes-area">
+      <div class="focus-notes-hdr">
+        <span>Notes</span>
+        ${notes.length ? `<span>${doneNotes} / ${notes.length} done</span>` : ''}
+      </div>
+      ${notesHTML || `<div style="font-size:11px;color:var(--text3);letter-spacing:1px">No notes yet</div>`}
+    </div>
+    <div class="focus-note-input-row">
+      <input class="note-text-input" id="focus-note-input" placeholder="Add a note..."/>
+      <button class="note-add-btn" id="focus-note-add" style="${focusType==='app'?'background:var(--blue3);border-color:var(--blue2);color:var(--blue)':''}">+ LOG</button>
+    </div>`;
+}
+
+function focusSelectItem(i) {
+  focusIdx = i;
+  renderFocusSidebar();
+  renderFocusMain();
+}
+
+// Focus mode segment clicks
+document.addEventListener('click', e => {
+  if (!focusType) return;
+
+  // Exit focus
+  const items = getFocusItems();
+  if (!items.length) return;
+  const item = items[focusIdx];
+
+  // Seg click
+  const seg = e.target.closest('[data-fidx]');
+  if (seg && document.getElementById('focus-seg-bar')?.contains(seg)) {
+    const idx = +seg.dataset.fidx;
+    const steps = item.steps;
+    const cur = steps[idx].status;
+    if (cur === 'done') {
+      steps[idx].status = 'pending';
+      const last = steps.map((s,i) => s.status==='done'?i:-1).filter(i=>i>=0).pop();
+      if (last !== undefined && last+1 < steps.length) steps[last+1].status = 'active';
+      else steps[0].status = 'active';
+    } else {
+      for (let i=0;i<=idx;i++) steps[i].status = 'done';
+      steps.forEach((s,i) => { if (i>idx && s.status==='active') s.status='pending'; });
+      if (idx+1 < steps.length) steps[idx+1].status = 'active';
+    }
+    scheduleSave(); renderFocusSidebar(); renderFocusMain(); return;
+  }
+
+  // Note toggle done
+  const noteChk = e.target.closest('[data-focusnote]');
+  if (noteChk) {
+    const i = +noteChk.dataset.focusnote;
+    if (item.notes?.[i] !== undefined) { item.notes[i].done = !item.notes[i].done; scheduleSave(); renderFocusMain(); renderFocusSidebar(); }
+    return;
+  }
+
+  // Note delete
+  const noteDel = e.target.closest('[data-focusdel]');
+  if (noteDel) {
+    const i = +noteDel.dataset.focusdel;
+    item.notes?.splice(i, 1);
+    scheduleSave(); renderFocusMain(); renderFocusSidebar(); return;
+  }
+
+  // Note add
+  if (e.target.id === 'focus-note-add') {
+    const inp = document.getElementById('focus-note-input');
+    const text = inp?.value.trim();
+    if (text) {
+      if (!item.notes) item.notes = [];
+      item.notes.push({ text, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}), done:false });
+      inp.value = '';
+      scheduleSave(); renderFocusMain(); renderFocusSidebar();
+    }
+    return;
+  }
+});
+
+// Focus note Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id === 'focus-note-input') {
+    document.getElementById('focus-note-add')?.click();
+  }
+  if (e.key === 'Escape' && focusType) { closeFocus(); }
 });
 
 // ── GLOBAL SEARCH ─────────────────────────────────────────────────────────────
