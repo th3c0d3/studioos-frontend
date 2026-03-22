@@ -2416,7 +2416,8 @@ document.addEventListener('click', e => {
     if (item?.notes?.[idx] !== undefined) {
       item.notes[idx].done = !item.notes[idx].done;
       scheduleSave();
-      type === 'song' ? renderTracks() : renderApps();
+      if (focusType) { renderFocusMain(); renderFocusSidebar(); }
+      else { type === 'song' ? renderTracks() : renderApps(); }
     }
     return;
   }
@@ -2425,7 +2426,12 @@ document.addEventListener('click', e => {
   if (t.dataset.noteid !== undefined && t.dataset.trackid) {
     const id = +t.dataset.trackid, idx = +t.dataset.noteid, type = t.dataset.tracktype;
     const item = type === 'song' ? state.songs.find(s => s.id === id) : state.apps.find(a => a.id === id);
-    if (item?.notes) { item.notes.splice(idx, 1); scheduleSave(); type === 'song' ? renderTracks() : renderApps(); }
+    if (item?.notes) {
+      item.notes.splice(idx, 1);
+      scheduleSave();
+      if (focusType) { renderFocusMain(); renderFocusSidebar(); }
+      else { type === 'song' ? renderTracks() : renderApps(); }
+    }
     return;
   }
   if (t.dataset.action === 'clear-deadline') {
@@ -3152,6 +3158,37 @@ document.addEventListener('click', e => {
     scheduleSave();
     if (calcPct(item.steps) === 100) celebrate(item.title);
     renderFocusSidebar(); renderFocusMain(); return;
+  }
+
+  // Note toggle done — inside focus mode
+  const noteRow = e.target.closest('[data-togglenote]');
+  if (noteRow && !e.target.dataset.noteid && !e.target.closest('.note-del-btn')) {
+    const ni   = +noteRow.dataset.togglenote;
+    const nid  = +noteRow.dataset.toggletrack;
+    const ntype = noteRow.dataset.toggletype;
+    const nitem = ntype === 'song' ? state.songs.find(s => s.id === nid) : state.apps.find(a => a.id === nid);
+    if (nitem?.notes?.[ni] !== undefined) {
+      nitem.notes[ni].done = !nitem.notes[ni].done;
+      scheduleSave();
+      renderFocusMain();
+      renderFocusSidebar();
+    }
+    return;
+  }
+
+  // Note delete — inside focus mode
+  if (e.target.dataset.noteid !== undefined && e.target.dataset.trackid) {
+    const ni   = +e.target.dataset.noteid;
+    const nid  = +e.target.dataset.trackid;
+    const ntype = e.target.dataset.tracktype;
+    const nitem = ntype === 'song' ? state.songs.find(s => s.id === nid) : state.apps.find(a => a.id === nid);
+    if (nitem?.notes) {
+      nitem.notes.splice(ni, 1);
+      scheduleSave();
+      renderFocusMain();
+      renderFocusSidebar();
+    }
+    return;
   }
 
   // Note add
