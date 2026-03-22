@@ -703,6 +703,9 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
 /* ── PLANNER TAB ──────────────────────────────────────────── */
 .planner-day-bar{background:var(--bg);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;flex-direction:column;gap:7px}
 /* view toggle bar */
+#tab-planner{padding:0}
+#tab-planner .planner-content{padding:10px 12px}
+#tab-planner .plan-week-view-inner{padding:10px 12px}
 .plan-view-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 12px;display:flex;align-items:center;justify-content:space-between}
 .plan-vt{display:flex;gap:0;background:var(--bg);border:1px solid var(--border);border-radius:3px;overflow:hidden}
 .plan-vt-btn{padding:4px 14px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;color:var(--text3);transition:all .2s;border:none;background:transparent;font-family:var(--font)}
@@ -1069,7 +1072,7 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
 
     <!-- Week view -->
     <div id="plan-week-view" style="display:none">
-      <div style="padding:10px 12px">
+      <div class="plan-week-view-inner">
         <div class="plan-week-grid" id="plan-week-grid"></div>
         <div id="plan-day-detail-panel"></div>
       </div>
@@ -4163,11 +4166,16 @@ const PWEEK_MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct',
 
 function pSetView(v) {
   const isDayView = v === 'day';
-  document.getElementById('plan-day-view').style.display   = isDayView ? 'block' : 'none';
-  document.getElementById('plan-week-view').style.display  = isDayView ? 'none'  : 'block';
-  document.getElementById('plan-week-nav-bar').style.display = isDayView ? 'none' : 'flex';
-  document.getElementById('pvt-day').classList.toggle('pvon', isDayView);
-  document.getElementById('pvt-week').classList.toggle('pvon', !isDayView);
+  const dayEl  = document.getElementById('plan-day-view');
+  const weekEl = document.getElementById('plan-week-view');
+  const navBar = document.getElementById('plan-week-nav-bar');
+  const btnDay  = document.getElementById('pvt-day');
+  const btnWeek = document.getElementById('pvt-week');
+  if (dayEl)  dayEl.style.display  = isDayView ? 'block' : 'none';
+  if (weekEl) weekEl.style.display = isDayView ? 'none'  : 'block';
+  if (navBar) navBar.style.display = isDayView ? 'none'  : 'flex';
+  if (btnDay)  btnDay.classList.toggle('pvon', isDayView);
+  if (btnWeek) btnWeek.classList.toggle('pvon', !isDayView);
   if (!isDayView) { planExpandedDay = null; pRenderWeekGrid(); }
   else { pUpdateDayUI(); }
 }
@@ -4297,6 +4305,7 @@ function pRenderDayDetail(off) {
 }
 
 function pGoToDay(off) {
+  // clamp to yesterday/today/tomorrow — the only editable range
   plannerDayOffset = Math.max(-1, Math.min(1, off));
   pSetView('day');
 }
@@ -4308,7 +4317,7 @@ document.getElementById('plan-next')?.addEventListener('click', () => { plannerD
 // Init planner when tab is switched to
 function initPlanner() {
   pCheckMidnightPromotion();
-  pUpdateDayUI();
+  pSetView('day');
   pRenderWeekGrid();
 }
 
