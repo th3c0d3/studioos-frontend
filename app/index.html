@@ -299,6 +299,31 @@ input,select{font-family:var(--font)}
 .fit-day .day-icon{font-size:18px;margin-bottom:3px}
 .fit-day .day-name{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);font-weight:600}
 .fit-day.done .day-name{color:var(--green)}
+.fit-log-entry{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border-radius:3px;border-left:2px solid var(--green2)}
+.fit-log-num{font-size:9px;color:var(--green);font-weight:700;min-width:20px;font-family:var(--mono)}
+.fit-log-name{flex:1;font-size:12px;color:var(--text);letter-spacing:.3px}
+.fit-log-name-inp{flex:1;background:var(--bg4);border:1px solid var(--accent);color:var(--text);padding:2px 7px;font-size:12px;border-radius:3px;outline:none;font-family:var(--font)}
+.fit-log-cal{font-size:10px;font-weight:700;color:var(--orange);font-family:var(--mono);background:rgba(255,124,26,.1);border:1px solid rgba(255,124,26,.2);padding:2px 8px;border-radius:2px;white-space:nowrap;letter-spacing:.5px;flex-shrink:0}
+.fit-cal-total{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border-radius:3px;border-left:2px solid var(--orange);margin-bottom:8px}
+.fit-cal-total-lbl{font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;flex:1}
+.fit-cal-total-val{font-size:16px;font-weight:700;color:var(--orange);font-family:var(--mono)}
+.fit-cal-total-unit{font-size:9px;color:var(--text3);letter-spacing:1px}
+/* theme overrides */
+body.c64 .fit-log-entry{border-left-color:#00ff00;background:#2a2a90}
+body.c64 .fit-log-num{color:#00ff00}
+body.c64 .fit-log-cal{color:#ffff00;background:rgba(255,255,0,.08);border-color:rgba(255,255,0,.2)}
+body.c64 .fit-cal-total{border-left-color:#ffff00;background:#2a2a90}
+body.c64 .fit-cal-total-val{color:#ffff00}
+body.amiga .fit-log-entry{border-left-color:#00aa00;background:#ffffff}
+body.amiga .fit-log-num{color:#008800}
+body.amiga .fit-log-cal{color:#cc6600;background:rgba(204,102,0,.08);border-color:rgba(204,102,0,.2)}
+body.amiga .fit-cal-total{border-left-color:#cc6600;background:#ffffff}
+body.amiga .fit-cal-total-val{color:#cc6600}
+body.light .fit-log-entry{background:#ffffff;border-left-color:#0f9a40}
+body.light .fit-log-num{color:#0a7a30}
+body.light .fit-log-cal{color:#cc6600;background:rgba(204,102,0,.08);border-color:rgba(204,102,0,.2)}
+body.light .fit-cal-total{border-left-color:#cc6600;background:#ffffff}
+body.light .fit-cal-total-val{color:#cc6600}
 .fit-target-row{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:12px}
 
 /* ── READING ──────────────────────────────────────────────── */
@@ -835,7 +860,8 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
     </div>
     <div style="margin-top:14px">
       <div class="add-form"><div class="add-row">
-        <div class="field"><div class="field-lbl">Workout Note</div><input class="daw-input" id="fitNote" placeholder="e.g. Chest + Triceps..."></div>
+        <div class="field" style="flex:1"><div class="field-lbl">Workout</div><input class="daw-input" id="fitNote" placeholder="e.g. Chest + Triceps..."></div>
+        <div class="field" style="max-width:90px"><div class="field-lbl">Calories</div><input class="daw-input" id="fitCal" type="number" min="0" placeholder="kcal"></div>
         <button class="btn-green" id="addFitNote">LOG</button>
       </div>
       <div id="fit-notes" style="margin-top:8px;display:flex;flex-direction:column;gap:5px"></div></div>
@@ -1209,6 +1235,12 @@ async function loadFromServer() {
           if (s.lyrics === undefined) s.lyrics = '';
         });
       }
+      // Migrate fitness notes from strings to objects
+      if (parsed.fitness?.notes) {
+        parsed.fitness.notes = parsed.fitness.notes.map(n =>
+          typeof n === 'string' ? { text: n, cal: 0 } : n
+        );
+      }
       state = parsed;
     } catch(e) {} }
     return;
@@ -1231,6 +1263,12 @@ async function loadFromServer() {
           if (s.key    === undefined) s.key    = '';
           if (s.lyrics === undefined) s.lyrics = '';
         });
+      }
+      // Migrate fitness notes from strings to objects
+      if (serverState.fitness?.notes) {
+        serverState.fitness.notes = serverState.fitness.notes.map(n =>
+          typeof n === 'string' ? { text: n, cal: 0 } : n
+        );
       }
       state = serverState;
     }
@@ -1617,9 +1655,29 @@ function renderFitness() {
   document.getElementById('fitTarget').value = state.fitness.target;
   document.getElementById('fitTargetVal').textContent = state.fitness.target;
   const notesEl = document.getElementById('fit-notes');
-  if (notesEl) notesEl.innerHTML = state.fitness.notes.map((n,i) =>
-    `<div style="display:flex;align-items:center;gap:8px;background:var(--bg4);border-radius:3px;padding:5px 9px;font-size:12px"><span style="color:var(--accent);font-family:var(--mono);font-size:9px">${String(i+1).padStart(2,'0')}</span><span style="flex:1;color:var(--text2)">${n}</span><button class="del-btn" data-note="${i}">✕</button></div>`
-  ).join('');
+  if (notesEl) {
+    const notes = state.fitness.notes || [];
+    const totalCal = notes.reduce((sum, n) => sum + (n.cal || 0), 0);
+    const totalHTML = totalCal > 0 ? `
+      <div class="fit-cal-total">
+        <div class="fit-cal-total-lbl">Total logged</div>
+        <div class="fit-cal-total-val">${totalCal}</div>
+        <div class="fit-cal-total-unit">kcal</div>
+      </div>` : '';
+    notesEl.innerHTML = totalHTML + notes.map((n, i) => {
+      const name = typeof n === 'string' ? n : (n.text || n);
+      const cal  = typeof n === 'object' ? (n.cal || 0) : 0;
+      const calBadge = cal > 0 ? `<div class="fit-log-cal">${cal} kcal</div>` : '';
+      return `<div class="fit-log-entry">
+        <div class="fit-log-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="fit-log-name" id="fln-${i}">${name}</div>
+        <input class="fit-log-name-inp" id="flni-${i}" value="${name}" style="display:none"/>
+        ${calBadge}
+        <button class="rename-btn" data-fitnote="${i}" title="Rename" style="font-size:12px;opacity:1;color:var(--text3)">✎</button>
+        <button class="del-btn" data-note="${i}">✕</button>
+      </div>`;
+    }).join('');
+  }
   renderFitnessStats();
 }
 
@@ -2168,8 +2226,45 @@ document.addEventListener('click', e => {
   if (t.id === 'resetWeekBtn') { state.fitness.days.forEach(d => d.done = false); state.fitness.lastReset = new Date().toISOString(); scheduleSave(); renderFitness(); return; }
 
   // FIT NOTE
-  if (t.id === 'addFitNote') { const n = document.getElementById('fitNote').value.trim(); if (n) { state.fitness.notes.push(n); document.getElementById('fitNote').value = ''; scheduleSave(); renderFitness(); } return; }
-  if (t.dataset.note !== undefined) { state.fitness.notes.splice(+t.dataset.note, 1); scheduleSave(); renderFitness(); return; }
+  if (t.id === 'addFitNote') {
+    const n = document.getElementById('fitNote').value.trim();
+    const c = parseInt(document.getElementById('fitCal').value) || 0;
+    if (n) {
+      if (!state.fitness.notes) state.fitness.notes = [];
+      state.fitness.notes.push({ text: n, cal: c });
+      document.getElementById('fitNote').value = '';
+      document.getElementById('fitCal').value = '';
+      scheduleSave(); renderFitness();
+    }
+    return;
+  }
+  if (t.dataset.note !== undefined && !t.dataset.fitnote) { state.fitness.notes.splice(+t.dataset.note, 1); scheduleSave(); renderFitness(); return; }
+
+  // FITNESS NOTE RENAME
+  if (t.dataset.fitnote !== undefined) {
+    e.stopPropagation();
+    const i = +t.dataset.fitnote;
+    const nameEl = document.getElementById('fln-' + i);
+    const inpEl  = document.getElementById('flni-' + i);
+    if (!nameEl || !inpEl) return;
+    const cur = nameEl.textContent;
+    nameEl.style.display = 'none';
+    inpEl.style.display = '';
+    inpEl.focus(); inpEl.select();
+    function commitFit() {
+      const val = inpEl.value.trim() || cur;
+      const note = state.fitness.notes[i];
+      if (typeof note === 'object') note.text = val;
+      else state.fitness.notes[i] = { text: val, cal: 0 };
+      scheduleSave(); renderFitness();
+    }
+    inpEl.addEventListener('blur', commitFit, { once: true });
+    inpEl.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter') inpEl.blur();
+      if (ev.key === 'Escape') { inpEl.value = cur; inpEl.blur(); }
+    });
+    return;
+  }
 
   // BOOK DELETE
   if (t.dataset.bookid) { state.books = state.books.filter(b => b.id !== +t.dataset.bookid); scheduleSave(); renderBooks(); return; }
