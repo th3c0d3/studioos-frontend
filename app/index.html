@@ -832,6 +832,11 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
 .pqcard-arch:hover{color:var(--green)}
 .pqadd{font-size:8px;color:var(--text3);cursor:pointer;padding:2px 0;letter-spacing:1px;transition:color .2s}
 .pqadd:hover{color:var(--gold)}
+.pq-add-row{display:flex;gap:4px;margin-top:4px}
+.pq-add-inp{flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:4px 6px;font-size:10px;border-radius:2px;outline:none;font-family:var(--font);min-width:0}
+.pq-add-inp:focus{border-color:rgba(255,215,0,.4)}
+.pq-add-btn{background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.25);color:var(--gold);padding:4px 8px;font-size:9px;font-weight:700;border-radius:2px;cursor:pointer;font-family:var(--font);white-space:nowrap;letter-spacing:1px}
+.pq-add-btn:hover{background:rgba(255,215,0,.2)}
 .planner-ta{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text2);padding:8px;font-size:11px;line-height:1.8;border-radius:3px;outline:none;font-family:var(--font);resize:vertical;min-height:80px;transition:border-color .2s}
 .planner-ta:focus{border-color:rgba(152,152,176,.35);color:var(--text)}
 .planner-ro-banner{background:rgba(255,124,26,.08);border:1px solid rgba(255,124,26,.2);border-radius:4px;padding:7px 11px;font-size:9px;color:var(--orange);letter-spacing:1px;text-align:center;display:none}
@@ -1177,19 +1182,31 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
           <div class="pmatrix">
             <div class="pquad pqA" id="pmqA" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqA')" ondragleave="pDragLeave(this)">
               <div class="pquad-hdr">Important + Urgent</div>
-              <div class="pqadd plan-ro-hide" onclick="pAddCard('pmqA')">+ add</div>
+              <div class="pq-add-row plan-ro-hide">
+                <input class="pq-add-inp" id="pqi-pmqA" placeholder="Add item..." onkeydown="if(event.key==='Enter')pAddCard('pmqA')"/>
+                <button class="pq-add-btn" onclick="pAddCard('pmqA')">+</button>
+              </div>
             </div>
             <div class="pquad pqB" id="pmqB" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqB')" ondragleave="pDragLeave(this)">
               <div class="pquad-hdr">Important + Not Urgent</div>
-              <div class="pqadd plan-ro-hide" onclick="pAddCard('pmqB')">+ add</div>
+              <div class="pq-add-row plan-ro-hide">
+                <input class="pq-add-inp" id="pqi-pmqB" placeholder="Add item..." onkeydown="if(event.key==='Enter')pAddCard('pmqB')"/>
+                <button class="pq-add-btn" onclick="pAddCard('pmqB')">+</button>
+              </div>
             </div>
             <div class="pquad pqC" id="pmqC" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqC')" ondragleave="pDragLeave(this)">
               <div class="pquad-hdr">Not Important + Urgent</div>
-              <div class="pqadd plan-ro-hide" onclick="pAddCard('pmqC')">+ add</div>
+              <div class="pq-add-row plan-ro-hide">
+                <input class="pq-add-inp" id="pqi-pmqC" placeholder="Add item..." onkeydown="if(event.key==='Enter')pAddCard('pmqC')"/>
+                <button class="pq-add-btn" onclick="pAddCard('pmqC')">+</button>
+              </div>
             </div>
             <div class="pquad pqD" id="pmqD" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqD')" ondragleave="pDragLeave(this)">
               <div class="pquad-hdr">Not Important + Not Urgent</div>
-              <div class="pqadd plan-ro-hide" onclick="pAddCard('pmqD')">+ add</div>
+              <div class="pq-add-row plan-ro-hide">
+                <input class="pq-add-inp" id="pqi-pmqD" placeholder="Add item..." onkeydown="if(event.key==='Enter')pAddCard('pmqD')"/>
+                <button class="pq-add-btn" onclick="pAddCard('pmqD')">+</button>
+              </div>
             </div>
           </div>
         </div>
@@ -3210,6 +3227,37 @@ function focusSelectItem(i) {
 document.addEventListener('click', e => {
   if (!focusType) return;
 
+  // Note toggle done — must be before items guard
+  const noteRow = e.target.closest('[data-togglenote]');
+  if (noteRow && !e.target.dataset.noteid && !e.target.closest('.note-del-btn')) {
+    const ni    = +noteRow.dataset.togglenote;
+    const nid   = +noteRow.dataset.toggletrack;
+    const ntype = noteRow.dataset.toggletype;
+    const nitem = ntype === 'song' ? state.songs.find(s => s.id === nid) : state.apps.find(a => a.id === nid);
+    if (nitem?.notes?.[ni] !== undefined) {
+      nitem.notes[ni].done = !nitem.notes[ni].done;
+      scheduleSave();
+      renderFocusMain();
+      renderFocusSidebar();
+    }
+    return;
+  }
+
+  // Note delete — must be before items guard
+  if (e.target.dataset.noteid !== undefined && e.target.dataset.trackid) {
+    const ni    = +e.target.dataset.noteid;
+    const nid   = +e.target.dataset.trackid;
+    const ntype = e.target.dataset.tracktype;
+    const nitem = ntype === 'song' ? state.songs.find(s => s.id === nid) : state.apps.find(a => a.id === nid);
+    if (nitem?.notes) {
+      nitem.notes.splice(ni, 1);
+      scheduleSave();
+      renderFocusMain();
+      renderFocusSidebar();
+    }
+    return;
+  }
+
   // Exit focus
   const items = getFocusItems();
   if (!items.length) return;
@@ -3236,37 +3284,6 @@ document.addEventListener('click', e => {
     scheduleSave();
     if (calcPct(item.steps) === 100) celebrate(item.title);
     renderFocusSidebar(); renderFocusMain(); return;
-  }
-
-  // Note toggle done — inside focus mode
-  const noteRow = e.target.closest('[data-togglenote]');
-  if (noteRow && !e.target.dataset.noteid && !e.target.closest('.note-del-btn')) {
-    const ni   = +noteRow.dataset.togglenote;
-    const nid  = +noteRow.dataset.toggletrack;
-    const ntype = noteRow.dataset.toggletype;
-    const nitem = ntype === 'song' ? state.songs.find(s => s.id === nid) : state.apps.find(a => a.id === nid);
-    if (nitem?.notes?.[ni] !== undefined) {
-      nitem.notes[ni].done = !nitem.notes[ni].done;
-      scheduleSave();
-      renderFocusMain();
-      renderFocusSidebar();
-    }
-    return;
-  }
-
-  // Note delete — inside focus mode
-  if (e.target.dataset.noteid !== undefined && e.target.dataset.trackid) {
-    const ni   = +e.target.dataset.noteid;
-    const nid  = +e.target.dataset.trackid;
-    const ntype = e.target.dataset.tracktype;
-    const nitem = ntype === 'song' ? state.songs.find(s => s.id === nid) : state.apps.find(a => a.id === nid);
-    if (nitem?.notes) {
-      nitem.notes.splice(ni, 1);
-      scheduleSave();
-      renderFocusMain();
-      renderFocusSidebar();
-    }
-    return;
   }
 
   // Note add
@@ -4084,16 +4101,16 @@ function pRenderMatrix() {
   ['pmqA','pmqB','pmqC','pmqD'].forEach(qid => {
     const quad = document.getElementById(qid);
     if (!quad) return;
-    const addBtn = quad.querySelector('.pqadd');
-    // remove existing cards
+    const addRow = quad.querySelector('.pq-add-row');
+    // remove existing cards only
     quad.querySelectorAll('.pqcard').forEach(c => c.remove());
-    (matrix[qid]||[]).forEach((text, i) => {
+    (matrix[qid] || []).forEach((text, i) => {
       const card = document.createElement('div');
       card.className = 'pqcard';
       card.draggable = !isRO;
-      card.innerHTML = `${text}${!isRO?`<span class="pqcard-arch" onclick="pArchCard('${qid}',${i})">✓</span>`:''}`;
+      card.innerHTML = `${text}${!isRO ? `<span class="pqcard-arch" onclick="pArchCard('${qid}',${i})">✓</span>` : ''}`;
       if (!isRO) card.ondragstart = (e) => pDragStart(e, card);
-      quad.insertBefore(card, addBtn);
+      quad.insertBefore(card, addRow);
     });
   });
 }
@@ -4107,10 +4124,15 @@ function pSaveMatrix() {
 }
 
 function pAddCard(qid) {
-  const text = prompt('New item:'); if (!text) return;
+  const inp = document.getElementById('pqi-' + qid);
+  const text = inp ? inp.value.trim() : '';
+  if (!text) return;
   const matrix = pGetPersist('matrix') || {pmqA:[], pmqB:[], pmqC:[], pmqD:[]};
-  (matrix[qid] = matrix[qid]||[]).push(text);
-  pSetPersist('matrix', matrix); pRenderMatrix();
+  (matrix[qid] = matrix[qid] || []).push(text);
+  pSetPersist('matrix', matrix);
+  inp.value = '';
+  pRenderMatrix();
+  inp.focus();
 }
 
 function pArchCard(qid, i) {
@@ -4127,8 +4149,8 @@ function pDrop(e, qid) {
   e.preventDefault();
   document.getElementById(qid).classList.remove('pq-over');
   if (pDragEl) {
-    const addBtn = document.querySelector('#'+qid+' .pqadd');
-    document.getElementById(qid).insertBefore(pDragEl, addBtn);
+    const addRow = document.querySelector('#' + qid + ' .pq-add-row');
+    document.getElementById(qid).insertBefore(pDragEl, addRow);
     pSaveMatrix();
   }
 }
