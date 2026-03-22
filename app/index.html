@@ -950,6 +950,7 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
       <span class="user-badge" id="user-badge">guest</span>
       <span><span class="sync-dot" id="sync-dot"></span></span>
       <button class="topbar-btn cal-toggle" id="calToggleBtn">📅 CAL</button>
+      <button class="topbar-btn" id="exportBtn" title="Export all data as JSON">↓ EXPORT</button>
       <button class="topbar-btn" id="searchBtn" title="Search (/)">⌕</button>
       <button class="topbar-btn" id="themeBtn">◐</button>
       <button class="topbar-btn" id="logoutBtn">EXIT</button>
@@ -3448,6 +3449,79 @@ document.getElementById('sheetAddBook')?.addEventListener('click', () => {
   switchTab('reading');
   document.getElementById('addBookBtn')?.click();
 });
+
+// ── JSON EXPORT ───────────────────────────────────────────────────────────────
+async function exportAllData() {
+  const btn = document.getElementById('exportBtn');
+  if (btn) { btn.textContent = '↓ ...'; btn.disabled = true; }
+
+  try {
+    // 1 — current workspace state
+    const stateData = state;
+
+    // 2 — monthly snapshots from server
+    let snapshots = [];
+    try {
+      const { snapshots: serverSnaps } = await apiReq('/snapshots');
+      snapshots = serverSnaps || [];
+    } catch(e) {
+      // also grab from localStorage as fallback
+      const local = JSON.parse(localStorage.getItem('studioos_snapshots') || '{}');
+      snapshots = Object.entries(local).map(([month_label, snap]) => ({ month_label, snapshot_json: snap }));
+    }
+
+    // 3 — planner data from localStorage (all sp_* keys)
+    const plannerData = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('sp_')) {
+        try { plannerData[key] = JSON.parse(localStorage.getItem(key)); }
+        catch(e) { plannerData[key] = localStorage.getItem(key); }
+      }
+    }
+
+    // 4 — assemble full export
+    const exportObj = {
+      export_version: 1,
+      exported_at: new Date().toISOString(),
+      exported_by: token ? 'authenticated_user' : 'guest',
+      workspace: {
+        month:    stateData.month,
+        theme:    stateData.theme,
+        songs:    stateData.songs    || [],
+        apps:     stateData.apps     || [],
+        books:    stateData.books    || [],
+        fitness:  stateData.fitness  || {},
+        archived: stateData.archived || [],
+      },
+      snapshots: snapshots.map(s => ({
+        month_label:   s.month_label,
+        snapshot_json: s.snapshot_json || s,
+      })),
+      planner: plannerData,
+    };
+
+    // 5 — download
+    const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const date = new Date().toISOString().slice(0,10);
+    a.href     = url;
+    a.download = `studioos_backup_${date}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast('Export downloaded ✓', 'success');
+  } catch(err) {
+    showToast('Export failed: ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.textContent = '↓ EXPORT'; btn.disabled = false; }
+  }
+}
+
+document.getElementById('exportBtn')?.addEventListener('click', exportAllData);
 
 // ── GLOBAL SEARCH ─────────────────────────────────────────────────────────────
 let searchFilter = 'all';
