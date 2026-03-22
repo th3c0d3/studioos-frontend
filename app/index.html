@@ -702,6 +702,57 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
 
 /* ── PLANNER TAB ──────────────────────────────────────────── */
 .planner-day-bar{background:var(--bg);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;flex-direction:column;gap:7px}
+/* view toggle bar */
+.plan-view-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 12px;display:flex;align-items:center;justify-content:space-between}
+.plan-vt{display:flex;gap:0;background:var(--bg);border:1px solid var(--border);border-radius:3px;overflow:hidden}
+.plan-vt-btn{padding:4px 14px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;color:var(--text3);transition:all .2s;border:none;background:transparent;font-family:var(--font)}
+.plan-vt-btn.pvon{background:var(--blue);color:#000}
+.plan-week-nav{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text3);letter-spacing:1px}
+.plan-wnav-btn{background:none;border:1px solid var(--border);color:var(--text3);width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;border-radius:2px;transition:all .2s}
+.plan-wnav-btn:hover{border-color:var(--blue);color:var(--blue)}
+/* week grid */
+.plan-week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px}
+.pwc{background:var(--bg2);border:1px solid var(--border);border-radius:4px;cursor:pointer;transition:all .2s;overflow:hidden}
+.pwc:hover{border-color:#444458}
+.pwc.pwc-today{border-color:rgba(0,207,255,.45);background:rgba(0,207,255,.04)}
+.pwc.pwc-exp{border-color:rgba(0,207,255,.6);background:rgba(0,207,255,.06)}
+.pwc-hdr{padding:6px 4px 4px;text-align:center;border-bottom:1px solid var(--border)}
+.pwc-name{font-size:7px;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:2px}
+.pwc-num{font-size:13px;font-weight:700;color:var(--text2);line-height:1}
+.pwc-today .pwc-name,.pwc-today .pwc-num,.pwc-exp .pwc-name,.pwc-exp .pwc-num{color:var(--blue)}
+.pwc-body{padding:5px 4px 6px;display:flex;flex-direction:column;gap:2px}
+.pwc-pill{font-size:7px;padding:1px 3px;border-radius:2px;letter-spacing:.3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pwp-t{background:rgba(57,255,122,.1);color:var(--green)}
+.pwp-a{background:rgba(0,207,255,.1);color:var(--blue)}
+.pwp-g{background:rgba(176,96,255,.1);color:var(--purple)}
+.pwc-empty{font-size:7px;color:var(--border2);text-align:center;padding:4px 0;letter-spacing:.5px}
+.pwc-prog{height:2px;background:var(--bg4);margin-top:4px;border-radius:1px;overflow:hidden}
+.pwc-prog-fill{height:100%;border-radius:1px;background:var(--green);transition:width .3s}
+/* day detail panel */
+.plan-day-detail{background:var(--bg);border:1px solid rgba(0,207,255,.25);border-radius:4px;padding:10px 12px;margin-bottom:8px;animation:pdd-in .2s ease}
+@keyframes pdd-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.pdd-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.pdd-title{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:2px}
+.pdd-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;transition:color .2s;font-family:var(--font)}
+.pdd-close:hover{color:var(--text)}
+.pdd-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+.pdd-sec{background:var(--bg2);border-radius:3px;padding:7px 9px;border-left:2px solid}
+.pdd-sec-lbl{font-size:7px;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;font-weight:700}
+.pdd-sec-tasks{border-left-color:rgba(57,255,122,.5)}.pdd-sec-tasks .pdd-sec-lbl{color:var(--green)}
+.pdd-sec-agenda{border-left-color:rgba(0,207,255,.5)}.pdd-sec-agenda .pdd-sec-lbl{color:var(--blue)}
+.pdd-sec-goals{border-left-color:rgba(176,96,255,.5)}.pdd-sec-goals .pdd-sec-lbl{color:var(--purple)}
+.pdd-item{display:flex;align-items:flex-start;gap:5px;padding:2px 0;border-bottom:1px solid var(--bg3)}
+.pdd-item:last-child{border-bottom:none}
+.pdd-chk{width:10px;height:10px;border:1px solid rgba(57,255,122,.35);border-radius:1px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center}
+.pdd-chk.pdn{background:var(--green2);border-color:var(--green2)}
+.pdd-chk.pdn::after{content:'✓';font-size:6px;color:#000;font-weight:900}
+.pdd-text{font-size:9px;color:var(--text2);line-height:1.4;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pdd-text.pdd-done{text-decoration:line-through;color:var(--text3)}
+.pdd-time{font-size:8px;font-weight:700;color:var(--blue);min-width:34px;font-family:var(--mono)}
+.pdd-dot{width:4px;height:4px;border-radius:50%;background:var(--purple);flex-shrink:0;margin-top:4px}
+.pdd-empty{font-size:8px;color:var(--text3);letter-spacing:1px;padding:2px 0}
+.pdd-go{display:block;text-align:center;background:rgba(0,207,255,.08);border:1px solid rgba(0,207,255,.25);color:var(--blue);padding:6px;font-size:8px;font-weight:700;letter-spacing:2px;border-radius:3px;cursor:pointer;transition:all .2s;width:100%;font-family:var(--font)}
+.pdd-go:hover{background:rgba(0,207,255,.15)}
 .planner-day-nav{display:flex;align-items:center;gap:0}
 .planner-arrow{background:none;border:1px solid var(--border);color:var(--text3);width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .2s;flex-shrink:0}
 .planner-arrow:first-child{border-radius:3px 0 0 3px}
@@ -1003,6 +1054,29 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
 
   <!-- ── PLANNER TAB ──────────────────────────────────────── -->
   <div class="main" id="tab-planner">
+    <!-- View toggle bar -->
+    <div class="plan-view-bar">
+      <div class="plan-vt">
+        <button class="plan-vt-btn pvon" id="pvt-day" onclick="pSetView('day')">Day</button>
+        <button class="plan-vt-btn" id="pvt-week" onclick="pSetView('week')">Week</button>
+      </div>
+      <div class="plan-week-nav" id="plan-week-nav-bar" style="display:none">
+        <button class="plan-wnav-btn" onclick="pShiftWeek(-1)">‹</button>
+        <span id="plan-week-lbl"></span>
+        <button class="plan-wnav-btn" onclick="pShiftWeek(1)">›</button>
+      </div>
+    </div>
+
+    <!-- Week view -->
+    <div id="plan-week-view" style="display:none">
+      <div style="padding:10px 12px">
+        <div class="plan-week-grid" id="plan-week-grid"></div>
+        <div id="plan-day-detail-panel"></div>
+      </div>
+    </div>
+
+    <!-- Day view -->
+    <div id="plan-day-view">
     <div class="planner-day-bar" id="planner-day-bar">
       <div class="planner-day-nav">
         <button class="planner-arrow" id="plan-prev">‹</button>
@@ -1130,6 +1204,7 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
       </div>
 
     </div>
+    </div><!-- end plan-day-view -->
   </div>
 
   <!-- ── ARCHIVE TAB ──────────────────────────────────────── -->
@@ -4080,7 +4155,153 @@ function pSaveNotes() {
   pSetPersist('notes', document.getElementById('planner-notes')?.value || '');
 }
 
-// Day nav
+// ── PLANNER WEEK VIEW ─────────────────────────────────────────────────────────
+let planWeekOffset = 0;
+let planExpandedDay = null;
+const PWEEK_DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const PWEEK_MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function pSetView(v) {
+  const isDayView = v === 'day';
+  document.getElementById('plan-day-view').style.display   = isDayView ? 'block' : 'none';
+  document.getElementById('plan-week-view').style.display  = isDayView ? 'none'  : 'block';
+  document.getElementById('plan-week-nav-bar').style.display = isDayView ? 'none' : 'flex';
+  document.getElementById('pvt-day').classList.toggle('pvon', isDayView);
+  document.getElementById('pvt-week').classList.toggle('pvon', !isDayView);
+  if (!isDayView) { planExpandedDay = null; pRenderWeekGrid(); }
+  else { pUpdateDayUI(); }
+}
+
+function pGetWeekDates(weekOff) {
+  const today = new Date();
+  const dow = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1) + weekOff * 7);
+  return Array.from({length:7}, (_, i) => {
+    const d = new Date(monday); d.setDate(monday.getDate() + i); return d;
+  });
+}
+
+function pGetDayOffset(date) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(date); d.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+
+function pShiftWeek(dir) {
+  planWeekOffset += dir;
+  planExpandedDay = null;
+  document.getElementById('plan-day-detail-panel').innerHTML = '';
+  pRenderWeekGrid();
+}
+
+function pRenderWeekGrid() {
+  const dates = pGetWeekDates(planWeekOffset);
+  const first = dates[0], last = dates[6];
+  document.getElementById('plan-week-lbl').textContent =
+    PWEEK_MONS[first.getMonth()] + ' ' + first.getDate() + ' – ' +
+    PWEEK_MONS[last.getMonth()]  + ' ' + last.getDate();
+
+  const grid = document.getElementById('plan-week-grid');
+  grid.innerHTML = dates.map(date => {
+    const off  = pGetDayOffset(date);
+    const key  = pDateKey(off);
+    const tasks   = getPlannerData('tasks_' + key) || [];
+    const agenda  = getPlannerData('agenda_' + key) || [];
+    const goals   = pGetPersist('goals') || [];
+    const done    = tasks.filter(t => t.done).length;
+    const pct     = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+    const isToday = off === 0;
+    const isExp   = planExpandedDay === off;
+
+    const pills = [
+      tasks.length  ? `<div class="pwc-pill pwp-t">${tasks.length} task${tasks.length>1?'s':''}</div>` : '',
+      agenda.length ? `<div class="pwc-pill pwp-a">${agenda.length} slot${agenda.length>1?'s':''}</div>` : '',
+      goals.length  ? `<div class="pwc-pill pwp-g">goals</div>` : '',
+    ].filter(Boolean).join('');
+
+    return `<div class="pwc ${isToday?'pwc-today':''} ${isExp?'pwc-exp':''}" onclick="pToggleWeekDay(${off})">
+      <div class="pwc-hdr">
+        <div class="pwc-name">${PWEEK_DAYS[date.getDay()]}</div>
+        <div class="pwc-num">${date.getDate()}</div>
+      </div>
+      <div class="pwc-body">
+        ${pills || '<div class="pwc-empty">—</div>'}
+        <div class="pwc-prog"><div class="pwc-prog-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pToggleWeekDay(off) {
+  if (planExpandedDay === off) {
+    planExpandedDay = null;
+    document.getElementById('plan-day-detail-panel').innerHTML = '';
+  } else {
+    planExpandedDay = off;
+    pRenderDayDetail(off);
+  }
+  pRenderWeekGrid();
+}
+
+function pRenderDayDetail(off) {
+  const key   = pDateKey(off);
+  const tasks  = getPlannerData('tasks_' + key) || [];
+  const agenda = (getPlannerData('agenda_' + key) || []).sort((a,b) => a.time.localeCompare(b.time));
+  const goals  = pGetPersist('goals') || [];
+
+  const date = new Date(); date.setDate(date.getDate() + off);
+  const title = off===0?'TODAY':off===-1?'YESTERDAY':off===1?'TOMORROW':
+    PWEEK_DAYS[date.getDay()].toUpperCase()+' · '+PWEEK_MONS[date.getMonth()]+' '+date.getDate();
+
+  const tasksHTML = tasks.length
+    ? tasks.map((t,i) => `<div class="pdd-item">
+        <div class="pdd-chk ${t.done?'pdn':''}"></div>
+        <div class="pdd-text ${t.done?'pdd-done':''}">${t.text}</div>
+      </div>`).join('')
+    : '<div class="pdd-empty">no tasks</div>';
+
+  const agendaHTML = agenda.length
+    ? agenda.map(a => `<div class="pdd-item">
+        <div class="pdd-time">${a.time}</div>
+        <div class="pdd-text">${a.text}</div>
+      </div>`).join('')
+    : '<div class="pdd-empty">no agenda</div>';
+
+  const goalsHTML = goals.length
+    ? goals.map(g => `<div class="pdd-item">
+        <div class="pdd-dot"></div>
+        <div class="pdd-text">${g}</div>
+      </div>`).join('')
+    : '<div class="pdd-empty">no goals set</div>';
+
+  const panel = document.getElementById('plan-day-detail-panel');
+  panel.innerHTML = `<div class="plan-day-detail">
+    <div class="pdd-hdr">
+      <div class="pdd-title">${title}</div>
+      <button class="pdd-close" onclick="pToggleWeekDay(${off})">✕</button>
+    </div>
+    <div class="pdd-grid">
+      <div class="pdd-sec pdd-sec-tasks">
+        <div class="pdd-sec-lbl">Tasks</div>${tasksHTML}
+      </div>
+      <div class="pdd-sec pdd-sec-agenda">
+        <div class="pdd-sec-lbl">Agenda</div>${agendaHTML}
+      </div>
+    </div>
+    <div class="pdd-sec pdd-sec-goals">
+      <div class="pdd-sec-lbl">Goals</div>${goalsHTML}
+    </div>
+    <button class="pdd-go" onclick="pGoToDay(${off})">OPEN FULL DAY VIEW →</button>
+  </div>`;
+}
+
+function pGoToDay(off) {
+  plannerDayOffset = Math.max(-1, Math.min(1, off));
+  pSetView('day');
+}
+
+// ── PLANNER DAY NAV ───────────────────────────────────────────────────────────
 document.getElementById('plan-prev')?.addEventListener('click', () => { plannerDayOffset = Math.max(-1, plannerDayOffset-1); pUpdateDayUI(); });
 document.getElementById('plan-next')?.addEventListener('click', () => { plannerDayOffset = Math.min(1, plannerDayOffset+1); pUpdateDayUI(); });
 
@@ -4088,6 +4309,7 @@ document.getElementById('plan-next')?.addEventListener('click', () => { plannerD
 function initPlanner() {
   pCheckMidnightPromotion();
   pUpdateDayUI();
+  pRenderWeekGrid();
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
