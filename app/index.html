@@ -700,6 +700,93 @@ body.amiga #focusMode .note-add-btn{background:#cccccc;border:2px solid #555;col
 body.amiga #focusMode .note-chk{border-color:#888}
 body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background:rgba(255,255,0,.1)}
 
+/* ── PLANNER TAB ──────────────────────────────────────────── */
+.planner-day-bar{background:var(--bg);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;flex-direction:column;gap:7px}
+.planner-day-nav{display:flex;align-items:center;gap:0}
+.planner-arrow{background:none;border:1px solid var(--border);color:var(--text3);width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .2s;flex-shrink:0}
+.planner-arrow:first-child{border-radius:3px 0 0 3px}
+.planner-arrow:last-child{border-radius:0 3px 3px 0}
+.planner-arrow:hover{border-color:var(--blue);color:var(--blue)}
+.planner-arrow:disabled{opacity:.25;cursor:default;pointer-events:none}
+.planner-day-label{flex:1;text-align:center;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:5px 12px}
+.pday-main{font-size:12px;font-weight:700;color:var(--text);letter-spacing:1px}
+.pday-sub{font-size:8px;color:var(--text3);letter-spacing:1px;margin-top:1px}
+.planner-day-label.pday-today .pday-main{color:var(--blue)}
+.planner-day-label.pday-yesterday .pday-main{color:var(--text3)}
+.planner-day-label.pday-tomorrow .pday-main{color:var(--green)}
+.planner-filter-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.pfilter-lbl{font-size:8px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;flex-shrink:0}
+.pfilter-btn{display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:2px;border:1px solid transparent;cursor:pointer;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:all .2s;opacity:.4;font-family:var(--font)}
+.pfilter-btn.pf-on{opacity:1}
+.pf-purple{background:rgba(176,96,255,.1);color:var(--purple);border-color:rgba(176,96,255,.25)}
+.pf-blue{background:rgba(0,207,255,.08);color:var(--blue);border-color:rgba(0,207,255,.2)}
+.pf-green{background:rgba(57,255,122,.08);color:var(--green);border-color:rgba(57,255,122,.2)}
+.pf-gold{background:rgba(255,215,0,.08);color:var(--gold);border-color:rgba(255,215,0,.2)}
+.pf-grey{background:rgba(152,152,176,.07);color:var(--text2);border-color:rgba(152,152,176,.18)}
+.pfilter-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.planner-content{padding:10px 12px;display:flex;flex-direction:column;gap:7px}
+.psec{border-radius:4px;overflow:hidden}
+.psec.phidden{display:none}
+.psec-hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;cursor:pointer;user-select:none}
+.psec-title{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:5px}
+.psec-title::before{content:'';width:7px;height:7px;border-radius:50%;display:block;flex-shrink:0}
+.psec-count{font-size:8px;opacity:.55;letter-spacing:1px}
+.psec-arr{font-size:9px;color:var(--text3);transition:transform .2s}
+.psec.popen .psec-arr{transform:rotate(180deg)}
+.psec-body{display:none;padding:7px 10px;border-top:1px solid rgba(255,255,255,.04)}
+.psec.popen .psec-body{display:block}
+.ps1{background:rgba(176,96,255,.08);border:1px solid rgba(176,96,255,.2)}.ps1 .psec-title{color:var(--purple)}.ps1 .psec-title::before{background:var(--purple)}
+.ps2{background:rgba(0,207,255,.07);border:1px solid rgba(0,207,255,.2)}.ps2 .psec-title{color:var(--blue)}.ps2 .psec-title::before{background:var(--blue)}
+.ps3{background:rgba(57,255,122,.07);border:1px solid rgba(57,255,122,.2)}.ps3 .psec-title{color:var(--green)}.ps3 .psec-title::before{background:var(--green)}
+.ps4{background:rgba(57,255,122,.04);border:1px solid rgba(57,255,122,.12)}.ps4 .psec-title{color:var(--green);opacity:.75}.ps4 .psec-title::before{background:var(--green);opacity:.6}
+.ps5{background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.2)}.ps5 .psec-title{color:var(--gold)}.ps5 .psec-title::before{background:var(--gold)}
+.ps6{background:rgba(152,152,176,.05);border:1px solid rgba(152,152,176,.15)}.ps6 .psec-title{color:var(--text2)}.ps6 .psec-title::before{background:var(--text2)}
+.pgoal-item{display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-bottom:1px solid rgba(176,96,255,.1)}
+.pgoal-item:last-child{border-bottom:none}
+.pgoal-dot{width:5px;height:5px;border-radius:50%;background:var(--purple);flex-shrink:0;margin-top:5px}
+.pgoal-text{flex:1;font-size:11px;color:var(--text);line-height:1.5}
+.pagenda-item{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid rgba(0,207,255,.08)}
+.pagenda-item:last-child{border-bottom:none}
+.pagenda-time{font-size:10px;font-weight:700;color:var(--blue);min-width:44px;font-family:var(--mono)}
+.pagenda-text{flex:1;font-size:11px;color:var(--text)}
+.ptask{display:flex;align-items:flex-start;gap:6px;padding:4px 0;border-bottom:1px solid rgba(57,255,122,.07);cursor:pointer}
+.ptask:last-child{border-bottom:none}
+.ptask-chk{width:13px;height:13px;border:1px solid rgba(57,255,122,.4);border-radius:2px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.ptask.pdone .ptask-chk{background:var(--green2);border-color:var(--green2)}
+.ptask.pdone .ptask-chk::after{content:'✓';font-size:8px;color:#000;font-weight:900}
+.ptask.pdone .ptask-text{text-decoration:line-through;color:var(--text3)}
+.ptask-text{flex:1;font-size:11px;color:var(--text);line-height:1.5}
+.ptmr-hint{font-size:8px;color:var(--green);letter-spacing:1px;padding:4px 8px;background:rgba(57,255,122,.05);border-left:2px solid rgba(57,255,122,.2);border-radius:0;margin-bottom:6px}
+.pmatrix{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:4px}
+.paxis-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:3px}
+.paxis-lbl{font-size:7px;letter-spacing:1px;text-align:center;text-transform:uppercase}
+.pquad{background:var(--bg);border-radius:3px;padding:6px;min-height:72px;border:1px solid var(--border);transition:all .2s}
+.pquad.pq-over{background:rgba(255,215,0,.06);border-color:rgba(255,215,0,.3)}
+.pquad-hdr{font-size:7px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:3px}
+.pquad-hdr::before{content:'';width:5px;height:5px;border-radius:50%;display:block}
+.pqA .pquad-hdr{color:var(--red)}.pqA .pquad-hdr::before{background:var(--red)}
+.pqB .pquad-hdr{color:var(--gold)}.pqB .pquad-hdr::before{background:var(--gold)}
+.pqC .pquad-hdr{color:var(--text2)}.pqC .pquad-hdr::before{background:var(--text2)}
+.pqD .pquad-hdr{color:var(--text3)}.pqD .pquad-hdr::before{background:var(--text3)}
+.pqcard{background:var(--bg2);border-radius:2px;padding:3px 6px;margin-bottom:3px;font-size:10px;color:var(--text);cursor:grab;display:flex;align-items:center;gap:4px;border-left:2px solid;transition:opacity .2s}
+.pqcard:active{opacity:.6}
+.pqA .pqcard{border-left-color:var(--red)}
+.pqB .pqcard{border-left-color:var(--gold)}
+.pqC .pqcard{border-left-color:var(--text2);color:var(--text2)}
+.pqD .pqcard{border-left-color:var(--text3);color:var(--text3)}
+.pqcard-arch{font-size:9px;color:var(--text3);cursor:pointer;margin-left:auto;transition:color .2s}
+.pqcard-arch:hover{color:var(--green)}
+.pqadd{font-size:8px;color:var(--text3);cursor:pointer;padding:2px 0;letter-spacing:1px;transition:color .2s}
+.pqadd:hover{color:var(--gold)}
+.planner-ta{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text2);padding:8px;font-size:11px;line-height:1.8;border-radius:3px;outline:none;font-family:var(--font);resize:vertical;min-height:80px;transition:border-color .2s}
+.planner-ta:focus{border-color:rgba(152,152,176,.35);color:var(--text)}
+.planner-ro-banner{background:rgba(255,124,26,.08);border:1px solid rgba(255,124,26,.2);border-radius:4px;padding:7px 11px;font-size:9px;color:var(--orange);letter-spacing:1px;text-align:center;display:none}
+.planner-add-row{display:flex;gap:4px;margin-top:6px}
+.planner-inp{flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 7px;font-size:10px;border-radius:3px;outline:none;font-family:var(--font)}
+.planner-add-btn{border:none;padding:5px 9px;font-size:8px;font-weight:700;letter-spacing:1px;border-radius:3px;cursor:pointer;font-family:var(--font);white-space:nowrap}
+.pxbtn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 3px;transition:color .2s;flex-shrink:0}
+.pxbtn:hover{color:var(--red)}
+
 /* ── TOAST ────────────────────────────────────────────────── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 20px;border-radius:4px;font-size:13px;letter-spacing:1px;z-index:500;transition:transform .3s;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
@@ -825,6 +912,7 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
     <button class="tab" data-tab="appdev">App Dev <div class="badge" id="appdev-badge">0</div></button>
     <button class="tab" data-tab="fitness">Fitness</button>
     <button class="tab" data-tab="reading">Reading</button>
+    <button class="tab" data-tab="planner" style="color:var(--blue)">Planner</button>
     <button class="tab archive-tab" data-tab="archive">Hall of Fame <div class="badge" id="archive-badge">0</div></button>
     <button class="tab" data-tab="stats" style="color:var(--blue)">Stats</button>
   </div>
@@ -835,6 +923,7 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
     <div class="mob-tab-dot" data-dtab="appdev"></div>
     <div class="mob-tab-dot" data-dtab="fitness"></div>
     <div class="mob-tab-dot" data-dtab="reading"></div>
+    <div class="mob-tab-dot" data-dtab="planner"></div>
     <div class="mob-tab-dot" data-dtab="archive"></div>
     <div class="mob-tab-dot" data-dtab="stats"></div>
   </div>
@@ -843,6 +932,7 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
     <div class="mob-tab-lbl" data-ltab="appdev">App</div>
     <div class="mob-tab-lbl" data-ltab="fitness">Fitness</div>
     <div class="mob-tab-lbl" data-ltab="reading">Books</div>
+    <div class="mob-tab-lbl" data-ltab="planner">Plan</div>
     <div class="mob-tab-lbl" data-ltab="archive">Hall</div>
     <div class="mob-tab-lbl" data-ltab="stats">Stats</div>
   </div>
@@ -911,7 +1001,138 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
     <div id="books-list"></div>
   </div>
 
-  <div class="main" id="tab-archive">
+  <!-- ── PLANNER TAB ──────────────────────────────────────── -->
+  <div class="main" id="tab-planner">
+    <div class="planner-day-bar" id="planner-day-bar">
+      <div class="planner-day-nav">
+        <button class="planner-arrow" id="plan-prev">‹</button>
+        <div class="planner-day-label pday-today" id="plan-day-lbl">
+          <div class="pday-main" id="plan-day-main">TODAY</div>
+          <div class="pday-sub" id="plan-day-sub"></div>
+        </div>
+        <button class="planner-arrow" id="plan-next">›</button>
+      </div>
+      <div class="planner-filter-row">
+        <span class="pfilter-lbl">SHOW</span>
+        <div class="pfilter-btn pf-purple pf-on" data-psec="pls1" onclick="pToggleFilter(this)"><div class="pfilter-dot" style="background:var(--purple)"></div>Goals</div>
+        <div class="pfilter-btn pf-blue pf-on" data-psec="pls2" onclick="pToggleFilter(this)"><div class="pfilter-dot" style="background:var(--blue)"></div>Agenda</div>
+        <div class="pfilter-btn pf-green pf-on" data-psec="pls3,pls4" onclick="pToggleFilter(this)"><div class="pfilter-dot" style="background:var(--green)"></div>Tasks</div>
+        <div class="pfilter-btn pf-gold pf-on" data-psec="pls5" onclick="pToggleFilter(this)"><div class="pfilter-dot" style="background:var(--gold)"></div>Matrix</div>
+        <div class="pfilter-btn pf-grey pf-on" data-psec="pls6" onclick="pToggleFilter(this)"><div class="pfilter-dot" style="background:var(--text2)"></div>Notes</div>
+      </div>
+    </div>
+    <div class="planner-content" id="planner-content">
+      <div class="planner-ro-banner" id="plan-ro-banner">◷ YESTERDAY — read only · navigate to today to make changes</div>
+
+      <!-- 1 Primary Goals -->
+      <div class="psec ps1 popen" id="pls1">
+        <div class="psec-hdr" onclick="pTogSec('pls1')">
+          <div class="psec-title">Primary Goals <span class="psec-count" id="pgoal-count"></span></div>
+          <div class="psec-arr">▼</div>
+        </div>
+        <div class="psec-body">
+          <div id="pgoal-list"></div>
+          <div class="planner-add-row plan-ro-hide">
+            <input class="planner-inp" id="pgoal-inp" placeholder="Add a primary goal..." style="border-color:rgba(176,96,255,.25)" onkeydown="if(event.key==='Enter')pAddGoal()"/>
+            <button class="planner-add-btn" onclick="pAddGoal()" style="background:rgba(176,96,255,.15);color:var(--purple);border:1px solid rgba(176,96,255,.3)">+ ADD</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 Today's Agenda -->
+      <div class="psec ps2 popen" id="pls2">
+        <div class="psec-hdr" onclick="pTogSec('pls2')">
+          <div class="psec-title">Today's Agenda <span class="psec-count" id="pagenda-count"></span></div>
+          <div class="psec-arr">▼</div>
+        </div>
+        <div class="psec-body">
+          <div id="pagenda-list"></div>
+          <div class="planner-add-row plan-ro-hide">
+            <input type="time" class="planner-inp" id="pagenda-time" style="max-width:90px;color:var(--blue);border-color:rgba(0,207,255,.25)"/>
+            <input class="planner-inp" id="pagenda-inp" placeholder="Agenda item..." style="border-color:rgba(0,207,255,.2)" onkeydown="if(event.key==='Enter')pAddAgenda()"/>
+            <button class="planner-add-btn" onclick="pAddAgenda()" style="background:rgba(0,207,255,.1);color:var(--blue);border:1px solid rgba(0,207,255,.25)">+ ADD</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Tasks Today -->
+      <div class="psec ps3 popen" id="pls3">
+        <div class="psec-hdr" onclick="pTogSec('pls3')">
+          <div class="psec-title">Tasks — Today <span class="psec-count" id="ptask-today-count"></span></div>
+          <div class="psec-arr">▼</div>
+        </div>
+        <div class="psec-body">
+          <div id="ptask-today-list"></div>
+          <div class="planner-add-row plan-ro-hide">
+            <input class="planner-inp" id="ptask-today-inp" placeholder="Add a task for today..." style="border-color:rgba(57,255,122,.2)" onkeydown="if(event.key==='Enter')pAddTaskToday()"/>
+            <button class="planner-add-btn" onclick="pAddTaskToday()" style="background:rgba(57,255,122,.1);color:var(--green);border:1px solid rgba(57,255,122,.2)">+ ADD</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Tasks Tomorrow -->
+      <div class="psec ps4 popen" id="pls4">
+        <div class="psec-hdr" onclick="pTogSec('pls4')">
+          <div class="psec-title">Tasks — Tomorrow <span class="psec-count" id="ptask-tmr-count"></span></div>
+          <div class="psec-arr">▼</div>
+        </div>
+        <div class="psec-body">
+          <div class="ptmr-hint">⚡ These tasks automatically move to "Tasks — Today" at midnight</div>
+          <div id="ptask-tmr-list"></div>
+          <div class="planner-add-row">
+            <input class="planner-inp" id="ptask-tmr-inp" placeholder="Add a task for tomorrow..." style="border-color:rgba(57,255,122,.12)" onkeydown="if(event.key==='Enter')pAddTaskTmr()"/>
+            <button class="planner-add-btn" onclick="pAddTaskTmr()" style="background:rgba(57,255,122,.06);color:var(--green);border:1px solid rgba(57,255,122,.12)">+ ADD</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Priority Matrix -->
+      <div class="psec ps5 popen" id="pls5">
+        <div class="psec-hdr" onclick="pTogSec('pls5')">
+          <div class="psec-title">Priority Matrix <span class="psec-count">drag · ✓ to archive</span></div>
+          <div class="psec-arr">▼</div>
+        </div>
+        <div class="psec-body">
+          <div class="paxis-row">
+            <div class="paxis-lbl" style="color:var(--red)">⚡ URGENT</div>
+            <div class="paxis-lbl" style="color:var(--text3)">◷ NOT URGENT</div>
+          </div>
+          <div class="pmatrix">
+            <div class="pquad pqA" id="pmqA" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqA')" ondragleave="pDragLeave(this)">
+              <div class="pquad-hdr">Important + Urgent</div>
+              <div class="pqadd plan-ro-hide" onclick="pAddCard('pmqA')">+ add</div>
+            </div>
+            <div class="pquad pqB" id="pmqB" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqB')" ondragleave="pDragLeave(this)">
+              <div class="pquad-hdr">Important + Not Urgent</div>
+              <div class="pqadd plan-ro-hide" onclick="pAddCard('pmqB')">+ add</div>
+            </div>
+            <div class="pquad pqC" id="pmqC" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqC')" ondragleave="pDragLeave(this)">
+              <div class="pquad-hdr">Not Important + Urgent</div>
+              <div class="pqadd plan-ro-hide" onclick="pAddCard('pmqC')">+ add</div>
+            </div>
+            <div class="pquad pqD" id="pmqD" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqD')" ondragleave="pDragLeave(this)">
+              <div class="pquad-hdr">Not Important + Not Urgent</div>
+              <div class="pqadd plan-ro-hide" onclick="pAddCard('pmqD')">+ add</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 Notes & Ideas -->
+      <div class="psec ps6 popen" id="pls6">
+        <div class="psec-hdr" onclick="pTogSec('pls6')">
+          <div class="psec-title">Notes & Ideas</div>
+          <div class="psec-arr">▼</div>
+        </div>
+        <div class="psec-body">
+          <textarea class="planner-ta" id="planner-notes" placeholder="Brain dump — ideas, references, anything..." oninput="pSaveNotes()"></textarea>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── ARCHIVE TAB ──────────────────────────────────────── -->
     <div class="stats-row" id="archive-stats"></div>
     <div id="archive-list"></div>
   </div>
@@ -1015,6 +1236,9 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
     </div>
     <div class="bottom-nav-item" data-tab="reading" onclick="switchTab('reading')">
       <div class="bn-icon">◻</div><div class="bn-lbl">Books</div>
+    </div>
+    <div class="bottom-nav-item" data-tab="planner" onclick="switchTab('planner')">
+      <div class="bn-icon">◈</div><div class="bn-lbl">Planner</div>
     </div>
     <div class="bottom-nav-item" data-tab="archive" onclick="switchTab('archive')">
       <div class="bn-icon">✦</div><div class="bn-lbl">Hall</div>
@@ -2077,6 +2301,7 @@ document.addEventListener('click', e => {
     document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === tab));
     document.querySelectorAll('.main').forEach(x => x.classList.toggle('visible', x.id === 'tab-' + tab));
     if (tab === 'stats') renderStats();
+    if (tab === 'planner') initPlanner();
     return;
   }
 
@@ -3012,7 +3237,7 @@ document.addEventListener('keydown', e => {
 });
 
 // ── MOBILE: SWIPE TABS ────────────────────────────────────────────────────────
-const TABS = ['music','appdev','fitness','reading','archive','stats'];
+const TABS = ['music','appdev','fitness','reading','planner','archive','stats'];
 let touchStartX = 0, touchStartY = 0;
 
 const appContent = document.querySelector('.app-content');
@@ -3050,6 +3275,7 @@ function switchTab(tab) {
   document.querySelectorAll('.mob-tab-lbl').forEach(l => l.classList.toggle('act', l.dataset.ltab === tab));
   appContent?.scrollTo(0,0);
   if (tab === 'stats') renderStats();
+  if (tab === 'planner') initPlanner();
 }
 
 // sync mobile dots/labels when desktop tabs are clicked
@@ -3543,6 +3769,288 @@ function celebrateArchive(title) {
   overlay.style.cssText='position:fixed;inset:0;z-index:999;pointer-events:none';
   document.body.appendChild(overlay);
   celebrateVinyl(overlay, true, title, null);
+}
+
+// ── PRODUCTIVITY PLANNER ──────────────────────────────────────────────────────
+let plannerDayOffset = 0; // 0=today, -1=yesterday, 1=tomorrow
+const PDAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const PMON_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function pDateKey(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function pFmtDate(offset) {
+  const d = new Date(); d.setDate(d.getDate() + offset);
+  return PDAY_NAMES[d.getDay()] + ' · ' + d.getDate() + ' ' + PMON_NAMES[d.getMonth()];
+}
+
+function getPlannerData(key) {
+  const raw = localStorage.getItem('sp_' + key);
+  return raw ? JSON.parse(raw) : null;
+}
+
+function setPlannerData(key, val) {
+  localStorage.setItem('sp_' + key, JSON.stringify(val));
+}
+
+// Persisted keys (not day-specific)
+function pGetPersist(field) {
+  const raw = localStorage.getItem('sp_persist_' + field);
+  return raw ? JSON.parse(raw) : null;
+}
+function pSetPersist(field, val) {
+  localStorage.setItem('sp_persist_' + field, JSON.stringify(val));
+}
+
+function pTogSec(id) { document.getElementById(id).classList.toggle('popen'); }
+
+function pToggleFilter(btn) {
+  btn.classList.toggle('pf-on');
+  const secs = btn.dataset.psec.split(',');
+  const show = btn.classList.contains('pf-on');
+  secs.forEach(id => { const el = document.getElementById(id.trim()); if(el) el.classList.toggle('phidden', !show); });
+}
+
+function pUpdateDayUI() {
+  const isRO = plannerDayOffset < 0;
+  const lbl  = document.getElementById('plan-day-lbl');
+  const main = document.getElementById('plan-day-main');
+  const sub  = document.getElementById('plan-day-sub');
+  const prev = document.getElementById('plan-prev');
+  const next = document.getElementById('plan-next');
+  const ro   = document.getElementById('plan-ro-banner');
+
+  lbl.className = 'planner-day-label ' + (plannerDayOffset===0?'pday-today':plannerDayOffset<0?'pday-yesterday':'pday-tomorrow');
+  main.textContent = plannerDayOffset===0 ? 'TODAY' : plannerDayOffset===-1 ? 'YESTERDAY' : 'TOMORROW';
+  sub.textContent = pFmtDate(plannerDayOffset);
+  prev.disabled = plannerDayOffset <= -1;
+  next.disabled = plannerDayOffset >= 1;
+  ro.style.display = isRO ? 'block' : 'none';
+  document.querySelectorAll('.plan-ro-hide').forEach(el => el.style.display = isRO ? 'none' : '');
+  // notes readonly
+  const ta = document.getElementById('planner-notes');
+  if (ta) { ta.readOnly = isRO; ta.style.opacity = isRO ? '.55' : '1'; }
+  // tasks not clickable on yesterday
+  document.querySelectorAll('.ptask').forEach(t => t.style.pointerEvents = isRO ? 'none' : '');
+
+  pRenderAll();
+}
+
+// ── RENDER ──
+function pRenderAll() {
+  pRenderGoals(); pRenderAgenda(); pRenderTasksToday(); pRenderTasksTmr(); pRenderMatrix(); pRenderNotes();
+}
+
+function pRenderGoals() {
+  const goals = pGetPersist('goals') || [];
+  const el = document.getElementById('pgoal-list');
+  const isRO = plannerDayOffset < 0;
+  if (!el) return;
+  el.innerHTML = goals.map((g,i) => `
+    <div class="pgoal-item">
+      <div class="pgoal-dot"></div>
+      <div class="pgoal-text">${g}</div>
+      ${!isRO ? `<button class="pxbtn" onclick="pDelGoal(${i})">✕</button>` : ''}
+    </div>`).join('') || `<div style="font-size:10px;color:var(--text3);letter-spacing:1px">No goals yet</div>`;
+  document.getElementById('pgoal-count').textContent = goals.length || '';
+}
+
+function pAddGoal() {
+  const inp = document.getElementById('pgoal-inp');
+  const v = inp.value.trim(); if (!v) return;
+  const goals = pGetPersist('goals') || [];
+  goals.push(v); pSetPersist('goals', goals);
+  inp.value = ''; pRenderGoals();
+}
+function pDelGoal(i) {
+  const goals = pGetPersist('goals') || [];
+  goals.splice(i, 1); pSetPersist('goals', goals); pRenderGoals();
+}
+
+function pRenderAgenda() {
+  const key = pDateKey(plannerDayOffset);
+  const data = getPlannerData('agenda_' + key) || [];
+  const el = document.getElementById('pagenda-list');
+  const isRO = plannerDayOffset < 0;
+  if (!el) return;
+  const sorted = [...data].sort((a,b) => a.time.localeCompare(b.time));
+  el.innerHTML = sorted.map((item,i) => `
+    <div class="pagenda-item">
+      <div class="pagenda-time">${item.time||'—'}</div>
+      <div class="pagenda-text">${item.text}</div>
+      ${!isRO ? `<button class="pxbtn" onclick="pDelAgenda('${key}',${i})">✕</button>` : ''}
+    </div>`).join('') || `<div style="font-size:10px;color:var(--text3);letter-spacing:1px">No agenda items</div>`;
+  document.getElementById('pagenda-count').textContent = data.length ? data.length + ' slot' + (data.length>1?'s':'') : '';
+}
+
+function pAddAgenda() {
+  const time = document.getElementById('pagenda-time').value || '—';
+  const text = document.getElementById('pagenda-inp').value.trim(); if (!text) return;
+  const key  = pDateKey(plannerDayOffset);
+  const data = getPlannerData('agenda_' + key) || [];
+  data.push({time, text}); setPlannerData('agenda_' + key, data);
+  document.getElementById('pagenda-inp').value = ''; document.getElementById('pagenda-time').value = '';
+  pRenderAgenda();
+}
+function pDelAgenda(key, i) {
+  const data = getPlannerData('agenda_' + key) || [];
+  data.splice(i, 1); setPlannerData('agenda_' + key, data); pRenderAgenda();
+}
+
+function pRenderTasksToday() {
+  const key = pDateKey(plannerDayOffset);
+  const tasks = getPlannerData('tasks_' + key) || [];
+  const el = document.getElementById('ptask-today-list');
+  const isRO = plannerDayOffset < 0;
+  if (!el) return;
+  const done = tasks.filter(t => t.done).length;
+  el.innerHTML = tasks.map((t,i) => `
+    <div class="ptask ${t.done?'pdone':''}" onclick="${isRO?'':'pToggleTask(\''+key+'\','+i+')'}" style="${isRO?'cursor:default':''}">
+      <div class="ptask-chk"></div>
+      <div class="ptask-text">${t.text}</div>
+      ${!isRO ? `<button class="pxbtn" onclick="event.stopPropagation();pDelTask('${key}',${i})">✕</button>` : ''}
+    </div>`).join('') || `<div style="font-size:10px;color:var(--text3);letter-spacing:1px">No tasks for today</div>`;
+  document.getElementById('ptask-today-count').textContent = tasks.length ? done+'/'+tasks.length+' done' : '';
+}
+
+function pAddTaskToday() {
+  const inp = document.getElementById('ptask-today-inp');
+  const v = inp.value.trim(); if (!v) return;
+  const key = pDateKey(plannerDayOffset);
+  const tasks = getPlannerData('tasks_' + key) || [];
+  tasks.push({text:v, done:false}); setPlannerData('tasks_' + key, tasks);
+  inp.value = ''; pRenderTasksToday();
+}
+
+function pToggleTask(key, i) {
+  const tasks = getPlannerData('tasks_' + key) || [];
+  tasks[i].done = !tasks[i].done;
+  setPlannerData('tasks_' + key, tasks);
+  if (tasks[i].done) celebrate(tasks[i].text);
+  pRenderTasksToday();
+}
+
+function pDelTask(key, i) {
+  const tasks = getPlannerData('tasks_' + key) || [];
+  tasks.splice(i, 1); setPlannerData('tasks_' + key, tasks); pRenderTasksToday();
+}
+
+function pRenderTasksTmr() {
+  const key = pDateKey(1); // always tomorrow's date
+  const tasks = getPlannerData('tasks_tmr_' + key) || [];
+  const el = document.getElementById('ptask-tmr-list');
+  if (!el) return;
+  el.innerHTML = tasks.map((t,i) => `
+    <div class="ptask ${t.done?'pdone':''}">
+      <div class="ptask-chk" style="opacity:.4"></div>
+      <div class="ptask-text">${t.text}</div>
+      <button class="pxbtn" onclick="pDelTmrTask(${i})">✕</button>
+    </div>`).join('') || `<div style="font-size:10px;color:var(--text3);letter-spacing:1px">No tasks for tomorrow yet</div>`;
+  document.getElementById('ptask-tmr-count').textContent = tasks.length || '';
+}
+
+function pAddTaskTmr() {
+  const inp = document.getElementById('ptask-tmr-inp');
+  const v = inp.value.trim(); if (!v) return;
+  const key = pDateKey(1);
+  const tasks = getPlannerData('tasks_tmr_' + key) || [];
+  tasks.push({text:v, done:false}); setPlannerData('tasks_tmr_' + key, tasks);
+  inp.value = ''; pRenderTasksTmr();
+}
+function pDelTmrTask(i) {
+  const key = pDateKey(1);
+  const tasks = getPlannerData('tasks_tmr_' + key) || [];
+  tasks.splice(i, 1); setPlannerData('tasks_tmr_' + key, tasks); pRenderTasksTmr();
+}
+
+// Auto-promote tomorrow tasks to today at midnight
+function pCheckMidnightPromotion() {
+  const todayKey  = pDateKey(0);
+  const tmrKey    = 'tasks_tmr_' + todayKey; // tasks saved for today (were tomorrow yesterday)
+  const todayTasks = getPlannerData('tasks_' + todayKey) || [];
+  const promoted   = getPlannerData(tmrKey) || [];
+  if (promoted.length && !localStorage.getItem('sp_promoted_' + todayKey)) {
+    const merged = [...promoted, ...todayTasks];
+    setPlannerData('tasks_' + todayKey, merged);
+    localStorage.setItem('sp_promoted_' + todayKey, '1');
+  }
+}
+
+function pRenderMatrix() {
+  const matrix = pGetPersist('matrix') || {pmqA:[], pmqB:[], pmqC:[], pmqD:[]};
+  const isRO = plannerDayOffset < 0;
+  ['pmqA','pmqB','pmqC','pmqD'].forEach(qid => {
+    const quad = document.getElementById(qid);
+    if (!quad) return;
+    const addBtn = quad.querySelector('.pqadd');
+    // remove existing cards
+    quad.querySelectorAll('.pqcard').forEach(c => c.remove());
+    (matrix[qid]||[]).forEach((text, i) => {
+      const card = document.createElement('div');
+      card.className = 'pqcard';
+      card.draggable = !isRO;
+      card.innerHTML = `${text}${!isRO?`<span class="pqcard-arch" onclick="pArchCard('${qid}',${i})">✓</span>`:''}`;
+      if (!isRO) card.ondragstart = (e) => pDragStart(e, card);
+      quad.insertBefore(card, addBtn);
+    });
+  });
+}
+
+function pSaveMatrix() {
+  const matrix = {};
+  ['pmqA','pmqB','pmqC','pmqD'].forEach(qid => {
+    matrix[qid] = Array.from(document.querySelectorAll('#'+qid+' .pqcard')).map(c => c.childNodes[0].textContent.trim());
+  });
+  pSetPersist('matrix', matrix);
+}
+
+function pAddCard(qid) {
+  const text = prompt('New item:'); if (!text) return;
+  const matrix = pGetPersist('matrix') || {pmqA:[], pmqB:[], pmqC:[], pmqD:[]};
+  (matrix[qid] = matrix[qid]||[]).push(text);
+  pSetPersist('matrix', matrix); pRenderMatrix();
+}
+
+function pArchCard(qid, i) {
+  const matrix = pGetPersist('matrix') || {};
+  (matrix[qid]||[]).splice(i, 1);
+  pSetPersist('matrix', matrix); pRenderMatrix();
+}
+
+let pDragEl = null;
+function pDragStart(e, el) { pDragEl = el; e.dataTransfer.effectAllowed = 'move'; }
+function pDragOver(e, quad) { e.preventDefault(); quad.classList.add('pq-over'); }
+function pDragLeave(quad) { quad.classList.remove('pq-over'); }
+function pDrop(e, qid) {
+  e.preventDefault();
+  document.getElementById(qid).classList.remove('pq-over');
+  if (pDragEl) {
+    const addBtn = document.querySelector('#'+qid+' .pqadd');
+    document.getElementById(qid).insertBefore(pDragEl, addBtn);
+    pSaveMatrix();
+  }
+}
+
+function pRenderNotes() {
+  const ta = document.getElementById('planner-notes');
+  if (!ta) return;
+  ta.value = pGetPersist('notes') || '';
+}
+function pSaveNotes() {
+  pSetPersist('notes', document.getElementById('planner-notes')?.value || '');
+}
+
+// Day nav
+document.getElementById('plan-prev')?.addEventListener('click', () => { plannerDayOffset = Math.max(-1, plannerDayOffset-1); pUpdateDayUI(); });
+document.getElementById('plan-next')?.addEventListener('click', () => { plannerDayOffset = Math.min(1, plannerDayOffset+1); pUpdateDayUI(); });
+
+// Init planner when tab is switched to
+function initPlanner() {
+  pCheckMidnightPromotion();
+  pUpdateDayUI();
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
