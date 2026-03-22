@@ -3612,14 +3612,6 @@ function buildWeeklyStats() {
   const totalCal = notes.reduce((s,n) => s+(n.cal||0), 0);
   const avgBookPct = books.length ? Math.round(books.reduce((s,b) => s+Math.min(100,Math.round(b.currentPage/b.totalPages*100)), 0)/books.length) : 0;
 
-  // stat cards
-  const cards = `<div class="stats-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px">
-    <div class="stat-card"><div class="stat-val" style="color:var(--green)">${songs.length}</div><div class="stat-lbl">Active Tracks</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:var(--orange)">${fitDone}</div><div class="stat-lbl">Workouts</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:var(--gold)">${avgBookPct}%</div><div class="stat-lbl">Book Avg</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:var(--blue)">${apps.length}</div><div class="stat-lbl">Projects</div></div>
-  </div>`;
-
   // music progress bars
   const musicBars = songs.length ? songs.map(s => {
     const pct = calcPct(s.steps);
@@ -3664,8 +3656,7 @@ function buildWeeklyStats() {
     `<div class="stats-insight"><div class="stats-insight-dot" style="background:${ins.col}"></div><div class="stats-insight-text">${ins.text}</div></div>`
   ).join('');
 
-  return `${cards}
-  <div class="stats-sec">
+  return `  <div class="stats-sec">
     <div class="stats-sec-hdr" style="color:var(--green)"><span style="background:var(--green)"></span>Music — track progress</div>
     ${musicBars}
   </div>
@@ -3693,13 +3684,6 @@ function buildMonthlyStats() {
   const booksDone = books.filter(b => b.currentPage >= b.totalPages).length;
   const totalPages = books.reduce((s,b) => s+b.currentPage, 0);
 
-  const cards = `<div class="stats-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px">
-    <div class="stat-card"><div class="stat-val" style="color:var(--green)">${musicDone}</div><div class="stat-lbl">Tracks Done</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:var(--orange)">${fitDone}</div><div class="stat-lbl">Workouts</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:var(--gold)">${booksDone}</div><div class="stat-lbl">Books Done</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:var(--blue)">${appsDone}</div><div class="stat-lbl">Apps Shipped</div></div>
-  </div>`;
-
   // music progress bars
   const musicBars = songs.length ? `<div class="stats-sec">
     <div class="stats-sec-hdr" style="color:var(--green)"><span style="background:var(--green)"></span>Music — all tracks this month</div>
@@ -3717,9 +3701,9 @@ function buildMonthlyStats() {
   // fitness summary
   const fitSummary = `<div class="stats-sec">
     <div class="stats-sec-hdr" style="color:var(--orange)"><span style="background:var(--orange)"></span>Fitness — month summary</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-      <div class="stat-card"><div class="stat-val" style="color:var(--orange);font-size:18px">${fitDone}</div><div class="stat-lbl">Total Workouts</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:var(--orange);font-size:18px">${totalCal>0?totalCal.toLocaleString()+'<span style="font-size:11px"> kcal</span>':'—'}</div><div class="stat-lbl">Total Calories</div></div>
+    <div style="display:flex;gap:16px;margin-bottom:8px">
+      <div style="font-size:11px;color:var(--text2)">Workouts: <span style="color:var(--orange);font-weight:700;font-family:var(--mono)">${fitDone}</span></div>
+      <div style="font-size:11px;color:var(--text2)">Calories: <span style="color:var(--orange);font-weight:700;font-family:var(--mono)">${totalCal>0?totalCal.toLocaleString()+' kcal':'—'}</span></div>
     </div>
     ${notes.length ? `<div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:4px">Recent sessions</div>
     ${notes.slice(-3).reverse().map(n => `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--bg2);border-radius:3px;margin-bottom:4px;border-left:2px solid var(--green2)">
@@ -3757,7 +3741,7 @@ function buildMonthlyStats() {
   if (appsDone > 0) insights.push({col:'var(--blue)', text:`<b>${appsDone}</b> app project${appsDone>1?'s':''} shipped this month.`});
   if (!insights.some(i=>i.col==='var(--blue)')) insights.push({col:'var(--blue)', text:`<b>${apps.length}</b> app project${apps.length!==1?'s':''} in progress.`});
 
-  return `${cards}${musicBars}${fitSummary}${booksSummary}
+  return `${musicBars}${fitSummary}${booksSummary}
   <div class="stats-sec">
     <div class="stats-sec-hdr" style="color:var(--text3)"><span style="background:var(--text3)"></span>Monthly insights</div>
     ${insights.map(ins =>
