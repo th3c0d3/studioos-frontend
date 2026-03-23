@@ -822,14 +822,35 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
 .pqB .pquad-hdr{color:var(--gold)}.pqB .pquad-hdr::before{background:var(--gold)}
 .pqC .pquad-hdr{color:var(--text2)}.pqC .pquad-hdr::before{background:var(--text2)}
 .pqD .pquad-hdr{color:var(--text3)}.pqD .pquad-hdr::before{background:var(--text3)}
-.pqcard{background:var(--bg2);border-radius:2px;padding:3px 6px;margin-bottom:3px;font-size:10px;color:var(--text);cursor:grab;display:flex;align-items:center;gap:4px;border-left:2px solid;transition:opacity .2s}
+.pqcard{background:var(--bg2);border-radius:2px;padding:4px 7px;margin-bottom:3px;font-size:10px;color:var(--text);cursor:grab;display:flex;align-items:center;gap:5px;border-left:2px solid;transition:opacity .2s}
 .pqcard:active{opacity:.6}
+.pqcard.pq-task{border-left-style:solid}
+.pqcard.pq-standalone{border-left-style:dashed}
+.pq-task-dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;opacity:.7}
 .pqA .pqcard{border-left-color:var(--red)}
 .pqB .pqcard{border-left-color:var(--gold)}
 .pqC .pqcard{border-left-color:var(--text2);color:var(--text2)}
 .pqD .pqcard{border-left-color:var(--text3);color:var(--text3)}
-.pqcard-arch{font-size:9px;color:var(--text3);cursor:pointer;margin-left:auto;transition:color .2s}
+.pqcard-arch{font-size:9px;color:var(--text3);cursor:pointer;margin-left:auto;transition:color .2s;flex-shrink:0}
 .pqcard-arch:hover{color:var(--green)}
+.pq-week-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.pq-week-lbl{font-size:9px;color:var(--text3);letter-spacing:1px}
+.pq-new-week-btn{font-size:8px;color:var(--orange);border:1px solid rgba(255,124,26,.3);background:rgba(255,124,26,.08);padding:3px 8px;border-radius:2px;cursor:pointer;letter-spacing:1px;font-family:var(--font);transition:all .2s}
+.pq-new-week-btn:hover{background:rgba(255,124,26,.15)}
+.pq-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+.pq-leg-item{display:flex;align-items:center;gap:4px;font-size:8px;color:var(--text3);letter-spacing:.5px}
+.pq-leg-solid{width:10px;height:3px;background:var(--green);border-radius:1px}
+.pq-leg-dashed{width:10px;height:3px;border:1px dashed var(--gold);border-radius:1px}
+/* new week modal */
+.pq-week-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center}
+.pq-week-modal.open{display:flex}
+.pq-week-modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:20px;max-width:300px;width:90%}
+.pq-week-modal-title{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:2px;margin-bottom:6px}
+.pq-week-modal-sub{font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:14px}
+.pq-week-modal-btns{display:flex;gap:8px}
+.pqwm-btn{flex:1;padding:8px;font-size:9px;font-weight:700;letter-spacing:1px;border-radius:3px;cursor:pointer;font-family:var(--font);border:none;transition:all .2s}
+.pqwm-carry{background:rgba(57,255,122,.15);color:var(--green);border:1px solid rgba(57,255,122,.3)!important}
+.pqwm-clear{background:rgba(255,124,26,.1);color:var(--orange);border:1px solid rgba(255,124,26,.25)!important}
 .pqadd{font-size:8px;color:var(--text3);cursor:pointer;padding:2px 0;letter-spacing:1px;transition:color .2s}
 .pqadd:hover{color:var(--gold)}
 .pq-add-row{display:flex;gap:4px;margin-top:4px}
@@ -1172,10 +1193,14 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
       <!-- 5 Priority Matrix -->
       <div class="psec ps5 popen" id="pls5">
         <div class="psec-hdr" onclick="pTogSec('pls5')">
-          <div class="psec-title">Priority Matrix <span class="psec-count">drag · ✓ to archive</span></div>
+          <div class="psec-title">Priority Matrix <span class="psec-count" id="pmatrix-week-lbl"></span></div>
           <div class="psec-arr">▼</div>
         </div>
         <div class="psec-body">
+          <div class="pq-week-hdr">
+            <div style="font-size:9px;color:var(--text3);letter-spacing:1px" id="pmatrix-week-range"></div>
+            <button class="pq-new-week-btn plan-ro-hide" onclick="pOpenNewWeekModal()">↻ NEW WEEK</button>
+          </div>
           <div class="paxis-row">
             <div class="paxis-lbl" style="color:var(--red)">⚡ URGENT</div>
             <div class="paxis-lbl" style="color:var(--text3)">◷ NOT URGENT</div>
@@ -1184,31 +1209,36 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
             <div class="pquad pqA" id="pmqA" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqA')" ondragleave="pDragLeave(this)">
               <div class="pquad-hdr">Important + Urgent</div>
               <div class="pq-add-row plan-ro-hide">
-                <input class="pq-add-inp" id="pqi-pmqA" placeholder="Add item..." onkeydown="if(event.key==='Enter')pAddCard('pmqA')"/>
+                <input class="pq-add-inp" id="pqi-pmqA" placeholder="Add card or task..." onkeydown="if(event.key==='Enter')pAddCard('pmqA')"/>
                 <button class="pq-add-btn" onclick="pAddCard('pmqA')">+</button>
               </div>
             </div>
             <div class="pquad pqB" id="pmqB" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqB')" ondragleave="pDragLeave(this)">
               <div class="pquad-hdr">Important + Not Urgent</div>
               <div class="pq-add-row plan-ro-hide">
-                <input class="pq-add-inp" id="pqi-pmqB" placeholder="Add item..." onkeydown="if(event.key==='Enter')pAddCard('pmqB')"/>
+                <input class="pq-add-inp" id="pqi-pmqB" placeholder="Add card or task..." onkeydown="if(event.key==='Enter')pAddCard('pmqB')"/>
                 <button class="pq-add-btn" onclick="pAddCard('pmqB')">+</button>
               </div>
             </div>
             <div class="pquad pqC" id="pmqC" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqC')" ondragleave="pDragLeave(this)">
               <div class="pquad-hdr">Not Important + Urgent</div>
               <div class="pq-add-row plan-ro-hide">
-                <input class="pq-add-inp" id="pqi-pmqC" placeholder="Add item..." onkeydown="if(event.key==='Enter')pAddCard('pmqC')"/>
+                <input class="pq-add-inp" id="pqi-pmqC" placeholder="Add card or task..." onkeydown="if(event.key==='Enter')pAddCard('pmqC')"/>
                 <button class="pq-add-btn" onclick="pAddCard('pmqC')">+</button>
               </div>
             </div>
             <div class="pquad pqD" id="pmqD" ondragover="pDragOver(event,this)" ondrop="pDrop(event,'pmqD')" ondragleave="pDragLeave(this)">
               <div class="pquad-hdr">Not Important + Not Urgent</div>
               <div class="pq-add-row plan-ro-hide">
-                <input class="pq-add-inp" id="pqi-pmqD" placeholder="Add item..." onkeydown="if(event.key==='Enter')pAddCard('pmqD')"/>
+                <input class="pq-add-inp" id="pqi-pmqD" placeholder="Add card or task..." onkeydown="if(event.key==='Enter')pAddCard('pmqD')"/>
                 <button class="pq-add-btn" onclick="pAddCard('pmqD')">+</button>
               </div>
             </div>
+          </div>
+          <div class="pq-legend">
+            <div class="pq-leg-item"><div class="pq-leg-solid"></div> Task-linked</div>
+            <div class="pq-leg-item"><div class="pq-leg-dashed"></div> Standalone</div>
+            <div style="font-size:8px;color:var(--text3);letter-spacing:.5px">Drag today's tasks into any quadrant to prioritise</div>
           </div>
         </div>
       </div>
@@ -1384,6 +1414,18 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
       <div><div class="sheet-item-name">Book</div><div class="sheet-item-desc">Add to your reading list</div></div>
     </div>
     <button class="sheet-cancel" id="sheetCancel">CANCEL</button>
+  </div>
+</div>
+
+<!-- ── NEW WEEK MATRIX MODAL ──────────────────────────────── -->
+<div class="pq-week-modal" id="pqWeekModal">
+  <div class="pq-week-modal-box">
+    <div class="pq-week-modal-title">NEW WEEK</div>
+    <div class="pq-week-modal-sub" id="pqWeekModalSub">You have cards in the matrix from last week. What would you like to do?</div>
+    <div class="pq-week-modal-btns">
+      <button class="pqwm-btn pqwm-carry" onclick="pNewWeekAction('carry')">Carry over</button>
+      <button class="pqwm-btn pqwm-clear" onclick="pNewWeekAction('clear')">Archive & clear</button>
+    </div>
   </div>
 </div>
 
@@ -4212,12 +4254,17 @@ function pRenderTasksToday() {
   const isRO = plannerDayOffset < 0;
   if (!el) return;
   const done = tasks.filter(t => t.done).length;
-  el.innerHTML = tasks.map((t,i) => `
-    <div class="ptask ${t.done?'pdone':''}" onclick="${isRO?'':'pToggleTask(\''+key+'\','+i+')'}" style="${isRO?'cursor:default':''}">
+  el.innerHTML = tasks.map((t,i) => {
+    return `<div class="ptask ${t.done?'pdone':''}"
+      onclick="${isRO?'':'pToggleTask(\''+key+'\','+i+')'}"
+      style="${isRO?'cursor:default':''}"
+      draggable="${!isRO && !t.done}"
+      ondragstart="pTaskDragStart(event,${i},'${key}')">
       <div class="ptask-chk"></div>
       <div class="ptask-text">${t.text}</div>
       ${!isRO ? `<button class="pxbtn" onclick="event.stopPropagation();pDelTask('${key}',${i})">✕</button>` : ''}
-    </div>`).join('') || `<div style="font-size:10px;color:var(--text3);letter-spacing:1px">No tasks for today</div>`;
+    </div>`;
+  }).join('') || `<div style="font-size:10px;color:var(--text3);letter-spacing:1px">No tasks for today</div>`;
   document.getElementById('ptask-today-count').textContent = tasks.length ? done+'/'+tasks.length+' done' : '';
 }
 
@@ -4226,7 +4273,8 @@ function pAddTaskToday() {
   const v = inp.value.trim(); if (!v) return;
   const key = pDateKey(plannerDayOffset);
   const tasks = getPlannerData('tasks_' + key) || [];
-  tasks.push({text:v, done:false}); setPlannerData('tasks_' + key, tasks);
+  tasks.push({text:v, done:false, quadrant:null});
+  setPlannerData('tasks_' + key, tasks);
   inp.value = ''; pRenderTasksToday();
 }
 
@@ -4234,17 +4282,35 @@ function pToggleTask(key, i) {
   const tasks = getPlannerData('tasks_' + key) || [];
   tasks[i].done = !tasks[i].done;
   setPlannerData('tasks_' + key, tasks);
-  if (tasks[i].done) celebrate(tasks[i].text);
+  if (tasks[i].done) {
+    celebrate(tasks[i].text);
+    // remove from matrix
+    tasks[i].quadrant = null;
+    setPlannerData('tasks_' + key, tasks);
+    pRenderMatrix();
+  }
   pRenderTasksToday();
 }
 
 function pDelTask(key, i) {
   const tasks = getPlannerData('tasks_' + key) || [];
-  tasks.splice(i, 1); setPlannerData('tasks_' + key, tasks); pRenderTasksToday();
+  // also clear from matrix
+  const t = tasks[i];
+  if (t && t.quadrant) {
+    const matrix = pGetPersist('matrix') || {};
+    if (matrix[t.quadrant]) {
+      matrix[t.quadrant] = matrix[t.quadrant].filter(c => !(c.taskKey === key && c.taskIdx === i));
+      // re-index after removal
+      pSetPersist('matrix', matrix);
+    }
+  }
+  tasks.splice(i, 1);
+  setPlannerData('tasks_' + key, tasks);
+  pRenderTasksToday(); pRenderMatrix();
 }
 
 function pRenderTasksTmr() {
-  const key = pDateKey(1); // always tomorrow's date
+  const key = pDateKey(1);
   const tasks = getPlannerData('tasks_tmr_' + key) || [];
   const el = document.getElementById('ptask-tmr-list');
   if (!el) return;
@@ -4262,55 +4328,132 @@ function pAddTaskTmr() {
   const v = inp.value.trim(); if (!v) return;
   const key = pDateKey(1);
   const tasks = getPlannerData('tasks_tmr_' + key) || [];
-  tasks.push({text:v, done:false}); setPlannerData('tasks_tmr_' + key, tasks);
+  tasks.push({text:v, done:false, quadrant:null});
+  setPlannerData('tasks_tmr_' + key, tasks);
   inp.value = ''; pRenderTasksTmr();
 }
+
 function pDelTmrTask(i) {
   const key = pDateKey(1);
   const tasks = getPlannerData('tasks_tmr_' + key) || [];
   tasks.splice(i, 1); setPlannerData('tasks_tmr_' + key, tasks); pRenderTasksTmr();
 }
 
-// Auto-promote tomorrow tasks to today at midnight
+// ── MIDNIGHT PROMOTION (carry quadrant positions) ─────────────────────────────
 function pCheckMidnightPromotion() {
-  const todayKey   = pDateKey(0);
-  const tmrData    = plannerDB?.days?.[todayKey]?.tasks_tmr || [];
+  const todayKey    = pDateKey(0);
+  const tmrData     = plannerDB?.days?.[todayKey]?.tasks_tmr || [];
   const alreadyDone = plannerDB?.promoted?.[todayKey];
   if (tmrData.length && !alreadyDone) {
     const todayTasks = plannerDB?.days?.[todayKey]?.tasks || [];
-    const merged = [...tmrData, ...todayTasks];
+    // tmrData carries quadrant positions — merge preserving them
+    const merged = [...tmrData.map(t => ({...t})), ...todayTasks];
     if (!plannerDB.days[todayKey]) plannerDB.days[todayKey] = {};
     plannerDB.days[todayKey].tasks = merged;
+    // also update matrix standalone cards for carried-over tasks
+    const matrix = pGetPersist('matrix') || {pmqA:[],pmqB:[],pmqC:[],pmqD:[]};
+    tmrData.forEach(t => {
+      if (t.quadrant && !t.done) {
+        if (!matrix[t.quadrant]) matrix[t.quadrant] = [];
+        // add as task-linked card if not already there
+        const already = matrix[t.quadrant].some(c => typeof c === 'object' && c.text === t.text);
+        if (!already) matrix[t.quadrant].push({text: t.text, isTask: true, taskDate: todayKey});
+      }
+    });
+    pSetPersist('matrix', matrix);
     if (!plannerDB.promoted) plannerDB.promoted = {};
     plannerDB.promoted[todayKey] = true;
     schedulePlannerSave();
   }
 }
 
+// ── UNIFIED MATRIX DATA MODEL ─────────────────────────────────────────────────
+// Matrix stores: { pmqA: [{text, isTask, taskDate?}], ... }
+// task-linked: isTask:true, taskDate: 'YYYY-MM-DD'
+// standalone: isTask:false or undefined
+
+function pGetMatrix() {
+  const raw = pGetPersist('matrix') || {pmqA:[],pmqB:[],pmqC:[],pmqD:[]};
+  // migrate old string format
+  ['pmqA','pmqB','pmqC','pmqD'].forEach(q => {
+    raw[q] = (raw[q]||[]).map(c => typeof c === 'string' ? {text:c, isTask:false} : c);
+  });
+  return raw;
+}
+
+function pCurrentWeekKey() {
+  const d = new Date();
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return `${d.getFullYear()}-W${String(week).padStart(2,'0')}`;
+}
+
+function pWeekLabel() {
+  const d = new Date();
+  const dow = d.getDay();
+  const mon = new Date(d); mon.setDate(d.getDate() - (dow===0?6:dow-1));
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${M[mon.getMonth()]} ${mon.getDate()} – ${M[sun.getMonth()]} ${sun.getDate()}`;
+}
+
 function pRenderMatrix() {
-  const matrix = pGetPersist('matrix') || {pmqA:[], pmqB:[], pmqC:[], pmqD:[]};
   const isRO = plannerDayOffset < 0;
+  const todayKey = pDateKey(0);
+  const matrix = pGetMatrix();
+  const todayTasks = getPlannerData('tasks_' + todayKey) || [];
+
+  // update week label
+  const wkLbl = document.getElementById('pmatrix-week-lbl');
+  const wkRange = document.getElementById('pmatrix-week-range');
+  const wk = pCurrentWeekKey();
+  if (wkLbl) wkLbl.textContent = wk;
+  if (wkRange) wkRange.textContent = pWeekLabel();
+
   ['pmqA','pmqB','pmqC','pmqD'].forEach(qid => {
     const quad = document.getElementById(qid);
     if (!quad) return;
     const addRow = quad.querySelector('.pq-add-row');
-    // remove existing cards only
     quad.querySelectorAll('.pqcard').forEach(c => c.remove());
-    (matrix[qid] || []).forEach((text, i) => {
-      const card = document.createElement('div');
-      card.className = 'pqcard';
-      card.draggable = !isRO;
-      card.innerHTML = `${text}${!isRO ? `<span class="pqcard-arch" onclick="pArchCard('${qid}',${i})">✓</span>` : ''}`;
-      if (!isRO) card.ondragstart = (e) => pDragStart(e, card);
-      quad.insertBefore(card, addRow);
+
+    (matrix[qid]||[]).forEach((card, i) => {
+      const isTaskCard = card.isTask;
+      // if task-linked, check if the task is still alive and not done
+      if (isTaskCard && card.taskDate) {
+        const dayTasks = getPlannerData('tasks_' + card.taskDate) || [];
+        const task = dayTasks.find(t => t.text === card.text);
+        if (task && task.done) return; // skip done tasks in matrix
+      }
+      const el = document.createElement('div');
+      el.className = `pqcard ${isTaskCard ? 'pq-task' : 'pq-standalone'}`;
+      el.draggable = !isRO;
+      el.dataset.cardIdx = i;
+      el.dataset.quadrant = qid;
+      el.innerHTML = `${isTaskCard ? '<div class="pq-task-dot"></div>' : ''}${card.text}${!isRO ? `<span class="pqcard-arch" onclick="pArchCard('${qid}',${i})">✓</span>` : ''}`;
+      if (!isRO) el.ondragstart = (e) => pDragStart(e, el);
+      quad.insertBefore(el, addRow);
     });
   });
+
+  // check for new week
+  const savedWeek = pGetPersist('currentWeek');
+  const currentWeek = pCurrentWeekKey();
+  if (savedWeek && savedWeek !== currentWeek) {
+    const totalCards = ['pmqA','pmqB','pmqC','pmqD'].reduce((s,q) => s+(matrix[q]||[]).length, 0);
+    if (totalCards > 0) pShowNewWeekModal(totalCards, savedWeek);
+  }
+  if (!savedWeek) pSetPersist('currentWeek', currentWeek);
 }
 
 function pSaveMatrix() {
-  const matrix = {};
+  const matrix = {pmqA:[],pmqB:[],pmqC:[],pmqD:[]};
   ['pmqA','pmqB','pmqC','pmqD'].forEach(qid => {
-    matrix[qid] = Array.from(document.querySelectorAll('#'+qid+' .pqcard')).map(c => c.childNodes[0].textContent.trim());
+    document.querySelectorAll('#'+qid+' .pqcard').forEach(el => {
+      const i = +el.dataset.cardIdx;
+      const cur = pGetMatrix();
+      if (cur[qid]?.[i] !== undefined) matrix[qid].push(cur[qid][i]);
+      else matrix[qid].push({text: el.textContent.replace('✓','').trim(), isTask: el.classList.contains('pq-task')});
+    });
   });
   pSetPersist('matrix', matrix);
 }
@@ -4319,31 +4462,125 @@ function pAddCard(qid) {
   const inp = document.getElementById('pqi-' + qid);
   const text = inp ? inp.value.trim() : '';
   if (!text) return;
-  const matrix = pGetPersist('matrix') || {pmqA:[], pmqB:[], pmqC:[], pmqD:[]};
-  (matrix[qid] = matrix[qid] || []).push(text);
+  // add to matrix as standalone
+  const matrix = pGetMatrix();
+  (matrix[qid] = matrix[qid]||[]).push({text, isTask:false});
   pSetPersist('matrix', matrix);
-  inp.value = '';
-  pRenderMatrix();
-  inp.focus();
+  // also add to today's tasks
+  const key = pDateKey(0);
+  const tasks = getPlannerData('tasks_' + key) || [];
+  tasks.push({text, done:false, quadrant: qid});
+  setPlannerData('tasks_' + key, tasks);
+  // mark as task-linked in matrix
+  const m2 = pGetMatrix();
+  const last = m2[qid].length - 1;
+  m2[qid][last] = {text, isTask:true, taskDate: key};
+  pSetPersist('matrix', m2);
+  if (inp) { inp.value = ''; inp.focus(); }
+  pRenderMatrix(); pRenderTasksToday();
 }
 
 function pArchCard(qid, i) {
-  const matrix = pGetPersist('matrix') || {};
+  const matrix = pGetMatrix();
+  const card = matrix[qid]?.[i];
+  // if task-linked, complete the task too
+  if (card?.isTask && card.taskDate) {
+    const tasks = getPlannerData('tasks_' + card.taskDate) || [];
+    const t = tasks.find(t => t.text === card.text);
+    if (t && !t.done) { t.done = true; setPlannerData('tasks_' + card.taskDate, tasks); pRenderTasksToday(); }
+  }
   (matrix[qid]||[]).splice(i, 1);
   pSetPersist('matrix', matrix); pRenderMatrix();
 }
 
+// drag from task list into matrix
 let pDragEl = null;
-function pDragStart(e, el) { pDragEl = el; e.dataTransfer.effectAllowed = 'move'; }
+let pDragTaskInfo = null;
+
+function pTaskDragStart(e, taskIdx, dateKey) {
+  const tasks = getPlannerData('tasks_' + dateKey) || [];
+  const task = tasks[taskIdx];
+  if (!task || task.done) { e.preventDefault(); return; }
+  pDragEl = null;
+  pDragTaskInfo = {taskIdx, dateKey, text: task.text};
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', task.text);
+}
+
+function pDragStart(e, el) {
+  pDragEl = el;
+  pDragTaskInfo = null;
+  e.dataTransfer.effectAllowed = 'move';
+}
+
 function pDragOver(e, quad) { e.preventDefault(); quad.classList.add('pq-over'); }
 function pDragLeave(quad) { quad.classList.remove('pq-over'); }
+
 function pDrop(e, qid) {
   e.preventDefault();
   document.getElementById(qid).classList.remove('pq-over');
-  if (pDragEl) {
+
+  if (pDragTaskInfo) {
+    // dropping a task from the task list into a quadrant
+    const {taskIdx, dateKey, text} = pDragTaskInfo;
+    pDragTaskInfo = null;
+    const tasks = getPlannerData('tasks_' + dateKey) || [];
+    // remove from any existing quadrant in matrix first
+    const matrix = pGetMatrix();
+    ['pmqA','pmqB','pmqC','pmqD'].forEach(q => {
+      matrix[q] = (matrix[q]||[]).filter(c => !(c.isTask && c.text === text && c.taskDate === dateKey));
+    });
+    // add to new quadrant
+    (matrix[qid] = matrix[qid]||[]).push({text, isTask:true, taskDate: dateKey});
+    pSetPersist('matrix', matrix);
+    // update task's quadrant field
+    if (tasks[taskIdx]) { tasks[taskIdx].quadrant = qid; setPlannerData('tasks_' + dateKey, tasks); }
+    pRenderMatrix(); pRenderTasksToday();
+  } else if (pDragEl) {
+    // moving a card between quadrants
     const addRow = document.querySelector('#' + qid + ' .pq-add-row');
     document.getElementById(qid).insertBefore(pDragEl, addRow);
-    pSaveMatrix();
+    // save the new matrix positions
+    const matrix = pGetMatrix();
+    const fromQid = pDragEl.dataset.quadrant;
+    const fromIdx = +pDragEl.dataset.cardIdx;
+    if (fromQid && matrix[fromQid]?.[fromIdx]) {
+      const card = matrix[fromQid].splice(fromIdx, 1)[0];
+      (matrix[qid] = matrix[qid]||[]).push(card);
+      pSetPersist('matrix', matrix);
+    }
+    pDragEl = null;
+    pRenderMatrix();
+  }
+}
+
+// ── NEW WEEK MODAL ────────────────────────────────────────────────────────────
+function pShowNewWeekModal(count, oldWeek) {
+  const modal = document.getElementById('pqWeekModal');
+  const sub   = document.getElementById('pqWeekModalSub');
+  if (!modal) return;
+  if (sub) sub.innerHTML = `You have <strong style="color:var(--gold)">${count} card${count>1?'s':''}</strong> in the matrix from last week (${oldWeek}).<br>What would you like to do?`;
+  modal.classList.add('open');
+}
+
+function pOpenNewWeekModal() {
+  const matrix = pGetMatrix();
+  const count = ['pmqA','pmqB','pmqC','pmqD'].reduce((s,q) => s+(matrix[q]||[]).length, 0);
+  pShowNewWeekModal(count || 0, pGetPersist('currentWeek') || '');
+}
+
+function pNewWeekAction(action) {
+  const modal = document.getElementById('pqWeekModal');
+  if (modal) modal.classList.remove('open');
+  const newWeek = pCurrentWeekKey();
+  pSetPersist('currentWeek', newWeek);
+  if (action === 'clear') {
+    pSetPersist('matrix', {pmqA:[],pmqB:[],pmqC:[],pmqD:[]});
+    pRenderMatrix();
+    showToast('Matrix cleared for new week', 'success');
+  } else {
+    showToast('Matrix carried over to new week ✓', 'success');
+    pRenderMatrix();
   }
 }
 
@@ -4355,6 +4592,7 @@ function pRenderNotes() {
 function pSaveNotes() {
   pSetPersist('notes', document.getElementById('planner-notes')?.value || '');
 }
+
 
 // ── PLANNER WEEK VIEW ─────────────────────────────────────────────────────────
 let planWeekOffset = 0;
