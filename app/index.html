@@ -1126,7 +1126,7 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
       </div>
     </div>
     <div class="planner-content" id="planner-content">
-      <div class="planner-ro-banner" id="plan-ro-banner">◷ YESTERDAY — read only · navigate to today to make changes</div>
+      <div class="planner-ro-banner" id="plan-ro-banner">◷ PAST DAY — read only · navigate to today to make changes</div>
 
       <!-- 1 Primary Goals -->
       <div class="psec ps1 popen" id="pls1">
@@ -4170,17 +4170,30 @@ function pUpdateDayUI() {
   const next = document.getElementById('plan-next');
   const ro   = document.getElementById('plan-ro-banner');
 
+  // label class
   lbl.className = 'planner-day-label ' + (plannerDayOffset===0?'pday-today':plannerDayOffset<0?'pday-yesterday':'pday-tomorrow');
-  main.textContent = plannerDayOffset===0 ? 'TODAY' : plannerDayOffset===-1 ? 'YESTERDAY' : 'TOMORROW';
+
+  // main label — today/yesterday/tomorrow or full date
+  if      (plannerDayOffset ===  0) main.textContent = 'TODAY';
+  else if (plannerDayOffset === -1) main.textContent = 'YESTERDAY';
+  else if (plannerDayOffset ===  1) main.textContent = 'TOMORROW';
+  else {
+    const d = new Date(); d.setDate(d.getDate() + plannerDayOffset);
+    const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    main.textContent = DAYS[d.getDay()].toUpperCase() + ' ' + d.getDate() + ' ' + MONS[d.getMonth()];
+  }
   sub.textContent = pFmtDate(plannerDayOffset);
-  prev.disabled = plannerDayOffset <= -1;
-  next.disabled = plannerDayOffset >= 1;
-  ro.style.display = isRO ? 'block' : 'none';
+
+  // no disabled limits — always allow navigation
+  if (prev) prev.disabled = false;
+  if (next) next.disabled = plannerDayOffset >= 7; // limit future to 1 week ahead
+
+  // read-only for any past day
+  if (ro) ro.style.display = isRO ? 'block' : 'none';
   document.querySelectorAll('.plan-ro-hide').forEach(el => el.style.display = isRO ? 'none' : '');
-  // notes readonly
   const ta = document.getElementById('planner-notes');
   if (ta) { ta.readOnly = isRO; ta.style.opacity = isRO ? '.55' : '1'; }
-  // tasks not clickable on yesterday
   document.querySelectorAll('.ptask').forEach(t => t.style.pointerEvents = isRO ? 'none' : '');
 
   pRenderAll();
@@ -4741,14 +4754,13 @@ function pRenderDayDetail(off) {
 }
 
 function pGoToDay(off) {
-  // clamp to yesterday/today/tomorrow — the only editable range
-  plannerDayOffset = Math.max(-1, Math.min(1, off));
+  plannerDayOffset = off;
   pSetView('day');
 }
 
 // ── PLANNER DAY NAV ───────────────────────────────────────────────────────────
-document.getElementById('plan-prev')?.addEventListener('click', () => { plannerDayOffset = Math.max(-1, plannerDayOffset-1); pUpdateDayUI(); });
-document.getElementById('plan-next')?.addEventListener('click', () => { plannerDayOffset = Math.min(1, plannerDayOffset+1); pUpdateDayUI(); });
+document.getElementById('plan-prev')?.addEventListener('click', () => { plannerDayOffset--; pUpdateDayUI(); });
+document.getElementById('plan-next')?.addEventListener('click', () => { plannerDayOffset++; pUpdateDayUI(); });
 
 // Init planner when tab is switched to
 function initPlanner() {
