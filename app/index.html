@@ -1681,7 +1681,7 @@ async function enterDashboard() {
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('dashboard').style.display = 'block';
   document.getElementById('user-badge').textContent = userEmail || 'guest';
-  await loadFromServer();
+  await Promise.all([loadFromServer(), loadPlannerFromServer()]);
   checkMonthRollover();
   checkWeeklyReset();
   applyTheme();
@@ -3470,15 +3470,8 @@ async function exportAllData() {
       snapshots = Object.entries(local).map(([month_label, snap]) => ({ month_label, snapshot_json: snap }));
     }
 
-    // 3 — planner data from localStorage (all sp_* keys)
-    const plannerData = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('sp_')) {
-        try { plannerData[key] = JSON.parse(localStorage.getItem(key)); }
-        catch(e) { plannerData[key] = localStorage.getItem(key); }
-      }
-    }
+    // 3 — planner data from server memory (plannerDB)
+    const plannerData = plannerDB || {};
 
     // 4 — assemble full export
     const exportObj = {
@@ -3977,22 +3970,144 @@ function pFmtDate(offset) {
   return PDAY_NAMES[d.getDay()] + ' · ' + d.getDate() + ' ' + PMON_NAMES[d.getMonth()];
 }
 
+// ── PLANNER SERVER STORAGE ────────────────────────────────────────────────────
+// plannerDB is the in-memory cache of the full planner state from the server.
+// Structure: { persist: { goals, matrix, notes }, days: { "YYYY-MM-DD": { tasks, agenda }, ... }, promoted: {} }
+let plannerDB = null;
+let plannerSaveTimer = null;
+
+function schedulePlannerSave() {
+  clearTimeout(plannerSaveTimer);
+  plannerSaveTimer = setTimeout(savePlannerToServer, 1500);
+}
+
+async function savePlannerToServer() {
+  if (!token || isGuest) return;
+  try {
+    await apiReq('/planner', 'POST', { planner: plannerDB });
+  } catch(e) {
+    console.warn('Planner save failed:', e.message);
+  }
+}
+
+async function loadPlannerFromServer() {
+  if (!token || isGuest) {
+    // guest: use localStorage as before
+    plannerDB = buildPlannerDBFromLocalStorage();
+    return;
+  }
+  try {
+    const { planner } = await apiReq('/planner');
+    if (planner && Object.keys(planner).length > 0) {
+      // server has data — use it
+      plannerDB = planner;
+      // ensure structure
+      if (!plannerDB.persist) plannerDB.persist = {};
+      if (!plannerDB.days)    plannerDB.days    = {};
+      if (!plannerDB.promoted) plannerDB.promoted = {};
+    } else {
+      // server empty — check localStorage for migration
+      const local = buildPlannerDBFromLocalStorage();
+      if (local && Object.keys(local.persist).length > 0 || Object.keys(local.days).length > 0) {
+        plannerDB = local;
+        // migrate: push to server silently
+        await savePlannerToServer();
+        // clean up localStorage sp_* keys
+        const toDelete = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('sp_')) toDelete.push(k);
+        }
+        toDelete.forEach(k => localStorage.removeItem(k));
+        showToast('Planner data migrated to server ✓', 'success');
+      } else {
+        plannerDB = { persist: {}, days: {}, promoted: {} };
+      }
+    }
+  } catch(e) {
+    console.warn('Planner load failed, falling back to localStorage:', e.message);
+    plannerDB = buildPlannerDBFromLocalStorage();
+  }
+}
+
+function buildPlannerDBFromLocalStorage() {
+  const db = { persist: {}, days: {}, promoted: {} };
+  // persist fields
+  ['goals','matrix','notes'].forEach(field => {
+    const raw = localStorage.getItem('sp_persist_' + field);
+    if (raw) { try { db.persist[field] = JSON.parse(raw); } catch(e) {} }
+  });
+  // day-specific keys
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith('sp_')) continue;
+    if (key.startsWith('sp_persist_')) continue;
+    // sp_tasks_YYYY-MM-DD
+    const tasksMatch = key.match(/^sp_tasks_(\d{4}-\d{2}-\d{2})$/);
+    if (tasksMatch) {
+      const date = tasksMatch[1];
+      if (!db.days[date]) db.days[date] = {};
+      try { db.days[date].tasks = JSON.parse(localStorage.getItem(key)); } catch(e) {}
+      continue;
+    }
+    // sp_tasks_tmr_YYYY-MM-DD
+    const tmrMatch = key.match(/^sp_tasks_tmr_(\d{4}-\d{2}-\d{2})$/);
+    if (tmrMatch) {
+      const date = tmrMatch[1];
+      if (!db.days[date]) db.days[date] = {};
+      try { db.days[date].tasks_tmr = JSON.parse(localStorage.getItem(key)); } catch(e) {}
+      continue;
+    }
+    // sp_agenda_YYYY-MM-DD
+    const agendaMatch = key.match(/^sp_agenda_(\d{4}-\d{2}-\d{2})$/);
+    if (agendaMatch) {
+      const date = agendaMatch[1];
+      if (!db.days[date]) db.days[date] = {};
+      try { db.days[date].agenda = JSON.parse(localStorage.getItem(key)); } catch(e) {}
+      continue;
+    }
+    // sp_promoted_YYYY-MM-DD
+    const promMatch = key.match(/^sp_promoted_(\d{4}-\d{2}-\d{2})$/);
+    if (promMatch) {
+      db.promoted[promMatch[1]] = true;
+      continue;
+    }
+  }
+  return db;
+}
+
+// ── PLANNER DATA ACCESSORS ────────────────────────────────────────────────────
 function getPlannerData(key) {
-  const raw = localStorage.getItem('sp_' + key);
-  return raw ? JSON.parse(raw) : null;
+  // key is like "tasks_2026-03-22" or "agenda_2026-03-22" or "tasks_tmr_2026-03-23"
+  const tasksMatch  = key.match(/^tasks_(\d{4}-\d{2}-\d{2})$/);
+  const tmrMatch    = key.match(/^tasks_tmr_(\d{4}-\d{2}-\d{2})$/);
+  const agendaMatch = key.match(/^agenda_(\d{4}-\d{2}-\d{2})$/);
+  if (tasksMatch)  return plannerDB?.days?.[tasksMatch[1]]?.tasks  || null;
+  if (tmrMatch)    return plannerDB?.days?.[tmrMatch[1]]?.tasks_tmr || null;
+  if (agendaMatch) return plannerDB?.days?.[agendaMatch[1]]?.agenda || null;
+  return null;
 }
 
 function setPlannerData(key, val) {
-  localStorage.setItem('sp_' + key, JSON.stringify(val));
+  const tasksMatch  = key.match(/^tasks_(\d{4}-\d{2}-\d{2})$/);
+  const tmrMatch    = key.match(/^tasks_tmr_(\d{4}-\d{2}-\d{2})$/);
+  const agendaMatch = key.match(/^agenda_(\d{4}-\d{2}-\d{2})$/);
+  if (!plannerDB) plannerDB = { persist:{}, days:{}, promoted:{} };
+  if (tasksMatch)  { const d=tasksMatch[1];  if(!plannerDB.days[d]) plannerDB.days[d]={}; plannerDB.days[d].tasks    = val; }
+  if (tmrMatch)    { const d=tmrMatch[1];    if(!plannerDB.days[d]) plannerDB.days[d]={}; plannerDB.days[d].tasks_tmr = val; }
+  if (agendaMatch) { const d=agendaMatch[1]; if(!plannerDB.days[d]) plannerDB.days[d]={}; plannerDB.days[d].agenda   = val; }
+  schedulePlannerSave();
 }
 
-// Persisted keys (not day-specific)
 function pGetPersist(field) {
-  const raw = localStorage.getItem('sp_persist_' + field);
-  return raw ? JSON.parse(raw) : null;
+  return plannerDB?.persist?.[field] || null;
 }
+
 function pSetPersist(field, val) {
-  localStorage.setItem('sp_persist_' + field, JSON.stringify(val));
+  if (!plannerDB) plannerDB = { persist:{}, days:{}, promoted:{} };
+  if (!plannerDB.persist) plannerDB.persist = {};
+  plannerDB.persist[field] = val;
+  schedulePlannerSave();
 }
 
 function pTogSec(id) { document.getElementById(id).classList.toggle('popen'); }
@@ -4158,14 +4273,17 @@ function pDelTmrTask(i) {
 
 // Auto-promote tomorrow tasks to today at midnight
 function pCheckMidnightPromotion() {
-  const todayKey  = pDateKey(0);
-  const tmrKey    = 'tasks_tmr_' + todayKey; // tasks saved for today (were tomorrow yesterday)
-  const todayTasks = getPlannerData('tasks_' + todayKey) || [];
-  const promoted   = getPlannerData(tmrKey) || [];
-  if (promoted.length && !localStorage.getItem('sp_promoted_' + todayKey)) {
-    const merged = [...promoted, ...todayTasks];
-    setPlannerData('tasks_' + todayKey, merged);
-    localStorage.setItem('sp_promoted_' + todayKey, '1');
+  const todayKey   = pDateKey(0);
+  const tmrData    = plannerDB?.days?.[todayKey]?.tasks_tmr || [];
+  const alreadyDone = plannerDB?.promoted?.[todayKey];
+  if (tmrData.length && !alreadyDone) {
+    const todayTasks = plannerDB?.days?.[todayKey]?.tasks || [];
+    const merged = [...tmrData, ...todayTasks];
+    if (!plannerDB.days[todayKey]) plannerDB.days[todayKey] = {};
+    plannerDB.days[todayKey].tasks = merged;
+    if (!plannerDB.promoted) plannerDB.promoted = {};
+    plannerDB.promoted[todayKey] = true;
+    schedulePlannerSave();
   }
 }
 
@@ -4396,6 +4514,7 @@ document.getElementById('plan-next')?.addEventListener('click', () => { plannerD
 
 // Init planner when tab is switched to
 function initPlanner() {
+  // plannerDB already loaded by enterDashboard — just render
   pCheckMidnightPromotion();
   pSetView('day');
   pRenderWeekGrid();
