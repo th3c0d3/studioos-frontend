@@ -4279,6 +4279,17 @@ function pRenderTasksToday() {
     </div>`;
   }).join('') || `<div style="font-size:10px;color:var(--text3);letter-spacing:1px">No tasks for today</div>`;
   document.getElementById('ptask-today-count').textContent = tasks.length ? done+'/'+tasks.length+' done' : '';
+  // update section title to show actual date when not today
+  const todayTitleEl = document.querySelector('#pls3 .psec-title');
+  if (todayTitleEl) {
+    const d = new Date(); d.setDate(d.getDate() + plannerDayOffset);
+    const MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const lbl = plannerDayOffset === 0 ? 'Tasks — Today'
+      : plannerDayOffset === -1 ? 'Tasks — Yesterday'
+      : plannerDayOffset === 1  ? 'Tasks — Tomorrow'
+      : `Tasks — ${MONS[d.getMonth()]} ${d.getDate()}`;
+    todayTitleEl.childNodes[0].textContent = lbl + ' ';
+  }
 }
 
 function pAddTaskToday() {
@@ -4323,23 +4334,33 @@ function pDelTask(key, i) {
 }
 
 function pRenderTasksTmr() {
-  const key = pDateKey(1);
+  const key = pDateKey(plannerDayOffset + 1);
   const tasks = getPlannerData('tasks_tmr_' + key) || [];
   const el = document.getElementById('ptask-tmr-list');
   if (!el) return;
+  const isRO = plannerDayOffset < 0;
   el.innerHTML = tasks.map((t,i) => `
     <div class="ptask ${t.done?'pdone':''}">
       <div class="ptask-chk" style="opacity:.4"></div>
       <div class="ptask-text">${t.text}</div>
-      <button class="pxbtn" onclick="pDelTmrTask(${i})">✕</button>
+      ${!isRO ? `<button class="pxbtn" onclick="pDelTmrTask(${i})">✕</button>` : ''}
     </div>`).join('') || `<div style="font-size:10px;color:var(--text3);letter-spacing:1px">No tasks for tomorrow yet</div>`;
   document.getElementById('ptask-tmr-count').textContent = tasks.length || '';
+  // update section title to show actual date
+  const tmrDateEl = document.querySelector('#pls4 .psec-title');
+  if (tmrDateEl) {
+    const d = new Date(); d.setDate(d.getDate() + plannerDayOffset + 1);
+    const MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const lbl = plannerDayOffset === 0 ? 'Tasks — Tomorrow'
+      : `Tasks — ${MONS[d.getMonth()]} ${d.getDate()}`;
+    tmrDateEl.childNodes[0].textContent = lbl + ' ';
+  }
 }
 
 function pAddTaskTmr() {
   const inp = document.getElementById('ptask-tmr-inp');
   const v = inp.value.trim(); if (!v) return;
-  const key = pDateKey(1);
+  const key = pDateKey(plannerDayOffset + 1);
   const tasks = getPlannerData('tasks_tmr_' + key) || [];
   tasks.push({text:v, done:false, quadrant:null});
   setPlannerData('tasks_tmr_' + key, tasks);
@@ -4347,7 +4368,7 @@ function pAddTaskTmr() {
 }
 
 function pDelTmrTask(i) {
-  const key = pDateKey(1);
+  const key = pDateKey(plannerDayOffset + 1);
   const tasks = getPlannerData('tasks_tmr_' + key) || [];
   tasks.splice(i, 1); setPlannerData('tasks_tmr_' + key, tasks); pRenderTasksTmr();
 }
