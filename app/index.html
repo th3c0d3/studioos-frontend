@@ -4050,6 +4050,7 @@ async function loadPlannerFromServer() {
       if (!plannerDB.persist) plannerDB.persist = {};
       if (!plannerDB.days)    plannerDB.days    = {};
       if (!plannerDB.promoted) plannerDB.promoted = {};
+      if (!plannerDB.carried)  plannerDB.carried  = {};
     } else {
       // server empty — check localStorage for migration
       const local = buildPlannerDBFromLocalStorage();
@@ -4066,7 +4067,7 @@ async function loadPlannerFromServer() {
         toDelete.forEach(k => localStorage.removeItem(k));
         showToast('Planner data migrated to server ✓', 'success');
       } else {
-        plannerDB = { persist: {}, days: {}, promoted: {} };
+        plannerDB = { persist: {}, days: {}, promoted: {}, carried: {} };
       }
     }
   } catch(e) {
@@ -4076,7 +4077,7 @@ async function loadPlannerFromServer() {
 }
 
 function buildPlannerDBFromLocalStorage() {
-  const db = { persist: {}, days: {}, promoted: {} };
+  const db = { persist: {}, days: {}, promoted: {}, carried: {} };
   // persist fields
   ['goals','matrix','notes'].forEach(field => {
     const raw = localStorage.getItem('sp_persist_' + field);
@@ -4137,7 +4138,7 @@ function setPlannerData(key, val) {
   const tasksMatch  = key.match(/^tasks_(\d{4}-\d{2}-\d{2})$/);
   const tmrMatch    = key.match(/^tasks_tmr_(\d{4}-\d{2}-\d{2})$/);
   const agendaMatch = key.match(/^agenda_(\d{4}-\d{2}-\d{2})$/);
-  if (!plannerDB) plannerDB = { persist:{}, days:{}, promoted:{} };
+  if (!plannerDB) plannerDB = { persist:{}, days:{}, promoted:{}, carried:{} };
   if (tasksMatch)  { const d=tasksMatch[1];  if(!plannerDB.days[d]) plannerDB.days[d]={}; plannerDB.days[d].tasks    = val; }
   if (tmrMatch)    { const d=tmrMatch[1];    if(!plannerDB.days[d]) plannerDB.days[d]={}; plannerDB.days[d].tasks_tmr = val; }
   if (agendaMatch) { const d=agendaMatch[1]; if(!plannerDB.days[d]) plannerDB.days[d]={}; plannerDB.days[d].agenda   = val; }
@@ -4149,7 +4150,7 @@ function pGetPersist(field) {
 }
 
 function pSetPersist(field, val) {
-  if (!plannerDB) plannerDB = { persist:{}, days:{}, promoted:{} };
+  if (!plannerDB) plannerDB = { persist:{}, days:{}, promoted:{}, carried:{} };
   if (!plannerDB.persist) plannerDB.persist = {};
   plannerDB.persist[field] = val;
   schedulePlannerSave();
@@ -4278,6 +4279,7 @@ function pRenderTasksToday() {
       ondragstart="pTaskDragStart(event,${i},'${key}')">
       <div class="ptask-chk"></div>
       <div class="ptask-text">${t.text}</div>
+      ${t.carried ? `<span class="ptask-carried">↩ carried</span>` : ''}
       ${!isRO ? `<button class="pxbtn" onclick="event.stopPropagation();pDelTask('${key}',${i})">✕</button>` : ''}
     </div>`;
   }).join('') || `<div style="font-size:10px;color:var(--text3);letter-spacing:1px">No tasks for today</div>`;
@@ -4402,6 +4404,34 @@ function pCheckMidnightPromotion() {
     plannerDB.promoted[todayKey] = true;
     schedulePlannerSave();
   }
+}
+
+// ── DAILY CARRY-OVER (unfinished tasks → next day) ────────────────────────────
+function pCheckCarryOver() {
+  const todayKey     = pDateKey(0);
+  const yesterdayKey = pDateKey(-1);
+  if (plannerDB?.carried?.[todayKey]) return;
+
+  const yesterdayTasks = plannerDB?.days?.[yesterdayKey]?.tasks || [];
+  const unfinished = yesterdayTasks.filter(t => !t.done);
+  if (!plannerDB.carried) plannerDB.carried = {};
+
+  if (!unfinished.length) {
+    plannerDB.carried[todayKey] = true;
+    schedulePlannerSave();
+    return;
+  }
+
+  const todayTasks  = plannerDB?.days?.[todayKey]?.tasks || [];
+  const todayTexts  = new Set(todayTasks.map(t => t.text));
+  const toCarry     = unfinished
+    .filter(t => !todayTexts.has(t.text))
+    .map(t => ({...t, done: false, carried: true}));
+
+  if (!plannerDB.days[todayKey]) plannerDB.days[todayKey] = {};
+  plannerDB.days[todayKey].tasks = [...toCarry, ...todayTasks];
+  plannerDB.carried[todayKey] = true;
+  schedulePlannerSave();
 }
 
 // ── UNIFIED MATRIX DATA MODEL ─────────────────────────────────────────────────
@@ -4790,6 +4820,7 @@ document.getElementById('plan-next')?.addEventListener('click', () => { plannerD
 function initPlanner() {
   // plannerDB already loaded by enterDashboard — just render
   pCheckMidnightPromotion();
+  pCheckCarryOver();
   pSetView('day');
   pRenderWeekGrid();
 }
