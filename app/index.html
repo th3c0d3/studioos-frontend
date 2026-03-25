@@ -1754,14 +1754,16 @@ function checkMonthRollover() {
 }
 
 function checkWeeklyReset() {
-  const now = new Date(), day = now.getDay();
-  if (day === 1) {
-    const last = new Date(state.fitness.lastReset || 0);
-    if (Math.floor((now - last) / 86400000) >= 7) {
-      state.fitness.days.forEach(d => d.done = false);
-      state.fitness.lastReset = now.toISOString();
-      scheduleSave();
-    }
+  const now = new Date();
+  const dow = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+  monday.setHours(0, 0, 0, 0);
+  const last = new Date(state.fitness.lastReset || 0);
+  if (last < monday) {
+    state.fitness.days.forEach(d => d.done = false);
+    state.fitness.lastReset = now.toISOString();
+    scheduleSave();
   }
 }
 
