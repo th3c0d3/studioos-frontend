@@ -946,6 +946,18 @@ body.amiga #focusMode .focus-badge{color:#ffff00;border-color:#ffff00;background
 .ntag.nsel{opacity:1}
 .ntag-add{background:transparent;color:var(--text3);border:1px dashed var(--border2);font-size:9px;padding:3px 9px;border-radius:3px;cursor:pointer;letter-spacing:1px;transition:all .2s;font-family:var(--font)}
 .ntag-add:hover{border-color:var(--blue);color:var(--blue)}
+.ntag-manage-btn{background:transparent;border:1px solid var(--border);color:var(--text3);padding:3px 9px;font-size:9px;letter-spacing:1px;border-radius:3px;cursor:pointer;font-family:var(--font);transition:all .2s}
+.ntag-manage-btn:hover{border-color:var(--red);color:var(--red)}
+.ntag-manage-btn.nmactive{background:rgba(255,45,85,.08);border-color:rgba(255,45,85,.3);color:var(--red)}
+.ntag-del-x{width:14px;height:14px;border-radius:50%;background:rgba(255,45,85,.15);border:1px solid rgba(255,45,85,.3);color:var(--red);display:none;align-items:center;justify-content:center;cursor:pointer;font-size:9px;font-weight:900;flex-shrink:0;transition:all .2s;line-height:1}
+.ntag-del-x:hover{background:rgba(255,45,85,.3)}
+.ntag-manage-active .ntag-del-x{display:flex}
+.ntag-confirm-row{display:none;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,45,85,.07);border-top:1px solid rgba(255,45,85,.15);font-size:10px;color:var(--red);flex-shrink:0}
+.ntag-confirm-row.show{display:flex}
+.ntag-confirm-msg{flex:1;letter-spacing:.3px}
+.ntag-conf-yes{background:rgba(255,45,85,.15);border:1px solid rgba(255,45,85,.3);color:var(--red);padding:3px 10px;font-size:9px;font-weight:700;border-radius:2px;cursor:pointer;font-family:var(--font);transition:all .2s}
+.ntag-conf-yes:hover{background:rgba(255,45,85,.3)}
+.ntag-conf-no{background:transparent;border:1px solid var(--border);color:var(--text3);padding:3px 10px;font-size:9px;font-weight:700;border-radius:2px;cursor:pointer;font-family:var(--font)}
 .ni-tag{font-size:9px;padding:2px 7px;border-radius:8px;letter-spacing:.3px;font-weight:600}
 .etr-tag{font-size:8px;padding:2px 8px;border-radius:10px;display:flex;align-items:center;gap:4px}
 .etr-add{font-size:8px;color:var(--text3);border:1px dashed var(--border2);padding:2px 8px;border-radius:10px;cursor:pointer;transition:all .2s;font-family:var(--font)}
@@ -1373,7 +1385,13 @@ body.amiga .note-item.nact .ni-title{color:#0055aa}
         <div class="notes-search-row">
           <input class="notes-search" id="notes-search" placeholder="Search notes..." oninput="notesSearch(this.value)"/>
           <div class="ntag-add" onclick="notesNewTag()" title="Create new tag">+ tag</div>
+          <button class="ntag-manage-btn" id="notes-manage-btn" onclick="notesToggleManage()" title="Manage tags">✎ manage</button>
           <button class="notes-new-btn" onclick="notesNew()">+ NEW</button>
+        </div>
+        <div class="ntag-confirm-row" id="ntag-confirm-row">
+          <div class="ntag-confirm-msg" id="ntag-confirm-msg"></div>
+          <button class="ntag-conf-yes" onclick="notesConfirmDeleteTag()">Delete</button>
+          <button class="ntag-conf-no" onclick="notesCancelDeleteTag()">Cancel</button>
         </div>
         <div class="notes-tags-bar" id="notes-tags-bar">
           <div class="ntag nsel" id="ntag-all" style="background:rgba(0,207,255,.12);color:var(--blue);border:1px solid rgba(0,207,255,.25)" onclick="notesFilterTag('all')">All</div>
@@ -5020,10 +5038,12 @@ async function notesLoad() {
 function notesRenderTagBar() {
   const bar = document.getElementById('notes-tags-bar');
   if (!bar) return;
+  const manageActive = document.getElementById('notes-manage-btn')?.classList.contains('nmactive');
+  bar.className = 'notes-tags-bar' + (manageActive ? ' ntag-manage-active' : '');
   bar.innerHTML = `<div class="ntag nsel" id="ntag-all" style="background:rgba(0,207,255,.12);color:var(--blue);border:1px solid rgba(0,207,255,.25)" onclick="notesFilterTag('all')">All</div>
   ${noteTagsData.map(t => {
     const s = noteTagStyle(t.name);
-    return `<div class="ntag" id="ntag-${t.name}" style="${s}" onclick="notesFilterTag('${t.name}')">${t.name}</div>`;
+    return `<div class="ntag" id="ntag-${t.name}" style="${s};display:flex;align-items:center;gap:5px" onclick="notesFilterTag('${t.name}')">${t.name}<span class="ntag-del-x" onclick="event.stopPropagation();notesAskDeleteTag('${t.name}')">✕</span></div>`;
   }).join('')}`;
   notesFilterTag(notesFilter, false);
 }
@@ -5227,8 +5247,55 @@ async function notesNewTag() {
   } catch(e) { showToast('Could not create tag', 'error'); }
 }
 
-function notesRemoveTag(tag) {
-  notesToggleTag(tag);
+// manage mode
+let notesManageMode = false;
+let notesTagToDelete = null;
+
+function notesToggleManage() {
+  notesManageMode = !notesManageMode;
+  const btn = document.getElementById('notes-manage-btn');
+  if (btn) btn.classList.toggle('nmactive', notesManageMode);
+  // hide confirm row when toggling off
+  if (!notesManageMode) {
+    notesCancelDeleteTag();
+  }
+  notesRenderTagBar();
+}
+
+function notesAskDeleteTag(tagName) {
+  notesTagToDelete = tagName;
+  const row = document.getElementById('ntag-confirm-row');
+  const msg = document.getElementById('ntag-confirm-msg');
+  if (row) row.classList.add('show');
+  if (msg) msg.textContent = `Delete "${tagName}" permanently? Removes from all notes.`;
+}
+
+function notesCancelDeleteTag() {
+  notesTagToDelete = null;
+  const row = document.getElementById('ntag-confirm-row');
+  if (row) row.classList.remove('show');
+}
+
+async function notesConfirmDeleteTag() {
+  if (!notesTagToDelete) return;
+  const tagName = notesTagToDelete;
+  notesCancelDeleteTag();
+  try {
+    await apiReq(`/note-tags/${encodeURIComponent(tagName)}`, 'DELETE');
+    noteTagsData = noteTagsData.filter(t => t.name !== tagName);
+    // remove from all notes locally
+    notesData.forEach(n => { n.tags = (n.tags||[]).filter(t => t !== tagName); });
+    // if filtering by this tag, reset to all
+    if (notesFilter === tagName) notesFilter = 'all';
+    notesRenderTagBar();
+    notesRenderList();
+    // refresh open note tags if affected
+    if (activeNoteId) {
+      const n = notesData.find(x => x.id === activeNoteId);
+      if (n) notesRenderNoteTags(n.tags||[]);
+    }
+    showToast(`Tag "${tagName}" deleted`, 'success');
+  } catch(e) { showToast('Could not delete tag', 'error'); }
 }
 
 // rich text formatting
